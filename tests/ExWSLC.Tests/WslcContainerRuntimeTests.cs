@@ -59,4 +59,16 @@ public class WslcContainerRuntimeTests
         var result = new OperationResult(true, 0, "not-json", string.Empty, "wslc list");
         Assert.Empty(WslcContainerRuntime.ParseArray(result, element => element.ToString()));
     }
+
+    [Theory]
+    [InlineData("0", "Invalid")]
+    [InlineData("1", "Created")]
+    [InlineData("2", "Running")]
+    [InlineData("3", "Exited")]
+    [InlineData("4", "Deleted")]
+    [InlineData("Paused", "Paused")]
+    public void NormalizeContainerState_HandlesPreviewNumericEnum(string input, string expected)
+    {
+        Assert.Equal(expected, WslcContainerRuntime.NormalizeContainerState(input));
+    }
 }

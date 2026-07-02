@@ -225,7 +225,22 @@ public partial class MainViewModel : ObservableObject, IDisposable
         if (SelectedContainer is null) return;
         var path = _interaction.PickSaveFile("Export container", "Tar archive (*.tar)|*.tar", $"{SelectedContainer.Name}.tar");
         if (path is null) return;
-        ShowResult(await RunTrackedAsync("Export container", (progress, token) => _runtime.ExportContainerAsync(SelectedContainer.Id, path, progress, token)));
+        var restartAfterExport = SelectedContainer.IsRunning;
+        if (restartAfterExport)
+        {
+            if (!_interaction.Confirm("Export container", "WSLC requires the container to be stopped for export. Stop it temporarily and restart it afterwards?")) return;
+            var stop = await _runtime.StopContainerAsync(SelectedContainer.Id, _lifetime.Token);
+            if (!stop.Success) { ShowResult(stop); return; }
+        }
+
+        var export = await RunTrackedAsync("Export container", (progress, token) => _runtime.ExportContainerAsync(SelectedContainer.Id, path, progress, token));
+        ShowResult(export);
+        if (restartAfterExport)
+        {
+            var start = await _runtime.StartContainerAsync(SelectedContainer.Id, _lifetime.Token);
+            if (!start.Success) ShowResult(start);
+            await RefreshAllAsync();
+        }
     }
 
     [RelayCommand]

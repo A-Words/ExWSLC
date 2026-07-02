@@ -13,6 +13,7 @@ public sealed record ContainerSummary(
     string Created)
 {
     public bool IsRunning => State.Equals("running", StringComparison.OrdinalIgnoreCase) ||
+                             State == "2" ||
                              Status.StartsWith("Up", StringComparison.OrdinalIgnoreCase);
 }
 

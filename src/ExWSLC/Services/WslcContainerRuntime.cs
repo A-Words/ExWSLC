@@ -15,7 +15,7 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner) : IContai
             element.ReadString("Id", "ID", "ContainerId"),
             element.ReadString("Name", "Names"),
             element.ReadString("Image"),
-            element.ReadString("State"),
+            NormalizeContainerState(element.ReadString("State")),
             element.ReadString("Status"),
             element.ReadString("Ports"),
             element.ReadString("Created", "CreatedAt", "CreatedSince")));
@@ -58,7 +58,7 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner) : IContai
         return ParseArray(result, element => new ContainerStats(
             element.ReadString("Id", "ID", "ContainerId"),
             element.ReadString("Name"),
-            element.ReadString("Cpu", "CPU", "CpuPercent", "CPU %"),
+            element.ReadString("Cpu", "CPU", "CpuPercent", "CPUPerc", "CPU %"),
             element.ReadString("Memory", "MemUsage", "MemoryUsage"),
             element.ReadString("NetworkIo", "NetIO", "Network I/O"),
             element.ReadString("BlockIo", "BlockIO", "Block I/O"),
@@ -220,6 +220,16 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner) : IContai
             return [];
         }
     }
+
+    internal static string NormalizeContainerState(string state) => state switch
+    {
+        "0" => "Invalid",
+        "1" => "Created",
+        "2" => "Running",
+        "3" => "Exited",
+        "4" => "Deleted",
+        _ => state
+    };
 
     private Task<OperationResult> RunAsync(IReadOnlyList<string> arguments, IProgress<string>? progress = null, CancellationToken cancellationToken = default) =>
         processRunner.ExecuteAsync(Executable, arguments, progress: progress, cancellationToken: cancellationToken);

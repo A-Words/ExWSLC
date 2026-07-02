@@ -9,6 +9,7 @@
     <Version>0.1.0-preview</Version>
     <Authors>ExWSLC contributors</Authors>
     <WindowsSdkPackageVersion>10.0.26100.80</WindowsSdkPackageVersion>
+    <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
   </PropertyGroup>
 
   <ItemGroup>
