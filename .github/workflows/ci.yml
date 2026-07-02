@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - run: dotnet restore ExWSLC.sln
+      - run: dotnet build ExWSLC.sln -c Release --no-restore
+      - run: dotnet test ExWSLC.sln -c Release --no-build
+
+  publish:
+    runs-on: windows-latest
+    needs: build-test
+    strategy:
+      matrix:
+        runtime: [win-x64, win-arm64]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - run: dotnet publish src/ExWSLC/ExWSLC.csproj -c Release -r ${{ matrix.runtime }} --self-contained true -o artifacts/${{ matrix.runtime }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ExWSLC-${{ matrix.runtime }}
+          path: artifacts/${{ matrix.runtime }}
