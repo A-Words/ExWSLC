@@ -28,22 +28,27 @@ public interface IContainerRuntime
     Task<OperationResult> ExportContainerAsync(string id, string path, IProgress<string>? progress = null, CancellationToken cancellationToken = default);
     Task<OperationResult> InspectContainerAsync(string id, CancellationToken cancellationToken = default);
     Task<OperationResult> GetLogsAsync(string id, int tail = 300, CancellationToken cancellationToken = default);
+    Task<OperationResult> FollowLogsAsync(string id, IProgress<string>? progress = null, CancellationToken cancellationToken = default);
     Task<OperationResult> ExecAsync(string id, string command, IProgress<string>? progress = null, CancellationToken cancellationToken = default);
     Task<OperationResult> PullImageAsync(string image, IProgress<string>? progress = null, CancellationToken cancellationToken = default);
     Task<OperationResult> BuildImageAsync(string path, string tag, string dockerfile, IProgress<string>? progress = null, CancellationToken cancellationToken = default);
     Task<OperationResult> ImportImageAsync(string path, string name, IProgress<string>? progress = null, CancellationToken cancellationToken = default);
+    Task<OperationResult> LoadImageAsync(string path, IProgress<string>? progress = null, CancellationToken cancellationToken = default);
     Task<OperationResult> SaveImageAsync(string image, string path, IProgress<string>? progress = null, CancellationToken cancellationToken = default);
     Task<OperationResult> TagImageAsync(string image, string tag, CancellationToken cancellationToken = default);
     Task<OperationResult> PushImageAsync(string image, IProgress<string>? progress = null, CancellationToken cancellationToken = default);
     Task<OperationResult> RemoveImageAsync(string image, bool force, CancellationToken cancellationToken = default);
+    Task<OperationResult> InspectImageAsync(string image, CancellationToken cancellationToken = default);
     Task<OperationResult> PruneAsync(string resource, CancellationToken cancellationToken = default);
     Task<OperationResult> CreateNetworkAsync(string name, CancellationToken cancellationToken = default);
     Task<OperationResult> RemoveNetworkAsync(string name, CancellationToken cancellationToken = default);
     Task<OperationResult> CreateVolumeAsync(string name, CancellationToken cancellationToken = default);
     Task<OperationResult> RemoveVolumeAsync(string name, CancellationToken cancellationToken = default);
+    Task<OperationResult> InspectResourceAsync(string resource, string name, CancellationToken cancellationToken = default);
     Task<OperationResult> RegistryLoginAsync(string server, string username, string password, CancellationToken cancellationToken = default);
     void OpenInteractiveTerminal(string containerId);
     void OpenNativeSettings();
+    Task<OperationResult> ResetNativeSettingsAsync(CancellationToken cancellationToken = default);
 }
 
 public interface IRuntimeCapabilityService
@@ -65,4 +70,13 @@ public interface ITaskService
     event EventHandler? TasksChanged;
     Task<OperationResult> RunAsync(string title, Func<IProgress<string>, CancellationToken, Task<OperationResult>> operation, CancellationToken cancellationToken = default);
     void ClearCompleted();
+}
+
+public interface IUserInteractionService
+{
+    bool Confirm(string title, string message);
+    void ShowError(string title, string message);
+    string? PickOpenFile(string title, string filter);
+    string? PickSaveFile(string title, string filter, string defaultName);
+    string? PickFolder(string title);
 }

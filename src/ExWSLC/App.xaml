@@ -1,9 +1,33 @@
-﻿<Application x:Class="ExWSLC.App"
+<Application x:Class="ExWSLC.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:ExWSLC"
-             StartupUri="MainWindow.xaml">
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+            <Style x:Key="CardStyle" TargetType="Border">
+                <Setter Property="Background" Value="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}" />
+                <Setter Property="BorderBrush" Value="{ui:ThemeResource CardStrokeColorDefaultBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="10" />
+                <Setter Property="Padding" Value="18" />
+                <Setter Property="Margin" Value="0,0,12,12" />
+            </Style>
+            <Style x:Key="PageTitleStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="28" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="Margin" Value="0,0,0,18" />
+            </Style>
+            <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="17" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="Margin" Value="0,0,0,10" />
+            </Style>
+            <ResourceDictionary.MergedDictionaries>
+                <ui:ThemesDictionary Theme="Light" />
+                <ui:ControlsDictionary />
+                <ResourceDictionary Source="Resources/Strings.zh-CN.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

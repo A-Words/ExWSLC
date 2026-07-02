@@ -100,6 +100,9 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner) : IContai
     public Task<OperationResult> GetLogsAsync(string id, int tail = 300, CancellationToken cancellationToken = default) =>
         RunAsync(["container", "logs", "--tail", tail.ToString(), "--timestamps", id], cancellationToken: cancellationToken);
 
+    public Task<OperationResult> FollowLogsAsync(string id, IProgress<string>? progress = null, CancellationToken cancellationToken = default) =>
+        RunAsync(["container", "logs", "--follow", "--tail", "100", "--timestamps", id], progress: progress, cancellationToken: cancellationToken);
+
     public Task<OperationResult> ExecAsync(string id, string command, IProgress<string>? progress = null, CancellationToken cancellationToken = default) =>
         RunAsync(["exec", id, "/bin/sh", "-lc", command], progress: progress, cancellationToken: cancellationToken);
 
@@ -116,6 +119,9 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner) : IContai
 
     public Task<OperationResult> ImportImageAsync(string path, string name, IProgress<string>? progress = null, CancellationToken cancellationToken = default) =>
         RunAsync(["image", "import", path, name], progress: progress, cancellationToken: cancellationToken);
+
+    public Task<OperationResult> LoadImageAsync(string path, IProgress<string>? progress = null, CancellationToken cancellationToken = default) =>
+        RunAsync(["image", "load", path], progress: progress, cancellationToken: cancellationToken);
 
     public Task<OperationResult> SaveImageAsync(string image, string path, IProgress<string>? progress = null, CancellationToken cancellationToken = default) =>
         RunAsync(["image", "save", image, "--output", path], progress: progress, cancellationToken: cancellationToken);
@@ -134,6 +140,9 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner) : IContai
         return RunAsync(arguments, cancellationToken: cancellationToken);
     }
 
+    public Task<OperationResult> InspectImageAsync(string image, CancellationToken cancellationToken = default) =>
+        RunAsync(["image", "inspect", image], cancellationToken: cancellationToken);
+
     public Task<OperationResult> PruneAsync(string resource, CancellationToken cancellationToken = default) =>
         RunAsync([resource, "prune", "--force"], cancellationToken: cancellationToken);
 
@@ -149,6 +158,9 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner) : IContai
     public Task<OperationResult> RemoveVolumeAsync(string name, CancellationToken cancellationToken = default) =>
         RunAsync(["volume", "remove", name], cancellationToken: cancellationToken);
 
+    public Task<OperationResult> InspectResourceAsync(string resource, string name, CancellationToken cancellationToken = default) =>
+        RunAsync([resource, "inspect", name], cancellationToken: cancellationToken);
+
     public Task<OperationResult> RegistryLoginAsync(string server, string username, string password, CancellationToken cancellationToken = default) =>
         processRunner.ExecuteAsync(Executable, ["registry", "login", server, "--username", username, "--password-stdin"], password, cancellationToken: cancellationToken);
 
@@ -163,6 +175,9 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner) : IContai
     }
 
     public void OpenNativeSettings() => Process.Start(new ProcessStartInfo(Executable, "settings") { UseShellExecute = true });
+
+    public Task<OperationResult> ResetNativeSettingsAsync(CancellationToken cancellationToken = default) =>
+        RunAsync(["settings", "reset"], cancellationToken: cancellationToken);
 
     internal static IReadOnlyList<string> BuildRunArguments(ContainerCreateSpec spec)
     {

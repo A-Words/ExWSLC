@@ -1,0 +1,31 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+    <sys:String x:Key="NavOverview">Overview</sys:String><sys:String x:Key="NavContainers">Containers</sys:String>
+    <sys:String x:Key="NavImages">Images</sys:String><sys:String x:Key="NavResources">Networks &amp; volumes</sys:String>
+    <sys:String x:Key="NavTasks">Tasks</sys:String><sys:String x:Key="NavSettings">Settings</sys:String>
+    <sys:String x:Key="PreviewNotice">WSL Container Preview · APIs may change</sys:String><sys:String x:Key="Refresh">Refresh</sys:String>
+    <sys:String x:Key="OverviewTitle">WSL Container overview</sys:String><sys:String x:Key="Running">Running</sys:String>
+    <sys:String x:Key="Stopped">Stopped</sys:String><sys:String x:Key="Images">Images</sys:String>
+    <sys:String x:Key="Networks">Networks</sys:String><sys:String x:Key="Volumes">Volumes</sys:String>
+    <sys:String x:Key="Environment">Runtime environment</sys:String><sys:String x:Key="LiveStats">Live resource snapshot</sys:String>
+    <sys:String x:Key="ContainersTitle">Containers</sys:String><sys:String x:Key="Search">Search name, image, or ID</sys:String>
+    <sys:String x:Key="CreateContainer">Create and run a container</sys:String><sys:String x:Key="Image">Image</sys:String>
+    <sys:String x:Key="Name">Name</sys:String><sys:String x:Key="Command">Command</sys:String>
+    <sys:String x:Key="Advanced">Advanced options</sys:String><sys:String x:Key="Run">Run</sys:String>
+    <sys:String x:Key="Start">Start</sys:String><sys:String x:Key="Stop">Stop</sys:String><sys:String x:Key="Restart">Restart</sys:String>
+    <sys:String x:Key="Kill">Force stop</sys:String><sys:String x:Key="Remove">Remove</sys:String><sys:String x:Key="Export">Export</sys:String>
+    <sys:String x:Key="Logs">Logs</sys:String><sys:String x:Key="FollowLogs">Follow logs</sys:String><sys:String x:Key="StopFollowing">Stop following</sys:String><sys:String x:Key="Inspect">Inspect</sys:String><sys:String x:Key="Exec">Exec</sys:String>
+    <sys:String x:Key="Terminal">Interactive terminal</sys:String><sys:String x:Key="Output">Output &amp; diagnostics</sys:String>
+    <sys:String x:Key="ImagesTitle">Images</sys:String><sys:String x:Key="Pull">Pull</sys:String><sys:String x:Key="Build">Build</sys:String>
+    <sys:String x:Key="Import">Import</sys:String><sys:String x:Key="Load">Load</sys:String><sys:String x:Key="Save">Save</sys:String><sys:String x:Key="Tag">Tag</sys:String>
+    <sys:String x:Key="Push">Push</sys:String><sys:String x:Key="Prune">Prune unused</sys:String>
+    <sys:String x:Key="ResourceTitle">Networks &amp; volumes</sys:String><sys:String x:Key="Create">Create</sys:String>
+    <sys:String x:Key="TasksTitle">Background tasks</sys:String><sys:String x:Key="ClearCompleted">Clear completed</sys:String><sys:String x:Key="CancelCurrent">Cancel current task</sys:String>
+    <sys:String x:Key="SettingsTitle">Settings</sys:String><sys:String x:Key="Appearance">Appearance &amp; refresh</sys:String>
+    <sys:String x:Key="Language">Language</sys:String><sys:String x:Key="Theme">Theme</sys:String>
+    <sys:String x:Key="RefreshInterval">Refresh interval (seconds)</sys:String><sys:String x:Key="SaveSettings">Save settings</sys:String>
+    <sys:String x:Key="NativeSettings">Open native WSLC settings</sys:String><sys:String x:Key="ResetNativeSettings">Reset WSLC settings</sys:String><sys:String x:Key="InstallComponents">Install missing components</sys:String><sys:String x:Key="RegistryLogin">Container registry login</sys:String>
+    <sys:String x:Key="Server">Server</sys:String><sys:String x:Key="Username">Username</sys:String>
+    <sys:String x:Key="Password">Password or PAT</sys:String><sys:String x:Key="Login">Login</sys:String>
+</ResourceDictionary>
