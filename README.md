@@ -13,6 +13,10 @@ ExWSLC is a native Windows desktop manager for [WSL Container](https://learn.mic
 - Create, inspect, remove, and prune networks and named volumes.
 - Live `wslc stats`, task history and cancellation, registry login through `--password-stdin`, and native WSLC settings access.
 
+The navigation hierarchy and Fluent master-detail composition are inspired by
+[ExHyperV](https://github.com/Justsenger/ExHyperV). ExWSLC's views, resources,
+and product assets are implemented from scratch for the WSL Container workflow.
+
 ## Requirements
 
 - Windows 11 with WSL installed and updated to a release that includes `wslc.exe` (tested with WSL 2.9.3).

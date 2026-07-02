@@ -20,6 +20,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public ObservableCollection<ContainerSummary> Containers { get; } = [];
     public ObservableCollection<ContainerSummary> VisibleContainers { get; } = [];
     public ObservableCollection<ImageSummary> Images { get; } = [];
+    public ObservableCollection<ImageSummary> VisibleImages { get; } = [];
     public ObservableCollection<NetworkSummary> Networks { get; } = [];
     public ObservableCollection<VolumeSummary> Volumes { get; } = [];
     public ObservableCollection<ContainerStats> Stats { get; } = [];
@@ -30,6 +31,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty] private string _statusMessage = "Initializing…";
     [ObservableProperty] private string _detailOutput = string.Empty;
     [ObservableProperty] private string _searchText = string.Empty;
+    [ObservableProperty] private string _imageSearchText = string.Empty;
+    [ObservableProperty] private bool _isCreatingContainer;
     [ObservableProperty] private ContainerSummary? _selectedContainer;
     [ObservableProperty] private ImageSummary? _selectedImage;
     [ObservableProperty] private NetworkSummary? _selectedNetwork;
@@ -69,6 +72,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public int ImageCount => Images.Count;
     public int NetworkCount => Networks.Count;
     public int VolumeCount => Volumes.Count;
+    public int ActiveTaskCount => Tasks.Count(task => task.State is RuntimeTaskState.Running or RuntimeTaskState.Queued);
+    public bool HasSelectedImage => SelectedImage is not null;
+    public string SelectedImageDisplayName => SelectedImage?.DisplayName ??
+        (SelectedLanguage.Equals("en-US", StringComparison.OrdinalIgnoreCase) ? "Select an image" : "请选择镜像");
     public string VersionSummary => $"CLI: {Capabilities.CliVersion}  ·  SDK: {Capabilities.SdkVersion}";
 
     public MainViewModel(
@@ -120,6 +127,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
             Replace(Containers, containersTask.Result);
             ApplyContainerFilter();
             Replace(Images, imagesTask.Result);
+            ApplyImageFilter();
             Replace(Networks, networksTask.Result);
             Replace(Volumes, volumesTask.Result);
             Replace(Stats, statsTask.Result);
@@ -162,7 +170,11 @@ public partial class MainViewModel : ObservableObject, IDisposable
             var spec = BuildCreateSpec();
             var result = await RunTrackedAsync($"Run {spec.Image}", (progress, token) => _runtime.RunContainerAsync(spec, progress, token));
             ShowResult(result);
-            if (result.Success) await RefreshAllAsync();
+            if (result.Success)
+            {
+                IsCreatingContainer = false;
+                await RefreshAllAsync();
+            }
         }
         catch (ArgumentException exception)
         {
@@ -384,6 +396,15 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [RelayCommand] private void OpenNativeSettings() => _runtime.OpenNativeSettings();
 
     [RelayCommand]
+    private void ShowCreateContainer()
+    {
+        SelectedContainer = null;
+        IsCreatingContainer = true;
+    }
+
+    [RelayCommand] private void CancelCreateContainer() => IsCreatingContainer = false;
+
+    [RelayCommand]
     private async Task ResetNativeSettingsAsync()
     {
         if (!_interaction.Confirm("Reset WSLC settings", "Reset the native WSLC YAML settings to built-in defaults?")) return;
@@ -420,6 +441,17 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [RelayCommand] private void CancelCurrentOperation() => _currentOperation?.Cancel();
 
     partial void OnSearchTextChanged(string value) => ApplyContainerFilter();
+    partial void OnImageSearchTextChanged(string value) => ApplyImageFilter();
+    partial void OnSelectedContainerChanged(ContainerSummary? value)
+    {
+        if (value is not null) IsCreatingContainer = false;
+    }
+    partial void OnSelectedImageChanged(ImageSummary? value)
+    {
+        OnPropertyChanged(nameof(HasSelectedImage));
+        OnPropertyChanged(nameof(SelectedImageDisplayName));
+    }
+    partial void OnSelectedLanguageChanged(string value) => OnPropertyChanged(nameof(SelectedImageDisplayName));
     partial void OnCapabilitiesChanged(RuntimeCapabilities value) => OnPropertyChanged(nameof(VersionSummary));
 
     private async Task RunContainerActionAsync(string title, Func<string, Task<OperationResult>> operation)
@@ -484,6 +516,14 @@ public partial class MainViewModel : ObservableObject, IDisposable
             container.Name.Contains(query, StringComparison.OrdinalIgnoreCase) ||
             container.Image.Contains(query, StringComparison.OrdinalIgnoreCase) ||
             container.Id.Contains(query, StringComparison.OrdinalIgnoreCase)));
+    }
+
+    private void ApplyImageFilter()
+    {
+        var query = ImageSearchText.Trim();
+        Replace(VisibleImages, Images.Where(image => string.IsNullOrEmpty(query) ||
+            image.DisplayName.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+            image.Id.Contains(query, StringComparison.OrdinalIgnoreCase)));
     }
 
     private void OnTasksChanged(object? sender, EventArgs eventArgs) => App.Current.Dispatcher.Invoke(SyncTasks);

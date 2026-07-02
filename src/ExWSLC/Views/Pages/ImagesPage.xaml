@@ -1,0 +1,41 @@
+<Page x:Class="ExWSLC.Views.Pages.ImagesPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      x:Name="RootPage" Background="Transparent">
+    <Page.Resources>
+        <DataTemplate x:Key="ImageListTemplate">
+            <Grid Margin="2,6"><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/></Grid.ColumnDefinitions><ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xE7B8;" FontSize="17" Margin="0,0,10,0"/><StackPanel Grid.Column="1"><TextBlock Text="{Binding DisplayName}" FontSize="13" TextTrimming="CharacterEllipsis"/><TextBlock Text="{Binding Size}" Style="{StaticResource MutedTextStyle}"/></StackPanel></Grid>
+        </DataTemplate>
+    </Page.Resources>
+    <Grid Margin="12">
+        <Grid.ColumnDefinitions><ColumnDefinition Width="260" MinWidth="210" MaxWidth="330"/><ColumnDefinition Width="12"/><ColumnDefinition/></Grid.ColumnDefinitions>
+        <Border Style="{StaticResource LayerCardStyle}" Margin="0" Padding="0">
+            <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                <ui:TextBox Margin="8" PlaceholderText="{DynamicResource SearchImages}" ClearButtonEnabled="True" Text="{Binding ImageSearchText, UpdateSourceTrigger=PropertyChanged}"/>
+                <ui:ListView Grid.Row="1" ItemsSource="{Binding VisibleImages}" SelectedItem="{Binding SelectedImage}" ItemTemplate="{StaticResource ImageListTemplate}" Margin="4,0"/>
+                <ui:Button Grid.Row="2" Content="{DynamicResource Prune}" Icon="{ui:SymbolIcon Symbol=Delete24}" Appearance="Secondary" Command="{Binding PruneCommand}" CommandParameter="image" Margin="8" HorizontalAlignment="Stretch"/>
+            </Grid>
+        </Border>
+        <GridSplitter Grid.Column="1" Width="12" Background="Transparent"/>
+        <Border Grid.Column="2" Style="{StaticResource LayerCardStyle}" Margin="0" Padding="0" ClipToBounds="True">
+            <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="24">
+                <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel><TextBlock Text="{DynamicResource ImagesTitle}" Style="{StaticResource PageTitleStyle}"/><TextBlock Text="{DynamicResource ImagesSubtitle}" Style="{StaticResource PageSubtitleStyle}"/></StackPanel><ui:Button Grid.Column="1" Content="{DynamicResource Refresh}" Icon="{ui:SymbolIcon Symbol=ArrowSync24}" Command="{Binding RefreshAllCommand}" Appearance="Secondary" VerticalAlignment="Top"/></Grid>
+
+                <Border Style="{StaticResource CardStyle}" Padding="24" Margin="0,0,0,14">
+                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><Border Width="76" Height="76" CornerRadius="14" Background="{ui:ThemeResource ControlFillColorTertiaryBrush}" Margin="0,0,18,0"><ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xE7B8;" FontSize="34" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Grid.Column="1" VerticalAlignment="Center"><TextBlock Text="{Binding SelectedImageDisplayName}" FontSize="24" FontWeight="SemiBold"/><TextBlock Text="{Binding SelectedImage.Id}" FontFamily="Consolas" Style="{StaticResource MutedTextStyle}" TextTrimming="CharacterEllipsis" Margin="0,6,18,0"/></StackPanel><StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top"><ui:Button Content="{DynamicResource Inspect}" Command="{Binding InspectImageCommand}" IsEnabled="{Binding HasSelectedImage}" Appearance="Secondary" Margin="0,0,8,0"/><ui:Button Content="{DynamicResource Remove}" Command="{Binding RemoveImageCommand}" IsEnabled="{Binding HasSelectedImage}"/></StackPanel></Grid>
+                </Border>
+
+                <Border Style="{StaticResource CompactCardStyle}" Margin="0,0,0,10"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/><ColumnDefinition Width="230"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><ui:SymbolIcon Symbol="ArrowDownload24" FontSize="23" Margin="0,0,14,0"/><StackPanel Grid.Column="1"><TextBlock Text="{DynamicResource Pull}" FontSize="16"/><TextBlock Text="{DynamicResource PullHint}" Style="{StaticResource MutedTextStyle}"/></StackPanel><ui:TextBox Grid.Column="2" Text="{Binding ImageReference}" PlaceholderText="ubuntu:latest" VerticalAlignment="Center" Margin="12,0"/><ui:Button Grid.Column="3" Content="{DynamicResource Pull}" Appearance="Primary" Command="{Binding PullImageCommand}" VerticalAlignment="Center"/></Grid></Border>
+
+                <Expander Margin="0,0,0,10"><Expander.Header><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/></Grid.ColumnDefinitions><ui:SymbolIcon Symbol="Code24" FontSize="23" Margin="0,0,14,0"/><StackPanel Grid.Column="1"><TextBlock Text="{DynamicResource Build}" FontSize="16"/><TextBlock Text="{DynamicResource BuildHint}" Style="{StaticResource MutedTextStyle}"/></StackPanel></Grid></Expander.Header><Border Style="{StaticResource CardStyle}" Margin="0,8,0,0"><Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions><StackPanel Margin="0,0,12,0"><TextBlock Text="Build context"/><ui:TextBox Text="{Binding ImagePath}" PlaceholderText="C:\src\app" Margin="0,5,0,10"/><TextBlock Text="Dockerfile"/><ui:TextBox Text="{Binding DockerfilePath}" PlaceholderText="Optional custom path" Margin="0,5,0,0"/></StackPanel><StackPanel Grid.Column="1"><TextBlock Text="Image tag"/><ui:TextBox Text="{Binding ImageTag}" PlaceholderText="my-app:latest" Margin="0,5,0,12"/><ui:Button Content="{DynamicResource Build}" Icon="{ui:SymbolIcon Symbol=Play24}" Appearance="Primary" Command="{Binding BuildImageCommand}" HorizontalAlignment="Right"/></StackPanel></Grid></Border></Expander>
+
+                <Border Style="{StaticResource CompactCardStyle}" Margin="0,0,0,10"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><ui:SymbolIcon Symbol="Archive24" FontSize="23" Margin="0,0,14,0"/><StackPanel Grid.Column="1"><TextBlock Text="{DynamicResource ImageFiles}" FontSize="16"/><TextBlock Text="{DynamicResource ImageFilesHint}" Style="{StaticResource MutedTextStyle}"/></StackPanel><WrapPanel Grid.Column="2"><ui:Button Content="{DynamicResource Import}" Command="{Binding ImportImageCommand}"/><ui:Button Content="{DynamicResource Load}" Command="{Binding LoadImageCommand}"/><ui:Button Content="{DynamicResource Save}" Command="{Binding SaveImageCommand}"/></WrapPanel></Grid></Border>
+
+                <Border Style="{StaticResource CompactCardStyle}" Margin="0,0,0,10"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/><ColumnDefinition Width="220"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><ui:SymbolIcon Symbol="Tag24" FontSize="23" Margin="0,0,14,0"/><StackPanel Grid.Column="1"><TextBlock Text="{DynamicResource Tag}" FontSize="16"/><TextBlock Text="{DynamicResource TagHint}" Style="{StaticResource MutedTextStyle}"/></StackPanel><ui:TextBox Grid.Column="2" Text="{Binding ImageTag}" PlaceholderText="registry/name:tag" VerticalAlignment="Center" Margin="12,0"/><WrapPanel Grid.Column="3"><ui:Button Content="{DynamicResource Tag}" Command="{Binding TagImageCommand}"/><ui:Button Content="{DynamicResource Push}" Command="{Binding PushImageCommand}"/></WrapPanel></Grid></Border>
+
+                <TextBlock Text="{DynamicResource Output}" Style="{StaticResource SectionTitleStyle}" Margin="0,8,0,10"/><ui:TextBox Text="{Binding DetailOutput}" IsReadOnly="True" AcceptsReturn="True" FontFamily="Consolas" MinHeight="180" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
+            </StackPanel></ScrollViewer>
+        </Border>
+    </Grid>
+</Page>

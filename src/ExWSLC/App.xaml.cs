@@ -6,6 +6,9 @@ namespace ExWSLC;
 
 public partial class App : Application
 {
+    public static new App Current => (App)Application.Current;
+    public MainViewModel ViewModel { get; private set; } = null!;
+
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
@@ -16,14 +19,14 @@ public partial class App : Application
 
         var runner = new WslcProcessRunner();
         var runtime = new WslcContainerRuntime(runner);
-        var viewModel = new MainViewModel(
+        ViewModel = new MainViewModel(
             runtime,
             new RuntimeCapabilityService(runner),
             settings,
             new TaskService(),
             new UserInteractionService());
 
-        MainWindow = new MainWindow(viewModel);
+        MainWindow = new MainWindow(ViewModel);
         MainWindow.Show();
     }
 }
