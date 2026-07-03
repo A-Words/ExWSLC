@@ -3,7 +3,7 @@
                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                  xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
                  xmlns:pages="clr-namespace:ExWSLC.Views.Pages"
-                 Title="ExWSLC" Width="1180" Height="800" MinWidth="980" MinHeight="660"
+                 Title="ExWSLC" Width="1380" Height="920" MinWidth="1080" MinHeight="720"
                  WindowStartupLocation="CenterScreen" WindowBackdropType="Mica"
                  ExtendsContentIntoTitleBar="True">
     <Grid>
@@ -22,8 +22,8 @@
         <ui:NavigationView x:Name="RootNavigation"
                            Grid.Row="1"
                            Background="{ui:ThemeResource ApplicationBackgroundBrush}"
-                           OpenPaneLength="196"
-                           IsPaneOpen="False"
+                           OpenPaneLength="220"
+                           IsPaneOpen="True"
                            IsBackButtonVisible="Collapsed">
             <ui:NavigationView.MenuItems>
                 <ui:NavigationViewItem Content="{DynamicResource NavOverview}" NavigationCacheMode="Enabled" TargetPageType="{x:Type pages:OverviewPage}">

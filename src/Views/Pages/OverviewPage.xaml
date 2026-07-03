@@ -2,59 +2,136 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:models="clr-namespace:ExWSLC.Models"
       Background="Transparent"
       Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}">
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="24,18,24,28" MaxWidth="1120">
-            <Grid>
-                <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                <StackPanel>
-                    <TextBlock Text="{DynamicResource OverviewTitle}" Style="{StaticResource PageTitleStyle}" />
-                    <TextBlock Text="{DynamicResource OverviewSubtitle}" Style="{StaticResource PageSubtitleStyle}" />
+    <Page.Resources>
+        <Style x:Key="DashboardPanelStyle" TargetType="Border">
+            <Setter Property="Background" Value="{ui:ThemeResource ControlFillColorSecondaryBrush}" />
+            <Setter Property="BorderBrush" Value="{ui:ThemeResource CardStrokeColorDefaultBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="18" />
+        </Style>
+        <Style x:Key="StepNumberStyle" TargetType="Border">
+            <Setter Property="Width" Value="34" />
+            <Setter Property="Height" Value="34" />
+            <Setter Property="CornerRadius" Value="17" />
+            <Setter Property="Background" Value="{DynamicResource AccentFillColorDefaultBrush}" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+            <Setter Property="Margin" Value="0,0,14,0" />
+        </Style>
+        <DataTemplate x:Key="NoCurrentTaskTemplate">
+            <Grid MinHeight="140">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <ui:SymbolIcon Symbol="CheckmarkCircle24" FontSize="30" Foreground="{ui:ThemeResource SystemFillColorSuccessBrush}" />
+                    <TextBlock Text="{DynamicResource NoCurrentTask}" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,12,0,4" />
+                    <TextBlock Text="{DynamicResource NoCurrentTaskHint}" Style="{StaticResource MutedTextStyle}" TextAlignment="Center" TextWrapping="Wrap" />
                 </StackPanel>
-                <ui:Button Grid.Column="1" Content="{DynamicResource Refresh}" Icon="{ui:SymbolIcon Symbol=ArrowSync24}" Appearance="Secondary" Command="{Binding RefreshAllCommand}" Padding="14,7" VerticalAlignment="Top" />
             </Grid>
+        </DataTemplate>
+        <DataTemplate x:Key="CurrentTaskTemplate">
+            <StackPanel MinHeight="140">
+                <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding Detail}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" Margin="0,7,0,14" MaxHeight="40" />
+                <ProgressBar Height="4" IsIndeterminate="True" />
+                <Grid Margin="0,14,0,0">
+                    <TextBlock Text="{Binding StartedAt, StringFormat={}{0:t}}" Style="{StaticResource MutedTextStyle}" VerticalAlignment="Center" />
+                    <ui:Button Content="{DynamicResource Cancel}" Appearance="Secondary" Command="{Binding DataContext.CancelCurrentOperationCommand, RelativeSource={RelativeSource AncestorType=Page}}" HorizontalAlignment="Right" />
+                </Grid>
+            </StackPanel>
+        </DataTemplate>
+    </Page.Resources>
 
-            <Border Style="{StaticResource CardStyle}" Padding="24" Margin="0,0,0,14">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="32,24,32,32" MaxWidth="1180">
+            <Border Style="{StaticResource DashboardPanelStyle}" Padding="22" Margin="0,0,0,22" BorderBrush="{DynamicResource AccentFillColorDefaultBrush}">
                 <Grid>
-                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                    <Border Width="64" Height="64" CornerRadius="14" Background="{DynamicResource AccentFillColorDefaultBrush}" Margin="0,0,18,0">
-                        <ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xE7B8;" FontSize="30" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <Border Width="48" Height="48" CornerRadius="24" Background="{ui:ThemeResource SystemFillColorSuccessBrush}" Margin="0,0,16,0">
+                        <ui:SymbolIcon Symbol="Checkmark24" FontSize="25" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
+                    <Image Grid.Column="1" Source="/Assets/wslc-ready-illustration.png" Width="300" Height="112" Stretch="Uniform" Opacity="0.24" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,-16,24,-16" IsHitTestVisible="False" />
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <StackPanel Orientation="Horizontal"><TextBlock Text="ExWSLC" FontSize="25" FontWeight="SemiBold"/><Border Background="{DynamicResource AccentFillColorSecondaryBrush}" CornerRadius="5" Padding="8,3" Margin="10,1,0,0"><TextBlock Text="PREVIEW" FontSize="10" FontWeight="SemiBold"/></Border></StackPanel>
-                        <TextBlock Text="{DynamicResource HeroDescription}" FontSize="13" Opacity=".66" Margin="0,5,0,0" />
+                        <TextBlock Text="{DynamicResource RuntimeReadyTitle}" FontSize="22" FontWeight="SemiBold" />
+                        <TextBlock Text="{DynamicResource RuntimeReadyHint}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" Margin="0,5,0,0" />
+                        <ui:Button Content="{DynamicResource ViewPrerequisites}" Appearance="Secondary" Background="Transparent" BorderThickness="0" Click="OpenResources_Click" HorizontalAlignment="Left" Padding="0" Margin="0,6,0,0" />
                     </StackPanel>
-                    <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
-                        <TextBlock Text="{Binding Capabilities.Message}" FontSize="13" FontWeight="SemiBold" HorizontalAlignment="Right" />
-                        <TextBlock Text="{Binding VersionSummary}" Style="{StaticResource MutedTextStyle}" FontFamily="Consolas" Margin="0,5,0,0" />
-                    </StackPanel>
+                    <ui:Button Grid.Column="2" Content="{DynamicResource CheckAgain}" Icon="{ui:SymbolIcon Symbol=ArrowSync24}" Appearance="Secondary" Command="{Binding RefreshAllCommand}" VerticalAlignment="Top" Padding="14,7" />
                 </Grid>
             </Border>
 
-            <UniformGrid Columns="5" Margin="0,0,0,4">
-                <Border Style="{StaticResource CompactCardStyle}"><StackPanel><TextBlock Text="{DynamicResource Running}" Style="{StaticResource MutedTextStyle}"/><TextBlock Text="{Binding RunningContainerCount}" FontSize="27" FontWeight="Light" Foreground="{ui:ThemeResource SystemFillColorSuccessBrush}" Margin="0,5,0,0"/></StackPanel></Border>
-                <Border Style="{StaticResource CompactCardStyle}"><StackPanel><TextBlock Text="{DynamicResource Stopped}" Style="{StaticResource MutedTextStyle}"/><TextBlock Text="{Binding StoppedContainerCount}" FontSize="27" FontWeight="Light" Margin="0,5,0,0"/></StackPanel></Border>
-                <Border Style="{StaticResource CompactCardStyle}"><StackPanel><TextBlock Text="{DynamicResource Images}" Style="{StaticResource MutedTextStyle}"/><TextBlock Text="{Binding ImageCount}" FontSize="27" FontWeight="Light" Margin="0,5,0,0"/></StackPanel></Border>
-                <Border Style="{StaticResource CompactCardStyle}"><StackPanel><TextBlock Text="{DynamicResource Networks}" Style="{StaticResource MutedTextStyle}"/><TextBlock Text="{Binding NetworkCount}" FontSize="27" FontWeight="Light" Margin="0,5,0,0"/></StackPanel></Border>
-                <Border Style="{StaticResource CompactCardStyle}" Margin="0,0,0,12"><StackPanel><TextBlock Text="{DynamicResource Volumes}" Style="{StaticResource MutedTextStyle}"/><TextBlock Text="{Binding VolumeCount}" FontSize="27" FontWeight="Light" Margin="0,5,0,0"/></StackPanel></Border>
-            </UniformGrid>
+            <TextBlock Text="{DynamicResource GetStartedTitle}" FontSize="28" FontWeight="SemiBold" />
+            <TextBlock Text="{DynamicResource GetStartedSubtitle}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" Margin="0,4,0,16" />
 
-            <TextBlock Text="{DynamicResource QuickAccess}" Style="{StaticResource SectionTitleStyle}" Margin="0,6,0,12"/>
+            <Border Style="{StaticResource DashboardPanelStyle}" Margin="0,0,0,14" Padding="22">
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="32"/><ColumnDefinition/><ColumnDefinition Width="32"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                    <Grid Grid.Column="0">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource StepNumberStyle}"><TextBlock Text="1" Foreground="White" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                        <StackPanel Grid.Column="1"><TextBlock Text="{DynamicResource ChooseImage}" FontSize="16" FontWeight="SemiBold"/><TextBlock Text="{DynamicResource ChooseImageHint}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" Margin="0,4,0,12"/><ui:Button Content="{DynamicResource ChooseImage}" Appearance="Secondary" Click="OpenImages_Click" HorizontalAlignment="Left"/></StackPanel>
+                    </Grid>
+                    <ui:SymbolIcon Grid.Column="1" Symbol="ChevronRight24" Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}" VerticalAlignment="Center" />
+                    <Grid Grid.Column="2">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource StepNumberStyle}"><TextBlock Text="2" Foreground="White" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                        <StackPanel Grid.Column="1"><TextBlock Text="{DynamicResource Configure}" FontSize="16" FontWeight="SemiBold"/><TextBlock Text="{DynamicResource ConfigureHint}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" Margin="0,4,0,12"/><ui:Button Content="{DynamicResource Configure}" Appearance="Secondary" Click="ConfigureContainer_Click" HorizontalAlignment="Left"/></StackPanel>
+                    </Grid>
+                    <ui:SymbolIcon Grid.Column="3" Symbol="ChevronRight24" Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}" VerticalAlignment="Center" />
+                    <Grid Grid.Column="4">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource StepNumberStyle}"><TextBlock Text="3" Foreground="White" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                        <StackPanel Grid.Column="1"><TextBlock Text="{DynamicResource RunContainer}" FontSize="16" FontWeight="SemiBold"/><TextBlock Text="{DynamicResource RunContainerHint}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" Margin="0,4,0,12"/><ui:Button Content="{DynamicResource RunContainer}" Icon="{ui:SymbolIcon Symbol=Play24}" Appearance="Primary" Click="ConfigureContainer_Click" HorizontalAlignment="Left"/></StackPanel>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <Grid Margin="0,0,0,14">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="1.15*"/><ColumnDefinition Width="14"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                <Border Style="{StaticResource DashboardPanelStyle}" Padding="0">
+                    <Grid>
+                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition/></Grid.RowDefinitions>
+                        <Grid Margin="18,14,14,8"><TextBlock Text="{DynamicResource ActiveContainers}" FontSize="16" FontWeight="SemiBold"/><ui:Button Content="{DynamicResource ViewAll}" Appearance="Secondary" Background="Transparent" BorderThickness="0" Click="OpenContainers_Click" HorizontalAlignment="Right" Padding="4"/></Grid>
+                        <DataGrid Grid.Row="1" ItemsSource="{Binding ActiveContainers}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" HeadersVisibility="Column" GridLinesVisibility="Horizontal" BorderThickness="0" MinHeight="180">
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn Header="name" Width="1.1*"><DataGridTemplateColumn.HeaderTemplate><DataTemplate><TextBlock Text="{DynamicResource Name}"/></DataTemplate></DataGridTemplateColumn.HeaderTemplate><DataGridTemplateColumn.CellTemplate><DataTemplate><ui:Button Appearance="Secondary" Background="Transparent" BorderThickness="0" Click="OpenContainer_Click" HorizontalAlignment="Left" Padding="0"><StackPanel Orientation="Horizontal"><Border Width="6" Height="6" CornerRadius="3" Background="{ui:ThemeResource SystemFillColorSuccessBrush}" Margin="0,0,8,0"/><TextBlock Text="{Binding Name}" FontWeight="SemiBold"/></StackPanel></ui:Button></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
+                                <DataGridTextColumn Header="image" Binding="{Binding Image}" Width="1.6*"><DataGridTextColumn.HeaderTemplate><DataTemplate><TextBlock Text="{DynamicResource Image}"/></DataTemplate></DataGridTextColumn.HeaderTemplate></DataGridTextColumn>
+                                <DataGridTextColumn Header="state" Binding="{Binding State}" Width=".65*"><DataGridTextColumn.HeaderTemplate><DataTemplate><TextBlock Text="{DynamicResource State}"/></DataTemplate></DataGridTextColumn.HeaderTemplate></DataGridTextColumn>
+                                <DataGridTextColumn Header="status" Binding="{Binding Status}" Width=".85*"><DataGridTextColumn.HeaderTemplate><DataTemplate><TextBlock Text="{DynamicResource Status}"/></DataTemplate></DataGridTextColumn.HeaderTemplate></DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Border>
+                <Border Grid.Column="2" Style="{StaticResource DashboardPanelStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource CurrentTask}" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                        <ContentControl Content="{Binding ActiveTask}">
+                            <ContentControl.Style><Style TargetType="ContentControl"><Setter Property="ContentTemplate" Value="{StaticResource CurrentTaskTemplate}"/><Style.Triggers><Trigger Property="Content" Value="{x:Null}"><Setter Property="ContentTemplate" Value="{StaticResource NoCurrentTaskTemplate}"/></Trigger></Style.Triggers></Style></ContentControl.Style>
+                        </ContentControl>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
             <Grid>
-                <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
-                <Grid.RowDefinitions><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
-                <ui:Button Click="OpenContainers_Click" Appearance="Secondary" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" Padding="18" Margin="0,0,12,12">
-                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xF5ED;" FontSize="23" Margin="0,0,14,0"/><StackPanel Grid.Column="1"><TextBlock Text="{DynamicResource NavContainers}" FontSize="16"/><TextBlock Text="{DynamicResource ContainersQuickHint}" Style="{StaticResource MutedTextStyle}" Margin="0,3,0,0"/></StackPanel><ui:SymbolIcon Grid.Column="2" Symbol="ChevronRight24" VerticalAlignment="Center"/></Grid>
-                </ui:Button>
-                <ui:Button Grid.Column="1" Click="OpenImages_Click" Appearance="Secondary" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" Padding="18" Margin="0,0,0,12">
-                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xE7B8;" FontSize="23" Margin="0,0,14,0"/><StackPanel Grid.Column="1"><TextBlock Text="{DynamicResource NavImages}" FontSize="16"/><TextBlock Text="{DynamicResource ImagesQuickHint}" Style="{StaticResource MutedTextStyle}" Margin="0,3,0,0"/></StackPanel><ui:SymbolIcon Grid.Column="2" Symbol="ChevronRight24" VerticalAlignment="Center"/></Grid>
-                </ui:Button>
-                <ui:Button Grid.Row="1" Click="OpenResources_Click" Appearance="Secondary" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" Padding="18" Margin="0,0,12,0">
-                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xE774;" FontSize="23" Margin="0,0,14,0"/><StackPanel Grid.Column="1"><TextBlock Text="{DynamicResource NavResources}" FontSize="16"/><TextBlock Text="{DynamicResource ResourcesQuickHint}" Style="{StaticResource MutedTextStyle}" Margin="0,3,0,0"/></StackPanel><ui:SymbolIcon Grid.Column="2" Symbol="ChevronRight24" VerticalAlignment="Center"/></Grid>
-                </ui:Button>
-                <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource CompactCardStyle}" Margin="0">
-                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/></Grid.ColumnDefinitions><ui:SymbolIcon Symbol="Pulse24" FontSize="23" Margin="0,0,14,0"/><StackPanel Grid.Column="1"><TextBlock Text="{DynamicResource LiveStats}" FontSize="16"/><TextBlock Text="{Binding Stats.Count, StringFormat={}{0} active snapshots}" Style="{StaticResource MutedTextStyle}" Margin="0,3,0,0"/></StackPanel></Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="14"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                <Border Style="{StaticResource DashboardPanelStyle}">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,8"><TextBlock Text="{DynamicResource RecentTasks}" FontSize="16" FontWeight="SemiBold"/><ui:Button Content="{DynamicResource ViewAll}" Appearance="Secondary" Background="Transparent" BorderThickness="0" Click="OpenTasks_Click" HorizontalAlignment="Right" Padding="4"/></Grid>
+                        <ItemsControl ItemsSource="{Binding RecentTasks}">
+                            <ItemsControl.ItemTemplate><DataTemplate DataType="{x:Type models:RuntimeTaskItem}"><Grid Margin="0,5"><Grid.ColumnDefinitions><ColumnDefinition Width="18"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><ui:SymbolIcon Symbol="CheckmarkCircle24" FontSize="15" Foreground="{ui:ThemeResource SystemFillColorSuccessBrush}" VerticalAlignment="Top"/><StackPanel Grid.Column="1"><TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis"/><TextBlock Text="{Binding Detail}" Style="{StaticResource MutedTextStyle}" TextTrimming="CharacterEllipsis"/></StackPanel><TextBlock Grid.Column="2" Text="{Binding StartedAt, StringFormat={}{0:t}}" Style="{StaticResource MutedTextStyle}" Margin="12,0,0,0"/></Grid></DataTemplate></ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Style="{StaticResource DashboardPanelStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Prerequisites}" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                        <Grid Margin="0,7"><Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><ui:SymbolIcon Symbol="CheckmarkCircle24" Foreground="{ui:ThemeResource SystemFillColorSuccessBrush}"/><StackPanel Grid.Column="1"><TextBlock Text="{DynamicResource WslInstalled}"/><TextBlock Text="{DynamicResource WslInstalledHint}" Style="{StaticResource MutedTextStyle}"/></StackPanel><TextBlock Grid.Column="2" Text="{Binding Capabilities.CliVersion}" Style="{StaticResource MutedTextStyle}" VerticalAlignment="Center" MaxWidth="150" TextTrimming="CharacterEllipsis"/></Grid>
+                        <Separator Margin="0,4"/>
+                        <Grid Margin="0,7"><Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><ui:SymbolIcon Symbol="CheckmarkCircle24" Foreground="{ui:ThemeResource SystemFillColorSuccessBrush}"/><StackPanel Grid.Column="1"><TextBlock Text="{DynamicResource ContainerRuntime}"/><TextBlock Text="{DynamicResource ContainerRuntimeHint}" Style="{StaticResource MutedTextStyle}"/></StackPanel><TextBlock Grid.Column="2" Text="{Binding Capabilities.Message}" Style="{StaticResource MutedTextStyle}" VerticalAlignment="Center" MaxWidth="150" TextTrimming="CharacterEllipsis"/></Grid>
+                        <Separator Margin="0,4"/>
+                        <Grid Margin="0,7"><Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><ui:SymbolIcon Symbol="CheckmarkCircle24" Foreground="{ui:ThemeResource SystemFillColorSuccessBrush}"/><StackPanel Grid.Column="1"><TextBlock Text="{DynamicResource SdkIntegration}"/><TextBlock Text="{DynamicResource SdkIntegrationHint}" Style="{StaticResource MutedTextStyle}"/></StackPanel><TextBlock Grid.Column="2" Text="{Binding Capabilities.SdkVersion}" Style="{StaticResource MutedTextStyle}" VerticalAlignment="Center"/></Grid>
+                    </StackPanel>
                 </Border>
             </Grid>
         </StackPanel>

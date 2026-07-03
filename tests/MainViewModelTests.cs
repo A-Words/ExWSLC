@@ -38,6 +38,32 @@ public class MainViewModelTests
         viewModel.Dispose();
     }
 
+    [Fact]
+    public async Task InitializeAsync_PopulatesGuidedDashboardWithRunningContainers()
+    {
+        var runtime = new Mock<IContainerRuntime>();
+        var containers = Enumerable.Range(1, 5)
+            .Select(index => new ContainerSummary($"id-{index}", $"running-{index}", "alpine", "running", "Up", string.Empty, "now"))
+            .Append(new ContainerSummary("id-stopped", "stopped", "alpine", "stopped", "Exited", string.Empty, "now"))
+            .ToArray();
+        runtime.Setup(value => value.GetContainersAsync(It.IsAny<CancellationToken>())).ReturnsAsync(containers);
+        runtime.Setup(value => value.GetImagesAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        runtime.Setup(value => value.GetNetworksAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        runtime.Setup(value => value.GetVolumesAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        runtime.Setup(value => value.GetStatsAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        var capabilities = new Mock<IRuntimeCapabilityService>();
+        capabilities.Setup(value => value.DetectAsync(It.IsAny<CancellationToken>())).ReturnsAsync(
+            new RuntimeCapabilities(true, "2.9.3", "2.9.3", [], "ready"));
+        var viewModel = CreateViewModel(runtime, capabilities);
+
+        await viewModel.InitializeAsync();
+
+        Assert.Equal(5, viewModel.RunningContainerCount);
+        Assert.Equal(4, viewModel.ActiveContainers.Count);
+        Assert.All(viewModel.ActiveContainers, container => Assert.True(container.IsRunning));
+        viewModel.Dispose();
+    }
+
     private static MainViewModel CreateViewModel(Mock<IContainerRuntime>? runtime = null, Mock<IRuntimeCapabilityService>? capabilities = null)
     {
         runtime ??= new Mock<IContainerRuntime>();

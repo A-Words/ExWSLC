@@ -18,4 +18,8 @@
     <PackageReference Include="WPF-UI" Version="4.0.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Resource Include="Assets\wslc-ready-illustration.png" />
+  </ItemGroup>
+
 </Project>

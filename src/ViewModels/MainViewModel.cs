@@ -18,6 +18,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private CancellationTokenSource? _logFollow;
 
     public ObservableCollection<ContainerSummary> Containers { get; } = [];
+    public ObservableCollection<ContainerSummary> ActiveContainers { get; } = [];
     public ObservableCollection<ContainerSummary> VisibleContainers { get; } = [];
     public ObservableCollection<ImageSummary> Images { get; } = [];
     public ObservableCollection<ImageSummary> VisibleImages { get; } = [];
@@ -25,6 +26,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public ObservableCollection<VolumeSummary> Volumes { get; } = [];
     public ObservableCollection<ContainerStats> Stats { get; } = [];
     public ObservableCollection<RuntimeTaskItem> Tasks { get; } = [];
+    public ObservableCollection<RuntimeTaskItem> RecentTasks { get; } = [];
 
     [ObservableProperty] private int _selectedPageIndex;
     [ObservableProperty] private bool _isBusy;
@@ -38,6 +40,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty] private NetworkSummary? _selectedNetwork;
     [ObservableProperty] private VolumeSummary? _selectedVolume;
     [ObservableProperty] private RuntimeCapabilities _capabilities = RuntimeCapabilities.Unavailable("Not checked");
+    [ObservableProperty] private RuntimeTaskItem? _activeTask;
 
     [ObservableProperty] private string _newImage = "hello-world:latest";
     [ObservableProperty] private string _newContainerName = string.Empty;
@@ -125,6 +128,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
             var statsTask = _runtime.GetStatsAsync(_lifetime.Token);
             await Task.WhenAll(containersTask, imagesTask, networksTask, volumesTask, statsTask);
             Replace(Containers, containersTask.Result);
+            Replace(ActiveContainers, containersTask.Result.Where(container => container.IsRunning).Take(4));
             ApplyContainerFilter();
             Replace(Images, imagesTask.Result);
             ApplyImageFilter();
@@ -549,7 +553,13 @@ public partial class MainViewModel : ObservableObject, IDisposable
     }
 
     private void OnTasksChanged(object? sender, EventArgs eventArgs) => App.Current.Dispatcher.Invoke(SyncTasks);
-    private void SyncTasks() => Replace(Tasks, _taskService.Tasks);
+    private void SyncTasks()
+    {
+        Replace(Tasks, _taskService.Tasks);
+        Replace(RecentTasks, _taskService.Tasks.Take(5));
+        ActiveTask = _taskService.Tasks.FirstOrDefault(task => task.State is RuntimeTaskState.Running or RuntimeTaskState.Queued);
+        OnPropertyChanged(nameof(ActiveTaskCount));
+    }
     private void RaiseCounts()
     {
         OnPropertyChanged(nameof(RunningContainerCount)); OnPropertyChanged(nameof(StoppedContainerCount));

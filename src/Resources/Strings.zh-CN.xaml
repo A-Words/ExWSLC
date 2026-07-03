@@ -1,7 +1,7 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=System.Runtime">
-    <sys:String x:Key="NavOverview">概览</sys:String>
+    <sys:String x:Key="NavOverview">开始</sys:String>
     <sys:String x:Key="NavContainers">容器</sys:String>
     <sys:String x:Key="NavImages">镜像</sys:String>
     <sys:String x:Key="NavResources">网络与卷</sys:String>
@@ -97,4 +97,34 @@
     <sys:String x:Key="Username">用户名</sys:String>
     <sys:String x:Key="Password">密码或 PAT</sys:String>
     <sys:String x:Key="Login">登录</sys:String>
+    <sys:String x:Key="GetStartedTitle">开始使用</sys:String>
+    <sys:String x:Key="GetStartedSubtitle">选择镜像、配置参数，然后运行你的 Linux 工作负载</sys:String>
+    <sys:String x:Key="RuntimeReadyTitle">WSL Container 已就绪</sys:String>
+    <sys:String x:Key="RuntimeReadyHint">可以拉取镜像、创建容器并开始运行工作负载。</sys:String>
+    <sys:String x:Key="ViewPrerequisites">查看先决条件</sys:String>
+    <sys:String x:Key="CheckAgain">重新检查</sys:String>
+    <sys:String x:Key="ChooseImage">选择镜像</sys:String>
+    <sys:String x:Key="ChooseImageHint">从注册表搜索或拉取镜像</sys:String>
+    <sys:String x:Key="Configure">配置</sys:String>
+    <sys:String x:Key="ConfigureHint">设置环境、端口、卷和资源</sys:String>
+    <sys:String x:Key="RunContainer">运行容器</sys:String>
+    <sys:String x:Key="RunContainerHint">启动容器并查看运行状态</sys:String>
+    <sys:String x:Key="ActiveContainers">活跃容器</sys:String>
+    <sys:String x:Key="ViewAll">查看全部</sys:String>
+    <sys:String x:Key="CurrentTask">当前任务</sys:String>
+    <sys:String x:Key="NoCurrentTask">当前没有运行中的任务</sys:String>
+    <sys:String x:Key="NoCurrentTaskHint">拉取镜像、构建或导出任务会显示在这里。</sys:String>
+    <sys:String x:Key="RecentTasks">最近任务</sys:String>
+    <sys:String x:Key="Prerequisites">先决条件</sys:String>
+    <sys:String x:Key="WslInstalled">Windows Subsystem for Linux</sys:String>
+    <sys:String x:Key="WslInstalledHint">WSLC 运行所需的宿主环境</sys:String>
+    <sys:String x:Key="ContainerRuntime">WSL Container 运行时</sys:String>
+    <sys:String x:Key="ContainerRuntimeHint">内置 CLI 与容器服务</sys:String>
+    <sys:String x:Key="SdkIntegration">应用程序集成</sys:String>
+    <sys:String x:Key="SdkIntegrationHint">Microsoft.WSL.Containers SDK</sys:String>
+    <sys:String x:Key="Ready">就绪</sys:String>
+    <sys:String x:Key="Unavailable">不可用</sys:String>
+    <sys:String x:Key="Cancel">取消</sys:String>
+    <sys:String x:Key="State">状态</sys:String>
+    <sys:String x:Key="Status">运行时间</sys:String>
 </ResourceDictionary>
