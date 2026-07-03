@@ -31,7 +31,7 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
-      - run: dotnet publish src/ExWSLC/ExWSLC.csproj -c Release -r ${{ matrix.runtime }} --self-contained true -o artifacts/${{ matrix.runtime }}
+      - run: dotnet publish src/ExWSLC.csproj -c Release -r ${{ matrix.runtime }} --self-contained true -o artifacts/${{ matrix.runtime }}
       - uses: actions/upload-artifact@v4
         with:
           name: ExWSLC-${{ matrix.runtime }}

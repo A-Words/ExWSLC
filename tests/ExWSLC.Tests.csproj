@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ExWSLC\ExWSLC.csproj" />
+    <ProjectReference Include="..\src\ExWSLC.csproj" />
   </ItemGroup>
 
 </Project>

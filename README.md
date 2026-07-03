@@ -31,13 +31,13 @@ Run `wsl --update` and `wslc version` if the application reports missing compone
 dotnet restore ExWSLC.sln
 dotnet build ExWSLC.sln
 dotnet test ExWSLC.sln
-dotnet run --project src/ExWSLC/ExWSLC.csproj
+dotnet run --project src/ExWSLC.csproj
 ```
 
 Publish a self-contained package:
 
 ```powershell
-dotnet publish src/ExWSLC/ExWSLC.csproj -c Release -r win-x64 --self-contained true -o publish/win-x64
+dotnet publish src/ExWSLC.csproj -c Release -r win-x64 --self-contained true -o publish/win-x64
 ```
 
 Settings are stored at `%LocalAppData%\ExWSLC\settings.json`. Passwords and tokens are never stored by ExWSLC; they are sent to `wslc registry login` through standard input.
