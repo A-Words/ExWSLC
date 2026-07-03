@@ -15,7 +15,6 @@ public partial class App : Application
         var settings = new SettingsService();
         await settings.LoadAsync();
         LocalizationService.ApplyLanguage(settings.Current.Language);
-        LocalizationService.ApplyTheme(settings.Current.Theme);
 
         var runner = new WslcProcessRunner();
         var runtime = new WslcContainerRuntime(runner);

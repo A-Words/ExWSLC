@@ -19,13 +19,14 @@ public static class LocalizationService
 
     public static void ApplyTheme(string theme)
     {
-        if (theme.Equals("Dark", StringComparison.OrdinalIgnoreCase))
-            ApplicationThemeManager.Apply(ApplicationTheme.Dark);
-        else if (theme.Equals("Light", StringComparison.OrdinalIgnoreCase))
-            ApplicationThemeManager.Apply(ApplicationTheme.Light);
-        else
-            ApplicationThemeManager.Apply(ApplicationThemeManager.GetSystemTheme() == SystemTheme.Dark
+        var applicationTheme = theme.ToLowerInvariant() switch
+        {
+            "dark" => ApplicationTheme.Dark,
+            "light" => ApplicationTheme.Light,
+            _ => SystemThemeManager.GetCachedSystemTheme() == SystemTheme.Dark
                 ? ApplicationTheme.Dark
-                : ApplicationTheme.Light);
+                : ApplicationTheme.Light
+        };
+        ApplicationThemeManager.Apply(applicationTheme);
     }
 }

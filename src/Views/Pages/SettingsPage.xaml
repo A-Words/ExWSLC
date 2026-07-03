@@ -2,7 +2,8 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-      Background="Transparent">
+      Background="Transparent"
+      Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="24,18,24,28">
             <TextBlock Text="{DynamicResource SettingsTitle}" Style="{StaticResource PageTitleStyle}"/>

@@ -437,6 +437,28 @@ public partial class MainViewModel : ObservableObject, IDisposable
         StatusMessage = "Settings saved.";
     }
 
+    /// <summary>
+    /// Applies the configured theme once the main window is initialized. Mirrors the WPF-UI
+    /// FluentWindow pattern of applying the theme from the window constructor (after
+    /// <see cref="Window.InitializeComponent"/>) rather than during <c>OnStartup</c>.
+    /// </summary>
+    public void ApplyConfiguredTheme()
+    {
+        LocalizationService.ApplyTheme(_settingsService.Current.Theme);
+    }
+
+    /// <summary>
+    /// Re-applies the theme in response to the OS light/dark preference changing, but only when
+    /// the configured theme is "System" — explicit Light/Dark choices are left untouched.
+    /// </summary>
+    public void RefreshSystemTheme()
+    {
+        if (string.Equals(_settingsService.Current.Theme, "System", StringComparison.OrdinalIgnoreCase))
+        {
+            LocalizationService.ApplyTheme("System");
+        }
+    }
+
     [RelayCommand] private void ClearTasks() { _taskService.ClearCompleted(); SyncTasks(); }
     [RelayCommand] private void CancelCurrentOperation() => _currentOperation?.Cancel();
 

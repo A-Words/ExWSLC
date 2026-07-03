@@ -2,7 +2,8 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-      Background="Transparent">
+      Background="Transparent"
+      Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}">
     <Grid Margin="24,18,24,24">
         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition/></Grid.RowDefinitions>
         <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel><TextBlock Text="{DynamicResource TasksTitle}" Style="{StaticResource PageTitleStyle}"/><TextBlock Text="{DynamicResource TasksSubtitle}" Style="{StaticResource PageSubtitleStyle}"/></StackPanel><WrapPanel Grid.Column="1"><ui:Button Content="{DynamicResource CancelCurrent}" Icon="{ui:SymbolIcon Symbol=Stop24}" Command="{Binding CancelCurrentOperationCommand}" Appearance="Secondary" Margin="0,0,8,0" VerticalAlignment="Top"/><ui:Button Content="{DynamicResource ClearCompleted}" Icon="{ui:SymbolIcon Symbol=Delete24}" Command="{Binding ClearTasksCommand}" Appearance="Secondary" VerticalAlignment="Top"/></WrapPanel></Grid>
