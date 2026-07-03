@@ -127,4 +127,11 @@
     <sys:String x:Key="Cancel">取消</sys:String>
     <sys:String x:Key="State">状态</sys:String>
     <sys:String x:Key="Status">运行时间</sys:String>
+    <sys:String x:Key="Ports">端口</sys:String>
+    <sys:String x:Key="OverviewTab">总览</sys:String>
+    <sys:String x:Key="Metrics">指标</sys:String>
+    <sys:String x:Key="Configuration">配置</sys:String>
+    <sys:String x:Key="Created">创建时间</sys:String>
+    <sys:String x:Key="Mounts">挂载</sys:String>
+    <sys:String x:Key="MountsHint">这里展示从选中容器发现的端口发布和挂载信息。</sys:String>
 </ResourceDictionary>

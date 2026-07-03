@@ -76,4 +76,11 @@
     <sys:String x:Key="Cancel">Cancel</sys:String>
     <sys:String x:Key="State">State</sys:String>
     <sys:String x:Key="Status">Uptime</sys:String>
+    <sys:String x:Key="Ports">Ports</sys:String>
+    <sys:String x:Key="OverviewTab">Overview</sys:String>
+    <sys:String x:Key="Metrics">Metrics</sys:String>
+    <sys:String x:Key="Configuration">Configuration</sys:String>
+    <sys:String x:Key="Created">Created</sys:String>
+    <sys:String x:Key="Mounts">Mounts</sys:String>
+    <sys:String x:Key="MountsHint">Published ports and mounts discovered from the selected container appear here.</sys:String>
 </ResourceDictionary>

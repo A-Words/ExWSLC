@@ -77,6 +77,11 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public int VolumeCount => Volumes.Count;
     public int ActiveTaskCount => Tasks.Count(task => task.State is RuntimeTaskState.Running or RuntimeTaskState.Queued);
     public bool HasSelectedImage => SelectedImage is not null;
+    public ContainerStats? SelectedContainerStats => SelectedContainer is null
+        ? null
+        : Stats.FirstOrDefault(stats =>
+            stats.Id.Equals(SelectedContainer.Id, StringComparison.OrdinalIgnoreCase) ||
+            stats.Name.Equals(SelectedContainer.Name, StringComparison.OrdinalIgnoreCase));
     public string SelectedImageDisplayName => SelectedImage?.DisplayName ??
         (SelectedLanguage.Equals("en-US", StringComparison.OrdinalIgnoreCase) ? "Select an image" : "请选择镜像");
     public string VersionSummary => $"CLI: {Capabilities.CliVersion}  ·  SDK: {Capabilities.SdkVersion}";
@@ -136,6 +141,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
             Replace(Volumes, volumesTask.Result);
             Replace(Stats, statsTask.Result);
             RaiseCounts();
+            OnPropertyChanged(nameof(SelectedContainerStats));
             StatusMessage = $"Updated {DateTime.Now:T}";
         }
         catch (Exception exception)
@@ -471,6 +477,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     partial void OnSelectedContainerChanged(ContainerSummary? value)
     {
         if (value is not null) IsCreatingContainer = false;
+        OnPropertyChanged(nameof(SelectedContainerStats));
     }
     partial void OnSelectedImageChanged(ImageSummary? value)
     {
