@@ -6,6 +6,10 @@ ExWSLC 是一个原生 Windows 桌面端的 [WSL Container](https://learn.micros
 
 > WSL Container 及其 SDK 目前仍处于预览阶段。ExWSLC 会在启动时检查已安装的 CLI 与 SDK，并把预览期差异隔离在运行时接口后面，方便后续适配正式版 API。
 
+## 运行截图
+
+![ExWSLC 首页截图](docs/images/screenshot-overview.png)
+
 ## 功能特性
 
 - 基于 WPF-UI 4.0 的 Fluent 桌面界面，支持 Mica、系统/浅色/深色主题，以及英文和简体中文。

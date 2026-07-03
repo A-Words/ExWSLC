@@ -6,6 +6,10 @@ ExWSLC is a native Windows desktop manager for [WSL Container](https://learn.mic
 
 > WSL Container and its SDK are currently in preview. ExWSLC checks the installed CLI and SDK at startup and isolates preview-specific behavior behind a runtime interface.
 
+## Screenshot
+
+![ExWSLC overview screenshot](docs/images/screenshot-overview.png)
+
 ## Features
 
 - WPF-UI 4.0 Fluent desktop UI with Mica, system/light/dark themes, English and Simplified Chinese.
