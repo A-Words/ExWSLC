@@ -64,6 +64,39 @@ public class MainViewModelTests
         viewModel.Dispose();
     }
 
+    [Fact]
+    public async Task RefreshAllCommand_PreservesSelectedContainerAcrossCollectionReplacement()
+    {
+        var runtime = new Mock<IContainerRuntime>();
+        runtime.SetupSequence(value => value.GetContainersAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync([
+                new ContainerSummary("id-web", "web", "nginx:latest", "running", "Up", "8080:80", "now")
+            ])
+            .ReturnsAsync([
+                new ContainerSummary("id-web", "web", "nginx:latest", "running", "Up 5 minutes", "8080:80", "later")
+            ]);
+        runtime.Setup(value => value.GetImagesAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        runtime.Setup(value => value.GetNetworksAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        runtime.Setup(value => value.GetVolumesAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        runtime.Setup(value => value.GetStatsAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        var capabilities = new Mock<IRuntimeCapabilityService>();
+        capabilities.Setup(value => value.DetectAsync(It.IsAny<CancellationToken>())).ReturnsAsync(
+            new RuntimeCapabilities(true, "2.9.3", "2.9.3", [], "ready"));
+        var viewModel = CreateViewModel(runtime, capabilities);
+
+        await viewModel.InitializeAsync();
+        viewModel.SelectedContainer = viewModel.VisibleContainers[0];
+        var firstSelection = viewModel.SelectedContainer;
+
+        await viewModel.RefreshAllCommand.ExecuteAsync(null);
+
+        Assert.NotNull(viewModel.SelectedContainer);
+        Assert.NotSame(firstSelection, viewModel.SelectedContainer);
+        Assert.Equal("id-web", viewModel.SelectedContainer.Id);
+        Assert.Equal("Up 5 minutes", viewModel.SelectedContainer.Status);
+        viewModel.Dispose();
+    }
+
     private static MainViewModel CreateViewModel(Mock<IContainerRuntime>? runtime = null, Mock<IRuntimeCapabilityService>? capabilities = null)
     {
         runtime ??= new Mock<IContainerRuntime>();

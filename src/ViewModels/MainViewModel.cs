@@ -126,6 +126,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         StatusMessage = "Refreshing WSLC state…";
         try
         {
+            var selectedBeforeRefresh = SelectedContainer;
             var containersTask = _runtime.GetContainersAsync(_lifetime.Token);
             var imagesTask = _runtime.GetImagesAsync(_lifetime.Token);
             var networksTask = _runtime.GetNetworksAsync(_lifetime.Token);
@@ -135,6 +136,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
             Replace(Containers, containersTask.Result);
             Replace(ActiveContainers, containersTask.Result.Where(container => container.IsRunning).Take(4));
             ApplyContainerFilter();
+            RestoreSelectedContainer(selectedBeforeRefresh);
             Replace(Images, imagesTask.Result);
             ApplyImageFilter();
             Replace(Networks, networksTask.Result);
@@ -557,6 +559,26 @@ public partial class MainViewModel : ObservableObject, IDisposable
         Replace(VisibleImages, Images.Where(image => string.IsNullOrEmpty(query) ||
             image.DisplayName.Contains(query, StringComparison.OrdinalIgnoreCase) ||
             image.Id.Contains(query, StringComparison.OrdinalIgnoreCase)));
+    }
+
+    private void RestoreSelectedContainer(ContainerSummary? previousSelection)
+    {
+        if (previousSelection is null) return;
+
+        SelectedContainer = VisibleContainers.FirstOrDefault(container =>
+            MatchesContainerIdentity(container, previousSelection));
+    }
+
+    private static bool MatchesContainerIdentity(ContainerSummary candidate, ContainerSummary selection)
+    {
+        if (!string.IsNullOrWhiteSpace(selection.Id) &&
+            candidate.Id.Equals(selection.Id, StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return !string.IsNullOrWhiteSpace(selection.Name) &&
+               candidate.Name.Equals(selection.Name, StringComparison.OrdinalIgnoreCase);
     }
 
     private void OnTasksChanged(object? sender, EventArgs eventArgs) => App.Current.Dispatcher.Invoke(SyncTasks);
