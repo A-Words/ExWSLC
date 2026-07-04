@@ -28,7 +28,7 @@
     <sys:String x:Key="ExecHint">Run a one-shot command inside the active container</sys:String><sys:String x:Key="ExportHint">Export the stopped container filesystem as a tar archive</sys:String>
     <sys:String x:Key="Name">Name</sys:String><sys:String x:Key="Command">Command</sys:String>
     <sys:String x:Key="Advanced">Advanced options</sys:String><sys:String x:Key="Run">Run</sys:String>
-    <sys:String x:Key="Start">Start</sys:String><sys:String x:Key="Stop">Stop</sys:String><sys:String x:Key="Restart">Restart</sys:String>
+    <sys:String x:Key="Start">Start</sys:String><sys:String x:Key="Stop">Stop</sys:String><sys:String x:Key="Restart">Restart</sys:String><sys:String x:Key="Details">Details</sys:String>
     <sys:String x:Key="Kill">Force stop</sys:String><sys:String x:Key="Remove">Remove</sys:String><sys:String x:Key="Export">Export</sys:String>
     <sys:String x:Key="Logs">Logs</sys:String><sys:String x:Key="FollowLogs">Follow logs</sys:String><sys:String x:Key="StopFollowing">Stop following</sys:String><sys:String x:Key="Inspect">Inspect</sys:String><sys:String x:Key="Exec">Exec</sys:String>
     <sys:String x:Key="Terminal">Interactive terminal</sys:String><sys:String x:Key="Output">Output &amp; diagnostics</sys:String>

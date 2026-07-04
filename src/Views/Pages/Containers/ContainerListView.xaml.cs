@@ -9,4 +9,12 @@ public partial class ContainerListView : UserControl
         InitializeComponent();
         DataContext = App.Current.ViewModel;
     }
+
+    private void MoreActionsButton_Click(object sender, System.Windows.RoutedEventArgs e)
+    {
+        if (sender is not Wpf.Ui.Controls.Button { ContextMenu: { } menu } button) return;
+        e.Handled = true;
+        menu.PlacementTarget = button;
+        menu.IsOpen = true;
+    }
 }

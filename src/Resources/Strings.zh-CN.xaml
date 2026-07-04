@@ -59,6 +59,7 @@
     <sys:String x:Key="Start">启动</sys:String>
     <sys:String x:Key="Stop">停止</sys:String>
     <sys:String x:Key="Restart">重启</sys:String>
+    <sys:String x:Key="Details">详情</sys:String>
     <sys:String x:Key="Kill">强制终止</sys:String>
     <sys:String x:Key="Remove">删除</sys:String>
     <sys:String x:Key="Export">导出</sys:String>

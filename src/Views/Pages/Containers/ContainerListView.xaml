@@ -29,7 +29,12 @@
         </Style>
 
         <DataTemplate x:Key="ContainerListItemTemplate">
-            <Border Style="{StaticResource ContainerCardStyle}">
+            <Border Style="{StaticResource ContainerCardStyle}" Cursor="Hand">
+                <Border.InputBindings>
+                    <MouseBinding MouseAction="LeftClick"
+                                  Command="{Binding DataContext.ShowContainerDetailsFromListCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                  CommandParameter="{Binding Container}" />
+                </Border.InputBindings>
                 <Grid MinHeight="72">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
@@ -107,7 +112,26 @@
                                 </Style>
                             </ui:Button.Style>
                         </ui:Button>
-                        <ui:Button Icon="{ui:SymbolIcon Symbol=MoreHorizontal24}" Appearance="Secondary" Command="{Binding DataContext.ShowContainerDetailsFromListCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding Container}" ToolTip="{DynamicResource Actions}" Style="{StaticResource ContainerActionButtonStyle}" />
+                        <ui:Button Icon="{ui:SymbolIcon Symbol=MoreHorizontal24}"
+                                   Appearance="Secondary"
+                                   ToolTip="{DynamicResource Actions}"
+                                   Style="{StaticResource ContainerActionButtonStyle}"
+                                   Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                   Click="MoreActionsButton_Click">
+                            <ui:Button.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="{DynamicResource Restart}"
+                                              Command="{Binding PlacementTarget.Tag.RestartContainerFromListCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                              CommandParameter="{Binding PlacementTarget.DataContext.Container, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                    <MenuItem Header="{DynamicResource Details}"
+                                              Command="{Binding PlacementTarget.Tag.ShowContainerDetailsFromListCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                              CommandParameter="{Binding PlacementTarget.DataContext.Container, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                    <MenuItem Header="{DynamicResource Terminal}"
+                                              Command="{Binding PlacementTarget.Tag.OpenTerminalFromListCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                              CommandParameter="{Binding PlacementTarget.DataContext.Container, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                </ContextMenu>
+                            </ui:Button.ContextMenu>
+                        </ui:Button>
                         <ui:Button Icon="{ui:SymbolIcon Symbol=Delete24}" Appearance="Danger" Command="{Binding DataContext.RemoveContainerFromListCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding Container}" ToolTip="{DynamicResource Remove}" Style="{StaticResource ContainerActionButtonStyle}" />
                     </StackPanel>
                 </Grid>
