@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.IO;
 using System.Text.Json;
 using ExWSLC.Models;
 
@@ -166,12 +167,7 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner) : IContai
 
     public void OpenInteractiveTerminal(string containerId)
     {
-        Process.Start(new ProcessStartInfo
-        {
-            FileName = "wt.exe",
-            UseShellExecute = true,
-            ArgumentList = { "wslc.exe", "exec", "--interactive", "--tty", containerId, "/bin/sh" }
-        });
+        Process.Start(BuildInteractiveTerminalStartInfo(containerId));
     }
 
     public void OpenNativeSettings() => Process.Start(new ProcessStartInfo(Executable, "settings") { UseShellExecute = true });
@@ -231,11 +227,42 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner) : IContai
         _ => state
     };
 
+    internal static ProcessStartInfo BuildInteractiveTerminalStartInfo(string containerId, string? executablePath = null)
+    {
+        var startInfo = new ProcessStartInfo
+        {
+            FileName = "wt.exe",
+            UseShellExecute = true
+        };
+        startInfo.ArgumentList.Add(string.IsNullOrWhiteSpace(executablePath) ? ResolveExecutablePath(Executable) : executablePath);
+        startInfo.ArgumentList.Add("exec");
+        startInfo.ArgumentList.Add("--interactive");
+        startInfo.ArgumentList.Add("--tty");
+        startInfo.ArgumentList.Add(containerId);
+        startInfo.ArgumentList.Add("/bin/sh");
+        return startInfo;
+    }
+
     private Task<OperationResult> RunAsync(IReadOnlyList<string> arguments, IProgress<string>? progress = null, CancellationToken cancellationToken = default) =>
         processRunner.ExecuteAsync(Executable, arguments, progress: progress, cancellationToken: cancellationToken);
 
     private static void AddOption(List<string> arguments, string option, string value)
     {
         if (!string.IsNullOrWhiteSpace(value)) arguments.AddRange([option, value]);
+    }
+
+    private static string ResolveExecutablePath(string fileName)
+    {
+        if (Path.IsPathFullyQualified(fileName) && File.Exists(fileName)) return fileName;
+
+        var pathEntries = (Environment.GetEnvironmentVariable("PATH") ?? string.Empty)
+            .Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        foreach (var entry in pathEntries)
+        {
+            var candidate = Path.Combine(entry.Trim('"'), fileName);
+            if (File.Exists(candidate)) return candidate;
+        }
+
+        return fileName;
     }
 }

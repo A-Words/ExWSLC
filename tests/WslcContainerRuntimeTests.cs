@@ -71,4 +71,16 @@ public class WslcContainerRuntimeTests
     {
         Assert.Equal(expected, WslcContainerRuntime.NormalizeContainerState(input));
     }
+
+    [Fact]
+    public void BuildInteractiveTerminalStartInfo_UsesResolvedWslcPath()
+    {
+        const string wslcPath = @"C:\Program Files\WSL\wslc.exe";
+        var startInfo = WslcContainerRuntime.BuildInteractiveTerminalStartInfo("container-id", wslcPath);
+
+        Assert.Equal("wt.exe", startInfo.FileName);
+        Assert.True(startInfo.UseShellExecute);
+        Assert.Equal(wslcPath, startInfo.ArgumentList[0]);
+        Assert.Equal(["exec", "--interactive", "--tty", "container-id", "/bin/sh"], startInfo.ArgumentList.Skip(1));
+    }
 }
