@@ -16,7 +16,9 @@
     <sys:String x:Key="ContainersTitle">Containers</sys:String><sys:String x:Key="Search">Search name, image, or ID</sys:String>
     <sys:String x:Key="CreateContainer">Create and run a container</sys:String><sys:String x:Key="Image">Image</sys:String>
     <sys:String x:Key="CreateContainerHint">Configure image, resource limits, networking, and mounts before launch</sys:String>
-    <sys:String x:Key="NoContainerSelected">Select a container</sys:String><sys:String x:Key="SelectContainerHint">Choose a container on the left to inspect and manage it, or use the plus button to create one.</sys:String>
+    <sys:String x:Key="NoContainerSelected">Select a container</sys:String><sys:String x:Key="SelectContainerHint">Choose a container to inspect and manage it, or use the plus button to create one.</sys:String>
+    <sys:String x:Key="NoContainersTitle">No containers yet</sys:String><sys:String x:Key="NoContainersHint">Create a container to see its state, image, ports, and resource usage here.</sys:String>
+    <sys:String x:Key="NoContainerResultsTitle">No matching containers</sys:String><sys:String x:Key="NoContainerResultsHint">Try another name, image, or ID.</sys:String>
     <sys:String x:Key="ContainerLifecycle">Lifecycle</sys:String><sys:String x:Key="ContainerLifecycleHint">Stop, restart, force stop, or permanently remove this container</sys:String>
     <sys:String x:Key="LiveStatsHint">Review CPU, memory, and network I/O snapshots</sys:String><sys:String x:Key="LogsHint">Read recent logs or follow live output</sys:String>
     <sys:String x:Key="ExecHint">Run a one-shot command inside the active container</sys:String><sys:String x:Key="ExportHint">Export the stopped container filesystem as a tar archive</sys:String>

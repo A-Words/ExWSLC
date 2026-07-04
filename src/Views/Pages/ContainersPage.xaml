@@ -145,17 +145,50 @@
                     <ItemsControl ItemsSource="{Binding DataContext.VisibleContainerItems, ElementName=RootPage}"
                                   ItemTemplate="{StaticResource ContainerListItemTemplate}" />
                 </ScrollViewer>
+                <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="360">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding DataContext.VisibleContainerItems.Count, ElementName=RootPage}" Value="0">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+
+                    <StackPanel>
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding DataContext.SearchText, ElementName=RootPage}" Value="">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+                        <TextBlock Text="{DynamicResource NoContainersTitle}" FontSize="22" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,0,0,7" />
+                        <TextBlock Text="{DynamicResource NoContainersHint}" TextWrapping="Wrap" TextAlignment="Center" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                        <ui:Button Content="{DynamicResource CreateContainer}" Icon="{ui:SymbolIcon Symbol=Add24}" Appearance="Primary" Command="{Binding DataContext.ShowCreateContainerCommand, ElementName=RootPage}" HorizontalAlignment="Center" Margin="0,18,0,0" />
+                    </StackPanel>
+
+                    <StackPanel>
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Visible" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding DataContext.SearchText, ElementName=RootPage}" Value="">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+                        <TextBlock Text="{DynamicResource NoContainerResultsTitle}" FontSize="22" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,0,0,7" />
+                        <TextBlock Text="{DynamicResource NoContainerResultsHint}" TextWrapping="Wrap" TextAlignment="Center" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                    </StackPanel>
+                </StackPanel>
             </Grid>
-        </DataTemplate>
-        <DataTemplate x:Key="ContainerEmptyTemplate">
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="360">
-                <Border Width="92" Height="92" CornerRadius="22" Background="{ui:ThemeResource ControlFillColorTertiaryBrush}">
-                    <ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xF5ED;" FontSize="44" Opacity=".42" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                </Border>
-                <TextBlock Text="{DynamicResource NoContainerSelected}" FontSize="22" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,18,0,7" />
-                <TextBlock Text="{DynamicResource SelectContainerHint}" TextWrapping="Wrap" TextAlignment="Center" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
-                <ui:Button Content="{DynamicResource CreateContainer}" Icon="{ui:SymbolIcon Symbol=Add24}" Appearance="Primary" Command="{Binding DataContext.ShowCreateContainerCommand, ElementName=RootPage}" HorizontalAlignment="Center" Margin="0,18,0,0" />
-            </StackPanel>
         </DataTemplate>
 
         <DataTemplate x:Key="ContainerCreateTemplate">
