@@ -19,7 +19,6 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     public ObservableCollection<ContainerSummary> Containers { get; } = [];
     public ObservableCollection<ContainerSummary> ActiveContainers { get; } = [];
-    public ObservableCollection<ContainerSummary> VisibleContainers { get; } = [];
     public ObservableCollection<ContainerListItem> VisibleContainerItems { get; } = [];
     public ObservableCollection<ImageSummary> Images { get; } = [];
     public ObservableCollection<ImageSummary> VisibleImages { get; } = [];
@@ -587,7 +586,6 @@ public partial class MainViewModel : ObservableObject, IDisposable
             container.Image.Contains(query, StringComparison.OrdinalIgnoreCase) ||
             container.Id.Contains(query, StringComparison.OrdinalIgnoreCase)).ToArray();
 
-        Replace(VisibleContainers, visible);
         Replace(VisibleContainerItems, visible.Select(container => new ContainerListItem
         {
             Container = container,
@@ -607,7 +605,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         if (previousSelection is null) return;
 
-        SelectedContainer = VisibleContainers.FirstOrDefault(container =>
+        SelectedContainer = VisibleContainerItems.Select(item => item.Container).FirstOrDefault(container =>
             MatchesContainerIdentity(container, previousSelection));
     }
 

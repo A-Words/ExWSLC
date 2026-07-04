@@ -16,8 +16,8 @@ public class MainViewModelTests
 
         viewModel.SearchText = "nginx";
 
-        Assert.Single(viewModel.VisibleContainers);
-        Assert.Equal("web", viewModel.VisibleContainers[0].Name);
+        Assert.Single(viewModel.VisibleContainerItems);
+        Assert.Equal("web", viewModel.VisibleContainerItems[0].Container.Name);
         viewModel.Dispose();
     }
 
@@ -114,7 +114,7 @@ public class MainViewModelTests
         var viewModel = CreateViewModel(runtime, capabilities);
 
         await viewModel.InitializeAsync();
-        viewModel.SelectedContainer = viewModel.VisibleContainers[0];
+        viewModel.SelectedContainer = viewModel.VisibleContainerItems[0].Container;
         var firstSelection = viewModel.SelectedContainer;
 
         await viewModel.RefreshAllCommand.ExecuteAsync(null);
