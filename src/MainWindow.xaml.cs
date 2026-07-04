@@ -2,6 +2,7 @@ using System.Windows;
 using ExWSLC.Services;
 using ExWSLC.ViewModels;
 using ExWSLC.Views.Pages;
+using ExWSLC.Views.Pages.Containers;
 using Wpf.Ui.Controls;
 
 namespace ExWSLC;

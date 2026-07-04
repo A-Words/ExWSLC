@@ -1,10 +1,10 @@
 using System.Windows.Controls;
 
-namespace ExWSLC.Views.Pages;
+namespace ExWSLC.Views.Pages.Containers;
 
-public partial class ContainersPage : Page
+public partial class ContainerListView : UserControl
 {
-    public ContainersPage()
+    public ContainerListView()
     {
         InitializeComponent();
         DataContext = App.Current.ViewModel;

@@ -3,6 +3,7 @@
                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                  xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
                  xmlns:pages="clr-namespace:ExWSLC.Views.Pages"
+                 xmlns:containerPages="clr-namespace:ExWSLC.Views.Pages.Containers"
                  Title="ExWSLC" Width="1100" Height="800"
                  WindowStartupLocation="CenterScreen" WindowBackdropType="Mica"
                  ExtendsContentIntoTitleBar="True">
@@ -29,7 +30,7 @@
                 <ui:NavigationViewItem Content="{DynamicResource NavOverview}" NavigationCacheMode="Enabled" TargetPageType="{x:Type pages:OverviewPage}">
                     <ui:NavigationViewItem.Icon><ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xE80F;" /></ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
-                <ui:NavigationViewItem Content="{DynamicResource NavContainers}" NavigationCacheMode="Enabled" TargetPageType="{x:Type pages:ContainersPage}">
+                <ui:NavigationViewItem Content="{DynamicResource NavContainers}" NavigationCacheMode="Enabled" TargetPageType="{x:Type containerPages:ContainersPage}">
                     <ui:NavigationViewItem.Icon><ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xF5ED;" /></ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="{DynamicResource NavImages}" NavigationCacheMode="Enabled" TargetPageType="{x:Type pages:ImagesPage}">
