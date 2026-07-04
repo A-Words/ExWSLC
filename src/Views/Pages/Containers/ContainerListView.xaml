@@ -4,6 +4,10 @@
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}">
     <UserControl.Resources>
+        <SolidColorBrush x:Key="ContainerDangerIconBrush" Color="#C42B1C" />
+        <SolidColorBrush x:Key="ContainerDangerHoverBrush" Color="#18C42B1C" />
+        <SolidColorBrush x:Key="ContainerDangerPressedBrush" Color="#28C42B1C" />
+
         <Style x:Key="ContainerCardStyle" TargetType="Border">
             <Setter Property="Background" Value="{ui:ThemeResource ControlFillColorSecondaryBrush}" />
             <Setter Property="BorderBrush" Value="{ui:ThemeResource CardStrokeColorDefaultBrush}" />
@@ -19,6 +23,13 @@
             <Setter Property="Padding" Value="0" />
             <Setter Property="Margin" Value="6,0,0,0" />
             <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+
+        <Style x:Key="ContainerDeleteActionButtonStyle" TargetType="ui:Button" BasedOn="{StaticResource ContainerActionButtonStyle}">
+            <Setter Property="MouseOverBackground" Value="{StaticResource ContainerDangerHoverBrush}" />
+            <Setter Property="MouseOverBorderBrush" Value="{StaticResource ContainerDangerHoverBrush}" />
+            <Setter Property="PressedBackground" Value="{StaticResource ContainerDangerPressedBrush}" />
+            <Setter Property="PressedBorderBrush" Value="{StaticResource ContainerDangerPressedBrush}" />
         </Style>
 
         <DataTemplate x:Key="ContainerListItemTemplate">
@@ -87,7 +98,10 @@
                                 </Style>
                             </ui:Button.Style>
                         </ui:Button>
-                        <ui:Button Icon="{ui:SymbolIcon Symbol=Stop24}" Appearance="Secondary" Command="{Binding DataContext.StopContainerFromListCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding Container}" ToolTip="{DynamicResource Stop}">
+                        <ui:Button Appearance="Secondary" Command="{Binding DataContext.StopContainerFromListCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding Container}" ToolTip="{DynamicResource Stop}">
+                            <ui:Button.Icon>
+                                <ui:SymbolIcon Symbol="Stop24" Filled="True" />
+                            </ui:Button.Icon>
                             <ui:Button.Style>
                                 <Style TargetType="ui:Button" BasedOn="{StaticResource ContainerActionButtonStyle}">
                                     <Setter Property="Visibility" Value="Collapsed" />
@@ -99,7 +113,7 @@
                                 </Style>
                             </ui:Button.Style>
                         </ui:Button>
-                        <ui:Button Icon="{ui:SymbolIcon Symbol=MoreHorizontal24}"
+                        <ui:Button Icon="{ui:SymbolIcon Symbol=MoreVertical24}"
                                    Appearance="Secondary"
                                    ToolTip="{DynamicResource Actions}"
                                    Style="{StaticResource ContainerActionButtonStyle}"
@@ -119,7 +133,11 @@
                                 </ContextMenu>
                             </ui:Button.ContextMenu>
                         </ui:Button>
-                        <ui:Button Icon="{ui:SymbolIcon Symbol=Delete24}" Appearance="Danger" Command="{Binding DataContext.RemoveContainerFromListCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding Container}" ToolTip="{DynamicResource Remove}" Style="{StaticResource ContainerActionButtonStyle}" />
+                        <ui:Button Appearance="Secondary" Command="{Binding DataContext.RemoveContainerFromListCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding Container}" ToolTip="{DynamicResource Remove}" Style="{StaticResource ContainerDeleteActionButtonStyle}">
+                            <ui:Button.Icon>
+                                <ui:SymbolIcon Symbol="Delete24" Foreground="{StaticResource ContainerDangerIconBrush}" />
+                            </ui:Button.Icon>
+                        </ui:Button>
                     </StackPanel>
                 </Grid>
             </Border>
