@@ -35,6 +35,46 @@ public class MainViewModelTests
         Assert.Equal("-", item.Ports);
     }
 
+    [Fact]
+    public void ContainerListItem_FormatsStructuredPortMappings()
+    {
+        const string ports = """
+            [
+              {
+                "BindingAddress": "127.0.0.1",
+                "ContainerPort": 80,
+                "HostPort": 8080,
+                "Protocol": 6
+              }
+            ]
+            """;
+        var item = new ContainerListItem
+        {
+            Container = new ContainerSummary("abc", "web", "nginx", "running", "Up", ports, "now")
+        };
+
+        Assert.Equal("8080:80", item.Ports);
+    }
+
+    [Fact]
+    public void ContainerListItem_FormatsWrappedPortMappings()
+    {
+        const string ports = """
+            {
+              "ports": [
+                { "ContainerPort": "80", "HostPort": "8080", "Protocol": "tcp" },
+                { "ContainerPort": 53, "HostPort": 5353, "Protocol": 17 }
+              ]
+            }
+            """;
+        var item = new ContainerListItem
+        {
+            Container = new ContainerSummary("abc", "web", "nginx", "running", "Up", ports, "now")
+        };
+
+        Assert.Equal("8080:80, 5353:53", item.Ports);
+    }
+
     [Theory]
     [InlineData("512 KiB / 15.49 GiB", "512 KiB")]
     [InlineData("21.54 MiB / 15.49 GiB", "21.54 MiB")]

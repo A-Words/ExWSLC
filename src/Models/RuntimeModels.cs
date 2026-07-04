@@ -48,15 +48,32 @@ public sealed class ContainerListItem
     public ContainerStats? Stats { get; init; }
     public string Name => Container.Name;
     public string Image => Container.Image;
-    public string Ports => HasPublishedPorts(Container.Ports) ? Container.Ports : "-";
+    public string Ports => FormatPorts(Container.Ports);
     public bool IsRunning => Container.IsRunning;
     public string Cpu => string.IsNullOrWhiteSpace(Stats?.Cpu) ? "--" : Stats.Cpu;
     public string Memory => FormatUsedMemory(Stats?.Memory);
 
-    private static bool HasPublishedPorts(string ports)
+    private static string FormatPorts(string ports)
     {
         var normalized = ports.Trim();
-        return normalized is not ("" or "[]" or "{}" or "-");
+        if (normalized is "" or "[]" or "{}" or "-") return "-";
+        if (!normalized.StartsWith('[') && !normalized.StartsWith('{')) return normalized;
+
+        try
+        {
+            using var document = JsonDocument.Parse(normalized);
+            var mappings = EnumeratePortMappings(document.RootElement)
+                .Select(FormatPortMapping)
+                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .Distinct()
+                .ToArray();
+
+            return mappings.Length == 0 ? "-" : string.Join(", ", mappings);
+        }
+        catch (JsonException)
+        {
+            return normalized;
+        }
     }
 
     private static string FormatUsedMemory(string? memory)
@@ -65,6 +82,41 @@ public sealed class ContainerListItem
 
         var separatorIndex = memory.IndexOf('/');
         return separatorIndex < 0 ? memory.Trim() : memory[..separatorIndex].Trim();
+    }
+
+    private static IEnumerable<JsonElement> EnumeratePortMappings(JsonElement root)
+    {
+        if (root.ValueKind == JsonValueKind.Array)
+        {
+            return root.EnumerateArray().Where(item => item.ValueKind == JsonValueKind.Object);
+        }
+
+        if (root.ValueKind != JsonValueKind.Object) return [];
+
+        if (LooksLikePortMapping(root)) return [root];
+
+        return root.EnumerateObject()
+            .Where(property => property.Value.ValueKind == JsonValueKind.Array)
+            .SelectMany(property => property.Value.EnumerateArray())
+            .Where(item => item.ValueKind == JsonValueKind.Object);
+    }
+
+    private static bool LooksLikePortMapping(JsonElement element) =>
+        element.TryGetPropertyIgnoreCase("ContainerPort", out _) ||
+        element.TryGetPropertyIgnoreCase("HostPort", out _) ||
+        element.TryGetPropertyIgnoreCase("PrivatePort", out _) ||
+        element.TryGetPropertyIgnoreCase("PublicPort", out _);
+
+    private static string FormatPortMapping(JsonElement element)
+    {
+        var containerPort = element.ReadInt("ContainerPort", "PrivatePort", "TargetPort");
+        var hostPort = element.ReadInt("HostPort", "PublicPort", "PublishedPort");
+        if (containerPort <= 0 && hostPort <= 0) return string.Empty;
+
+        var container = containerPort > 0 ? containerPort.ToString() : string.Empty;
+        if (hostPort <= 0) return container;
+
+        return string.IsNullOrEmpty(container) ? hostPort.ToString() : $"{hostPort}:{container}";
     }
 }
 
@@ -153,5 +205,44 @@ internal static class JsonElementExtensions
         }
 
         return string.Empty;
+    }
+
+    public static int ReadInt(this JsonElement element, params string[] names)
+    {
+        foreach (var property in element.EnumerateObject())
+        {
+            if (!names.Any(name => property.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
+            {
+                continue;
+            }
+
+            if (property.Value.ValueKind == JsonValueKind.Number && property.Value.TryGetInt32(out var number))
+            {
+                return number;
+            }
+
+            if (property.Value.ValueKind == JsonValueKind.String &&
+                int.TryParse(property.Value.GetString(), out var parsed))
+            {
+                return parsed;
+            }
+        }
+
+        return 0;
+    }
+
+    public static bool TryGetPropertyIgnoreCase(this JsonElement element, string name, out JsonElement value)
+    {
+        foreach (var property in element.EnumerateObject())
+        {
+            if (property.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
+            {
+                value = property.Value;
+                return true;
+            }
+        }
+
+        value = default;
+        return false;
     }
 }
