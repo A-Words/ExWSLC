@@ -13,13 +13,6 @@
             <Setter Property="Margin" Value="0,4,0,8" />
         </Style>
 
-        <Style x:Key="ContainerMetricPillStyle" TargetType="Border">
-            <Setter Property="Background" Value="{ui:ThemeResource ControlFillColorTertiaryBrush}" />
-            <Setter Property="CornerRadius" Value="6" />
-            <Setter Property="Padding" Value="10,5" />
-            <Setter Property="Margin" Value="0,8,8,0" />
-        </Style>
-
         <Style x:Key="ContainerActionButtonStyle" TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
             <Setter Property="Width" Value="34" />
             <Setter Property="Height" Value="34" />
@@ -35,13 +28,13 @@
                                   Command="{Binding DataContext.ShowContainerDetailsFromListCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                   CommandParameter="{Binding Container}" />
                 </Border.InputBindings>
-                <Grid MinHeight="72">
+                <Grid MinHeight="60">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <Grid>
+                    <Grid VerticalAlignment="Center">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="16" />
                             <ColumnDefinition />
@@ -64,25 +57,19 @@
                             <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
                             <TextBlock Text="{Binding Image}" Style="{StaticResource MutedTextStyle}" FontSize="13" TextTrimming="CharacterEllipsis" Margin="0,4,0,0" />
 
-                            <WrapPanel>
-                                <Border Style="{StaticResource ContainerMetricPillStyle}">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{DynamicResource Ports}" Style="{StaticResource MutedTextStyle}" Margin="0,0,6,0" />
-                                        <TextBlock Text="{Binding Ports}" FontSize="12" TextTrimming="CharacterEllipsis" MaxWidth="180" />
-                                    </StackPanel>
-                                </Border>
-                                <Border Style="{StaticResource ContainerMetricPillStyle}">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{DynamicResource Cpu}" Style="{StaticResource MutedTextStyle}" Margin="0,0,6,0" />
-                                        <TextBlock Text="{Binding Cpu}" FontSize="12" />
-                                    </StackPanel>
-                                </Border>
-                                <Border Style="{StaticResource ContainerMetricPillStyle}">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{DynamicResource Memory}" Style="{StaticResource MutedTextStyle}" Margin="0,0,6,0" />
-                                        <TextBlock Text="{Binding Memory}" FontSize="12" />
-                                    </StackPanel>
-                                </Border>
+                            <WrapPanel Margin="0,8,0,0">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,18,0">
+                                    <TextBlock Text="{DynamicResource Ports}" Style="{StaticResource MutedTextStyle}" Margin="0,0,6,0" />
+                                    <TextBlock Text="{Binding Ports}" FontSize="12" TextTrimming="CharacterEllipsis" MaxWidth="180" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,18,0">
+                                    <TextBlock Text="{DynamicResource Cpu}" Style="{StaticResource MutedTextStyle}" Margin="0,0,6,0" />
+                                    <TextBlock Text="{Binding Cpu}" FontSize="12" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{DynamicResource Memory}" Style="{StaticResource MutedTextStyle}" Margin="0,0,6,0" />
+                                    <TextBlock Text="{Binding Memory}" FontSize="12" />
+                                </StackPanel>
                             </WrapPanel>
                         </StackPanel>
                     </Grid>
