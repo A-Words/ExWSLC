@@ -141,7 +141,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
             Replace(Volumes, volumesTask.Result);
             Replace(Stats, statsTask.Result);
             ApplyContainerFilter();
-            RestoreSelectedContainer(selectedBeforeRefresh);
+            RestoreSelectedContainerIfUnchanged(selectedBeforeRefresh);
             RaiseCounts();
             OnPropertyChanged(nameof(SelectedContainerStats));
             StatusMessage = $"Updated {DateTime.Now:T}";
@@ -601,9 +601,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
             image.Id.Contains(query, StringComparison.OrdinalIgnoreCase)));
     }
 
-    private void RestoreSelectedContainer(ContainerSummary? previousSelection)
+    private void RestoreSelectedContainerIfUnchanged(ContainerSummary? previousSelection)
     {
         if (previousSelection is null) return;
+        if (!ReferenceEquals(SelectedContainer, previousSelection)) return;
 
         SelectedContainer = VisibleContainerItems.Select(item => item.Container).FirstOrDefault(container =>
             MatchesContainerIdentity(container, previousSelection));

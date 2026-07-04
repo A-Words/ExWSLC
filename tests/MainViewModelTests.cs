@@ -126,6 +126,32 @@ public class MainViewModelTests
         viewModel.Dispose();
     }
 
+    [Fact]
+    public async Task RefreshAllCommand_DoesNotRestoreContainerWhenSelectionChangesDuringRefresh()
+    {
+        var runtime = new Mock<IContainerRuntime>();
+        var refreshedContainers = new TaskCompletionSource<IReadOnlyList<ContainerSummary>>();
+        runtime.Setup(value => value.GetContainersAsync(It.IsAny<CancellationToken>())).Returns(refreshedContainers.Task);
+        runtime.Setup(value => value.GetImagesAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        runtime.Setup(value => value.GetNetworksAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        runtime.Setup(value => value.GetVolumesAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        runtime.Setup(value => value.GetStatsAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        var viewModel = CreateViewModel(runtime);
+        var selectedContainer = new ContainerSummary("id-web", "web", "nginx:latest", "running", "Up", "8080:80", "now");
+        viewModel.SelectedContainer = selectedContainer;
+
+        var refresh = viewModel.RefreshAllCommand.ExecuteAsync(null);
+        viewModel.SelectedContainer = null;
+        refreshedContainers.SetResult([
+            new ContainerSummary("id-web", "web", "nginx:latest", "running", "Up 5 minutes", "8080:80", "later")
+        ]);
+
+        await refresh;
+
+        Assert.Null(viewModel.SelectedContainer);
+        viewModel.Dispose();
+    }
+
     private static MainViewModel CreateViewModel(Mock<IContainerRuntime>? runtime = null, Mock<IRuntimeCapabilityService>? capabilities = null)
     {
         runtime ??= new Mock<IContainerRuntime>();
