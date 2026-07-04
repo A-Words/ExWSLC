@@ -6,9 +6,6 @@
         <ResourceDictionary>
             <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
             <FontFamily x:Key="SegoeFluentIcons">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
-            <Style TargetType="TextBlock">
-                <Setter Property="Foreground" Value="{ui:ThemeResource TextFillColorPrimaryBrush}" />
-            </Style>
             <Style x:Key="CardStyle" TargetType="Border">
                 <Setter Property="Background" Value="{ui:ThemeResource ControlFillColorSecondaryBrush}" />
                 <Setter Property="BorderBrush" Value="{ui:ThemeResource CardStrokeColorDefaultBrush}" />
