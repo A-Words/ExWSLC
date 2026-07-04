@@ -48,10 +48,24 @@ public sealed class ContainerListItem
     public ContainerStats? Stats { get; init; }
     public string Name => Container.Name;
     public string Image => Container.Image;
-    public string Ports => string.IsNullOrWhiteSpace(Container.Ports) ? "-" : Container.Ports;
+    public string Ports => HasPublishedPorts(Container.Ports) ? Container.Ports : "-";
     public bool IsRunning => Container.IsRunning;
     public string Cpu => string.IsNullOrWhiteSpace(Stats?.Cpu) ? "--" : Stats.Cpu;
-    public string Memory => string.IsNullOrWhiteSpace(Stats?.Memory) ? "--" : Stats.Memory;
+    public string Memory => FormatUsedMemory(Stats?.Memory);
+
+    private static bool HasPublishedPorts(string ports)
+    {
+        var normalized = ports.Trim();
+        return normalized is not ("" or "[]" or "{}" or "-");
+    }
+
+    private static string FormatUsedMemory(string? memory)
+    {
+        if (string.IsNullOrWhiteSpace(memory)) return "--";
+
+        var separatorIndex = memory.IndexOf('/');
+        return separatorIndex < 0 ? memory.Trim() : memory[..separatorIndex].Trim();
+    }
 }
 
 public sealed record RuntimeCapabilities(

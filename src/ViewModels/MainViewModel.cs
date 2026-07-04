@@ -163,6 +163,13 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     [RelayCommand] private Task StartContainerFromListAsync(ContainerSummary? container) => RunContainerActionAsync(container, id => _runtime.StartContainerAsync(id, _lifetime.Token));
     [RelayCommand] private Task StopContainerFromListAsync(ContainerSummary? container) => RunContainerActionAsync(container, id => _runtime.StopContainerAsync(id, _lifetime.Token));
+    [RelayCommand]
+    private void ShowContainerDetailsFromList(ContainerSummary? container)
+    {
+        if (container is null) return;
+        IsCreatingContainer = false;
+        SelectedContainer = container;
+    }
 
     [RelayCommand]
     private async Task RemoveContainerFromListAsync(ContainerSummary? container)

@@ -21,6 +21,35 @@ public class MainViewModelTests
         viewModel.Dispose();
     }
 
+    [Theory]
+    [InlineData("")]
+    [InlineData("[]")]
+    [InlineData("{}")]
+    public void ContainerListItem_DisplaysMissingPortsAsDash(string ports)
+    {
+        var item = new ContainerListItem
+        {
+            Container = new ContainerSummary("abc", "web", "nginx", "running", "Up", ports, "now")
+        };
+
+        Assert.Equal("-", item.Ports);
+    }
+
+    [Theory]
+    [InlineData("512 KiB / 15.49 GiB", "512 KiB")]
+    [InlineData("21.54 MiB / 15.49 GiB", "21.54 MiB")]
+    [InlineData("1.25 GiB / 15.49 GiB", "1.25 GiB")]
+    public void ContainerListItem_DisplaysUsedMemoryOnly(string memory, string expected)
+    {
+        var item = new ContainerListItem
+        {
+            Container = new ContainerSummary("abc", "web", "nginx", "running", "Up", "80", "now"),
+            Stats = new ContainerStats("abc", "web", "0.00%", memory, "0 B / 0 B", "0 B / 0 B", "1")
+        };
+
+        Assert.Equal(expected, item.Memory);
+    }
+
     [Fact]
     public async Task InitializeAsync_RecoversBusyStateWhenRefreshFails()
     {
