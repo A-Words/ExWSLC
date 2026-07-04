@@ -20,6 +20,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public ObservableCollection<ContainerSummary> Containers { get; } = [];
     public ObservableCollection<ContainerSummary> ActiveContainers { get; } = [];
     public ObservableCollection<ContainerSummary> VisibleContainers { get; } = [];
+    public ObservableCollection<ContainerListItem> VisibleContainerItems { get; } = [];
     public ObservableCollection<ImageSummary> Images { get; } = [];
     public ObservableCollection<ImageSummary> VisibleImages { get; } = [];
     public ObservableCollection<NetworkSummary> Networks { get; } = [];
@@ -135,13 +136,13 @@ public partial class MainViewModel : ObservableObject, IDisposable
             await Task.WhenAll(containersTask, imagesTask, networksTask, volumesTask, statsTask);
             Replace(Containers, containersTask.Result);
             Replace(ActiveContainers, containersTask.Result.Where(container => container.IsRunning).Take(4));
-            ApplyContainerFilter();
-            RestoreSelectedContainer(selectedBeforeRefresh);
             Replace(Images, imagesTask.Result);
             ApplyImageFilter();
             Replace(Networks, networksTask.Result);
             Replace(Volumes, volumesTask.Result);
             Replace(Stats, statsTask.Result);
+            ApplyContainerFilter();
+            RestoreSelectedContainer(selectedBeforeRefresh);
             RaiseCounts();
             OnPropertyChanged(nameof(SelectedContainerStats));
             StatusMessage = $"Updated {DateTime.Now:T}";
@@ -159,6 +160,18 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [RelayCommand] private Task StartContainerAsync() => RunContainerActionAsync("Start container", id => _runtime.StartContainerAsync(id, _lifetime.Token));
     [RelayCommand] private Task StopContainerAsync() => RunContainerActionAsync("Stop container", id => _runtime.StopContainerAsync(id, _lifetime.Token));
     [RelayCommand] private Task RestartContainerAsync() => RunContainerActionAsync("Restart container", id => _runtime.RestartContainerAsync(id, _lifetime.Token));
+
+    [RelayCommand] private Task StartContainerFromListAsync(ContainerSummary? container) => RunContainerActionAsync(container, id => _runtime.StartContainerAsync(id, _lifetime.Token));
+    [RelayCommand] private Task StopContainerFromListAsync(ContainerSummary? container) => RunContainerActionAsync(container, id => _runtime.StopContainerAsync(id, _lifetime.Token));
+
+    [RelayCommand]
+    private async Task RemoveContainerFromListAsync(ContainerSummary? container)
+    {
+        if (container is null || !_interaction.Confirm("Remove container", $"Permanently remove {container.Name}?")) return;
+        SelectedContainer = null;
+        ShowResult(await _runtime.RemoveContainerAsync(container.Id, true, _lifetime.Token));
+        await RefreshAllAsync();
+    }
 
     [RelayCommand]
     private async Task KillContainerAsync()
@@ -414,6 +427,13 @@ public partial class MainViewModel : ObservableObject, IDisposable
         IsCreatingContainer = true;
     }
 
+    [RelayCommand]
+    private void ShowContainerList()
+    {
+        SelectedContainer = null;
+        IsCreatingContainer = false;
+    }
+
     [RelayCommand] private void CancelCreateContainer() => IsCreatingContainer = false;
 
     [RelayCommand]
@@ -496,6 +516,14 @@ public partial class MainViewModel : ObservableObject, IDisposable
         await RefreshAllAsync();
     }
 
+    private async Task RunContainerActionAsync(ContainerSummary? container, Func<string, Task<OperationResult>> operation)
+    {
+        if (container is null) return;
+        SelectedContainer = null;
+        ShowResult(await operation(container.Id));
+        await RefreshAllAsync();
+    }
+
     private async Task<OperationResult> RunTrackedAsync(string title, Func<IProgress<string>, CancellationToken, Task<OperationResult>> operation)
     {
         IsBusy = true;
@@ -547,10 +575,17 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private void ApplyContainerFilter()
     {
         var query = SearchText.Trim();
-        Replace(VisibleContainers, Containers.Where(container => string.IsNullOrEmpty(query) ||
+        var visible = Containers.Where(container => string.IsNullOrEmpty(query) ||
             container.Name.Contains(query, StringComparison.OrdinalIgnoreCase) ||
             container.Image.Contains(query, StringComparison.OrdinalIgnoreCase) ||
-            container.Id.Contains(query, StringComparison.OrdinalIgnoreCase)));
+            container.Id.Contains(query, StringComparison.OrdinalIgnoreCase)).ToArray();
+
+        Replace(VisibleContainers, visible);
+        Replace(VisibleContainerItems, visible.Select(container => new ContainerListItem
+        {
+            Container = container,
+            Stats = FindStats(container)
+        }));
     }
 
     private void ApplyImageFilter()
@@ -568,6 +603,11 @@ public partial class MainViewModel : ObservableObject, IDisposable
         SelectedContainer = VisibleContainers.FirstOrDefault(container =>
             MatchesContainerIdentity(container, previousSelection));
     }
+
+    private ContainerStats? FindStats(ContainerSummary container) =>
+        Stats.FirstOrDefault(stats =>
+            stats.Id.Equals(container.Id, StringComparison.OrdinalIgnoreCase) ||
+            stats.Name.Equals(container.Name, StringComparison.OrdinalIgnoreCase));
 
     private static bool MatchesContainerIdentity(ContainerSummary candidate, ContainerSummary selection)
     {

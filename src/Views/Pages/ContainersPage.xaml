@@ -20,35 +20,118 @@
         </Style>
 
         <DataTemplate x:Key="ContainerListItemTemplate">
-            <Grid Margin="0" MinHeight="72">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <Border Width="8" Height="8" CornerRadius="4" Margin="0,0,12,0" VerticalAlignment="Center">
-                    <Border.Style>
-                        <Style TargetType="Border">
-                            <Setter Property="Background" Value="{ui:ThemeResource TextFillColorTertiaryBrush}" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsRunning}" Value="True">
-                                    <Setter Property="Background" Value="{ui:ThemeResource SystemFillColorSuccessBrush}" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Border.Style>
-                </Border>
-                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                    <TextBlock Text="{Binding Image}" Style="{StaticResource MutedTextStyle}" TextTrimming="CharacterEllipsis" Margin="0,4,0,0" />
-                </StackPanel>
-                <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0,0,0">
-                    <TextBlock Text="{Binding State}" FontSize="12" HorizontalAlignment="Right" />
-                    <TextBlock Text="{Binding Status}" Style="{StaticResource MutedTextStyle}" TextTrimming="CharacterEllipsis" MaxWidth="82" Margin="0,4,0,0" />
-                </StackPanel>
-            </Grid>
+            <Border Background="Transparent" Padding="0,4">
+                    <Grid MinHeight="28">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="70" />
+                        </Grid.ColumnDefinitions>
+
+                    <ScrollViewer x:Name="RowColumnsScrollViewer" Grid.Column="0" Margin="10,0,0,0" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" Focusable="False" Loaded="RowColumnsScrollViewer_OnLoaded">
+                        <Grid MinWidth="784">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="22" />
+                                <ColumnDefinition Width="180" />
+                                <ColumnDefinition Width="230" />
+                                <ColumnDefinition Width="160" />
+                                <ColumnDefinition Width="80" />
+                                <ColumnDefinition Width="112" />
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0" Width="7" Height="7" CornerRadius="3.5" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Background" Value="{ui:ThemeResource TextFillColorTertiaryBrush}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                                                <Setter Property="Background" Value="{ui:ThemeResource SystemFillColorSuccessBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                            </Border>
+
+                            <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="0,0,16,0" />
+                            <TextBlock Grid.Column="2" Text="{Binding Image}" Style="{StaticResource MutedTextStyle}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="0,0,16,0" />
+                            <TextBlock Grid.Column="3" Text="{Binding Ports}" Style="{StaticResource MutedTextStyle}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="0,0,16,0" />
+                            <TextBlock Grid.Column="4" Text="{Binding Cpu}" FontSize="13" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="0,0,16,0" />
+                            <TextBlock Grid.Column="5" Text="{Binding Memory}" FontSize="13" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                        </Grid>
+                    </ScrollViewer>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <ui:Button Icon="{ui:SymbolIcon Symbol=Play24}" Appearance="Secondary" Command="{Binding DataContext.StartContainerFromListCommand, ElementName=RootPage}" CommandParameter="{Binding Container}" Width="28" Height="28" Padding="0" ToolTip="{DynamicResource Start}">
+                            <ui:Button.Style>
+                                <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ui:Button.Style>
+                        </ui:Button>
+                        <ui:Button Icon="{ui:SymbolIcon Symbol=Stop24}" Appearance="Secondary" Command="{Binding DataContext.StopContainerFromListCommand, ElementName=RootPage}" CommandParameter="{Binding Container}" Width="28" Height="28" Padding="0" ToolTip="{DynamicResource Stop}">
+                            <ui:Button.Style>
+                                <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ui:Button.Style>
+                        </ui:Button>
+                        <ui:Button Icon="{ui:SymbolIcon Symbol=Delete24}" Appearance="Danger" Command="{Binding DataContext.RemoveContainerFromListCommand, ElementName=RootPage}" CommandParameter="{Binding Container}" Width="28" Height="28" Padding="0" Margin="6,0,0,0" ToolTip="{DynamicResource Remove}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
         </DataTemplate>
 
+        <DataTemplate x:Key="ContainerListTemplate">
+            <Border Style="{StaticResource WorkbenchPanelStyle}" Padding="0">
+                <Grid>
+                    <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                    <Grid Grid.Row="0" Margin="8">
+                        <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                        <ui:TextBox PlaceholderText="{DynamicResource Search}" ClearButtonEnabled="True" Text="{Binding DataContext.SearchText, ElementName=RootPage, UpdateSourceTrigger=PropertyChanged}" MinHeight="28" VerticalContentAlignment="Center" />
+                        <ui:Button Grid.Column="1" Icon="{ui:SymbolIcon Symbol=Add24}" Appearance="Secondary" Command="{Binding DataContext.ShowCreateContainerCommand, ElementName=RootPage}" Width="28" Height="28" Padding="0" Margin="8,0,0,0" ToolTip="{DynamicResource CreateContainer}" />
+                    </Grid>
+                    <Grid Grid.Row="1">
+                        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="70" /></Grid.ColumnDefinitions>
+                        <ScrollViewer x:Name="ContainerColumnsScrollViewer" Grid.Row="0" Grid.Column="0" Margin="16,0,0,0" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" ScrollChanged="ContainerColumnsScrollViewer_OnScrollChanged">
+                            <Grid MinWidth="784" Margin="0,4,0,6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="22" />
+                                    <ColumnDefinition Width="180" />
+                                    <ColumnDefinition Width="230" />
+                                    <ColumnDefinition Width="160" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="112" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="1" Text="{DynamicResource Name}" Style="{StaticResource MutedTextStyle}" FontSize="12" />
+                                <TextBlock Grid.Column="2" Text="{DynamicResource Image}" Style="{StaticResource MutedTextStyle}" FontSize="12" />
+                                <TextBlock Grid.Column="3" Text="{DynamicResource Ports}" Style="{StaticResource MutedTextStyle}" FontSize="12" />
+                                <TextBlock Grid.Column="4" Text="CPU" Style="{StaticResource MutedTextStyle}" FontSize="12" />
+                                <TextBlock Grid.Column="5" Text="Memory" Style="{StaticResource MutedTextStyle}" FontSize="12" />
+                            </Grid>
+                        </ScrollViewer>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{DynamicResource Actions}" Style="{StaticResource MutedTextStyle}" FontSize="12" Margin="0,4,0,6" />
+                        <ui:ListView Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding DataContext.VisibleContainerItems, ElementName=RootPage}" SelectedValuePath="Container" SelectedValue="{Binding DataContext.SelectedContainer, ElementName=RootPage, Mode=TwoWay}" ItemTemplate="{StaticResource ContainerListItemTemplate}" Margin="4,0,4,4" ScrollViewer.HorizontalScrollBarVisibility="Disabled" />
+                        <ScrollViewer x:Name="ContainerColumnsScrollBarViewer" Grid.Row="2" Grid.Column="0" Margin="16,0,0,0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" ScrollChanged="ContainerColumnsScrollViewer_OnScrollChanged">
+                            <Border Width="784" Height="1" Opacity="0" />
+                        </ScrollViewer>
+                    </Grid>
+                    <Grid Grid.Row="2" Margin="18,10,18,16">
+                        <TextBlock Text="{Binding DataContext.Containers.Count, ElementName=RootPage, StringFormat={}{0} containers}" Style="{StaticResource MutedTextStyle}" VerticalAlignment="Center" />
+                        <ui:Button Icon="{ui:SymbolIcon Symbol=ArrowSync24}" Appearance="Secondary" Command="{Binding DataContext.RefreshAllCommand, ElementName=RootPage}" Width="34" Height="34" HorizontalAlignment="Right" />
+                    </Grid>
+                </Grid>
+            </Border>
+        </DataTemplate>
         <DataTemplate x:Key="ContainerEmptyTemplate">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="360">
                 <Border Width="92" Height="92" CornerRadius="22" Background="{ui:ThemeResource ControlFillColorTertiaryBrush}">
@@ -118,10 +201,15 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
-                <Border Style="{StaticResource WorkbenchPanelStyle}" Padding="22" Margin="0,0,0,12">
+                <DockPanel Margin="0,0,0,12">
+                    <ui:Button Content="{DynamicResource ContainersTitle}" Icon="{ui:SymbolIcon Symbol=ArrowLeft24}" Appearance="Secondary" Command="{Binding DataContext.ShowContainerListCommand, ElementName=RootPage}" />
+                </DockPanel>
+
+                <Border Grid.Row="1" Style="{StaticResource WorkbenchPanelStyle}" Padding="22" Margin="0,0,0,12">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
@@ -150,7 +238,7 @@
                     </Grid>
                 </Border>
 
-                <Border Grid.Row="1" Style="{StaticResource WorkbenchPanelStyle}" Padding="16,12" Margin="0,0,0,12">
+                <Border Grid.Row="2" Style="{StaticResource WorkbenchPanelStyle}" Padding="16,12" Margin="0,0,0,12">
                     <Grid>
                         <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
@@ -168,7 +256,7 @@
                     </Grid>
                 </Border>
 
-                <TabControl Grid.Row="2" Margin="0">
+                <TabControl Grid.Row="3" Margin="0">
                     <TabItem Header="{DynamicResource OverviewTab}">
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <Grid Margin="0,14,0,0">
@@ -266,47 +354,20 @@
     </Page.Resources>
 
     <Grid Margin="12">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="318" MinWidth="260" MaxWidth="380" />
-            <ColumnDefinition Width="12" />
-            <ColumnDefinition />
-        </Grid.ColumnDefinitions>
-        <Border Grid.Column="0" Style="{StaticResource WorkbenchPanelStyle}" Padding="0">
-            <Grid>
-                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-                <StackPanel Margin="18,18,18,12">
-                    <TextBlock Text="{DynamicResource ContainersTitle}" FontSize="24" FontWeight="SemiBold" />
-                    <TextBlock Text="{DynamicResource ContainersQuickHint}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" Margin="0,4,0,0" />
-                </StackPanel>
-                <Grid Grid.Row="1" Margin="14,0,14,12">
-                    <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                    <ui:TextBox PlaceholderText="{DynamicResource Search}" ClearButtonEnabled="True" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
-                    <ui:Button Grid.Column="1" Icon="{ui:SymbolIcon Symbol=Add24}" Appearance="Secondary" Command="{Binding ShowCreateContainerCommand}" Width="36" Height="36" Margin="8,0,0,0" ToolTip="{DynamicResource CreateContainer}" />
-                </Grid>
-                <ui:ListView Grid.Row="2" ItemsSource="{Binding VisibleContainers}" SelectedItem="{Binding SelectedContainer}" ItemTemplate="{StaticResource ContainerListItemTemplate}" Margin="6,0,6,6" />
-                <Grid Grid.Row="3" Margin="18,10,18,16">
-                    <TextBlock Text="{Binding Containers.Count, StringFormat={}{0} containers}" Style="{StaticResource MutedTextStyle}" VerticalAlignment="Center" />
-                    <ui:Button Icon="{ui:SymbolIcon Symbol=ArrowSync24}" Appearance="Secondary" Command="{Binding RefreshAllCommand}" Width="34" Height="34" HorizontalAlignment="Right" />
-                </Grid>
-            </Grid>
-        </Border>
-        <GridSplitter Grid.Column="1" Width="12" Background="Transparent" HorizontalAlignment="Stretch" />
-        <Border Grid.Column="2" Style="{StaticResource WorkbenchPanelStyle}" Padding="0" ClipToBounds="True">
-            <ContentControl Content="{Binding SelectedContainer}">
-                <ContentControl.Style>
-                    <Style TargetType="ContentControl">
-                        <Setter Property="ContentTemplate" Value="{StaticResource ContainerDetailTemplate}" />
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding SelectedContainer}" Value="{x:Null}">
-                                <Setter Property="ContentTemplate" Value="{StaticResource ContainerEmptyTemplate}" />
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding IsCreatingContainer}" Value="True">
-                                <Setter Property="ContentTemplate" Value="{StaticResource ContainerCreateTemplate}" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </ContentControl.Style>
-            </ContentControl>
-        </Border>
+        <ContentControl Content="{Binding SelectedContainer}">
+            <ContentControl.Style>
+                <Style TargetType="ContentControl">
+                    <Setter Property="ContentTemplate" Value="{StaticResource ContainerDetailTemplate}" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding SelectedContainer}" Value="{x:Null}">
+                            <Setter Property="ContentTemplate" Value="{StaticResource ContainerListTemplate}" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IsCreatingContainer}" Value="True">
+                            <Setter Property="ContentTemplate" Value="{StaticResource ContainerCreateTemplate}" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ContentControl.Style>
+        </ContentControl>
     </Grid>
 </Page>

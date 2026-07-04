@@ -77,6 +77,7 @@
     <sys:String x:Key="State">State</sys:String>
     <sys:String x:Key="Status">Uptime</sys:String>
     <sys:String x:Key="Ports">Ports</sys:String>
+    <sys:String x:Key="Actions">Actions</sys:String>
     <sys:String x:Key="OverviewTab">Overview</sys:String>
     <sys:String x:Key="Metrics">Metrics</sys:String>
     <sys:String x:Key="Configuration">Configuration</sys:String>

@@ -42,6 +42,18 @@ public sealed record ContainerStats(
     string BlockIo,
     string Pids);
 
+public sealed class ContainerListItem
+{
+    public required ContainerSummary Container { get; init; }
+    public ContainerStats? Stats { get; init; }
+    public string Name => Container.Name;
+    public string Image => Container.Image;
+    public string Ports => string.IsNullOrWhiteSpace(Container.Ports) ? "-" : Container.Ports;
+    public bool IsRunning => Container.IsRunning;
+    public string Cpu => string.IsNullOrWhiteSpace(Stats?.Cpu) ? "--" : Stats.Cpu;
+    public string Memory => string.IsNullOrWhiteSpace(Stats?.Memory) ? "--" : Stats.Memory;
+}
+
 public sealed record RuntimeCapabilities(
     bool IsAvailable,
     string CliVersion,
