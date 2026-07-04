@@ -12,7 +12,11 @@
     <sys:String x:Key="OverviewTitle">WSL Container overview</sys:String><sys:String x:Key="Running">Running</sys:String>
     <sys:String x:Key="Stopped">Stopped</sys:String><sys:String x:Key="Images">Images</sys:String>
     <sys:String x:Key="Networks">Networks</sys:String><sys:String x:Key="Volumes">Volumes</sys:String>
-    <sys:String x:Key="Environment">Runtime environment</sys:String><sys:String x:Key="LiveStats">Live resource snapshot</sys:String>
+    <sys:String x:Key="Environment">Runtime environment</sys:String><sys:String x:Key="Cpu">CPU</sys:String><sys:String x:Key="Memory">Memory</sys:String>
+    <sys:String x:Key="Network">Network</sys:String><sys:String x:Key="NetworkIo">Network I/O</sys:String><sys:String x:Key="BlockIo">Block I/O</sys:String><sys:String x:Key="Pids">PIDs</sys:String>
+    <sys:String x:Key="EnvironmentVariables">Environment</sys:String><sys:String x:Key="User">User</sys:String><sys:String x:Key="Workdir">Workdir</sys:String>
+    <sys:String x:Key="AllGpus">All GPUs</sys:String><sys:String x:Key="RemoveWhenStopped">Remove when stopped</sys:String><sys:String x:Key="OptionalCommand">Optional command</sys:String>
+    <sys:String x:Key="LiveStats">Live resource snapshot</sys:String>
     <sys:String x:Key="ContainersTitle">Containers</sys:String><sys:String x:Key="Search">Search name, image, or ID</sys:String>
     <sys:String x:Key="CreateContainer">Create and run a container</sys:String><sys:String x:Key="Image">Image</sys:String>
     <sys:String x:Key="CreateContainerHint">Configure image, resource limits, networking, and mounts before launch</sys:String>

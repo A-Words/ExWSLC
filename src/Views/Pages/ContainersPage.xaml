@@ -83,13 +83,13 @@
                                 </Border>
                                 <Border Style="{StaticResource ContainerMetricPillStyle}">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="CPU" Style="{StaticResource MutedTextStyle}" Margin="0,0,6,0" />
+                                        <TextBlock Text="{DynamicResource Cpu}" Style="{StaticResource MutedTextStyle}" Margin="0,0,6,0" />
                                         <TextBlock Text="{Binding Cpu}" FontSize="12" />
                                     </StackPanel>
                                 </Border>
                                 <Border Style="{StaticResource ContainerMetricPillStyle}">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="Memory" Style="{StaticResource MutedTextStyle}" Margin="0,0,6,0" />
+                                        <TextBlock Text="{DynamicResource Memory}" Style="{StaticResource MutedTextStyle}" Margin="0,0,6,0" />
                                         <TextBlock Text="{Binding Memory}" FontSize="12" />
                                     </StackPanel>
                                 </Border>
@@ -210,14 +210,14 @@
                                 <TextBlock Text="{DynamicResource Name}" />
                                 <ui:TextBox Text="{Binding DataContext.NewContainerName, ElementName=RootPage, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="my-container" Margin="0,5,0,12" />
                                 <TextBlock Text="{DynamicResource Command}" />
-                                <ui:TextBox Text="{Binding DataContext.NewCommand, ElementName=RootPage, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Optional command" Margin="0,5,0,0" />
+                                <ui:TextBox Text="{Binding DataContext.NewCommand, ElementName=RootPage, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="{DynamicResource OptionalCommand}" Margin="0,5,0,0" />
                             </StackPanel>
                             <StackPanel Grid.Column="1">
-                                <TextBlock Text="CPU" />
+                                <TextBlock Text="{DynamicResource Cpu}" />
                                 <ui:TextBox Text="{Binding DataContext.NewCpuLimit, ElementName=RootPage}" PlaceholderText="1.5" Margin="0,5,0,12" />
-                                <TextBlock Text="Memory" />
+                                <TextBlock Text="{DynamicResource Memory}" />
                                 <ui:TextBox Text="{Binding DataContext.NewMemoryLimit, ElementName=RootPage}" PlaceholderText="512M" Margin="0,5,0,12" />
-                                <TextBlock Text="Network" />
+                                <TextBlock Text="{DynamicResource Network}" />
                                 <ui:TextBox Text="{Binding DataContext.NewNetwork, ElementName=RootPage}" PlaceholderText="bridge" Margin="0,5,0,0" />
                             </StackPanel>
                         </Grid>
@@ -227,15 +227,15 @@
                             <TextBlock Text="{DynamicResource Advanced}" Style="{StaticResource SectionTitleStyle}" />
                             <Grid>
                                 <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition /><ColumnDefinition /></Grid.ColumnDefinitions>
-                                <StackPanel Margin="0,0,12,0"><TextBlock Text="Environment" /><ui:TextBox Text="{Binding DataContext.NewEnvironment, ElementName=RootPage}" AcceptsReturn="True" Height="76" PlaceholderText="KEY=VALUE" /></StackPanel>
-                                <StackPanel Grid.Column="1" Margin="0,0,12,0"><TextBlock Text="Ports" /><ui:TextBox Text="{Binding DataContext.NewPorts, ElementName=RootPage}" AcceptsReturn="True" Height="76" PlaceholderText="8080:80" /></StackPanel>
-                                <StackPanel Grid.Column="2"><TextBlock Text="Volumes" /><ui:TextBox Text="{Binding DataContext.NewVolumes, ElementName=RootPage}" AcceptsReturn="True" Height="76" PlaceholderText="source:/target" /></StackPanel>
+                                <StackPanel Margin="0,0,12,0"><TextBlock Text="{DynamicResource EnvironmentVariables}" /><ui:TextBox Text="{Binding DataContext.NewEnvironment, ElementName=RootPage}" AcceptsReturn="True" Height="76" PlaceholderText="KEY=VALUE" /></StackPanel>
+                                <StackPanel Grid.Column="1" Margin="0,0,12,0"><TextBlock Text="{DynamicResource Ports}" /><ui:TextBox Text="{Binding DataContext.NewPorts, ElementName=RootPage}" AcceptsReturn="True" Height="76" PlaceholderText="8080:80" /></StackPanel>
+                                <StackPanel Grid.Column="2"><TextBlock Text="{DynamicResource Volumes}" /><ui:TextBox Text="{Binding DataContext.NewVolumes, ElementName=RootPage}" AcceptsReturn="True" Height="76" PlaceholderText="source:/target" /></StackPanel>
                             </Grid>
                             <Grid Margin="0,14,0,0">
                                 <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition /><ColumnDefinition /></Grid.ColumnDefinitions>
-                                <StackPanel Margin="0,0,12,0"><TextBlock Text="User" /><ui:TextBox Text="{Binding DataContext.NewUser, ElementName=RootPage}" PlaceholderText="1000:1000" /></StackPanel>
-                                <StackPanel Grid.Column="1" Margin="0,0,12,0"><TextBlock Text="Workdir" /><ui:TextBox Text="{Binding DataContext.NewWorkingDirectory, ElementName=RootPage}" PlaceholderText="/app" /></StackPanel>
-                                <StackPanel Grid.Column="2" VerticalAlignment="Bottom"><CheckBox Content="All GPUs" IsChecked="{Binding DataContext.NewUseAllGpus, ElementName=RootPage}" /><CheckBox Content="Remove when stopped" IsChecked="{Binding DataContext.NewRemoveWhenStopped, ElementName=RootPage}" Margin="0,8,0,0" /></StackPanel>
+                                <StackPanel Margin="0,0,12,0"><TextBlock Text="{DynamicResource User}" /><ui:TextBox Text="{Binding DataContext.NewUser, ElementName=RootPage}" PlaceholderText="1000:1000" /></StackPanel>
+                                <StackPanel Grid.Column="1" Margin="0,0,12,0"><TextBlock Text="{DynamicResource Workdir}" /><ui:TextBox Text="{Binding DataContext.NewWorkingDirectory, ElementName=RootPage}" PlaceholderText="/app" /></StackPanel>
+                                <StackPanel Grid.Column="2" VerticalAlignment="Bottom"><CheckBox Content="{DynamicResource AllGpus}" IsChecked="{Binding DataContext.NewUseAllGpus, ElementName=RootPage}" /><CheckBox Content="{DynamicResource RemoveWhenStopped}" IsChecked="{Binding DataContext.NewRemoveWhenStopped, ElementName=RootPage}" Margin="0,8,0,0" /></StackPanel>
                             </Grid>
                         </StackPanel>
                     </Border>
@@ -311,16 +311,16 @@
                                 <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="16" /><ColumnDefinition /></Grid.ColumnDefinitions>
                                 <StackPanel>
                                     <Border Style="{StaticResource MetricTileStyle}">
-                                        <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><StackPanel><TextBlock Text="CPU" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" /><TextBlock Text="{Binding DataContext.SelectedContainerStats.Cpu, ElementName=RootPage, TargetNullValue=--}" FontSize="22" Margin="0,4,0,0" /></StackPanel><ui:SymbolIcon Grid.Column="1" Symbol="Pulse24" FontSize="24" Foreground="{DynamicResource AccentFillColorDefaultBrush}" /></Grid>
+                                        <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><StackPanel><TextBlock Text="{DynamicResource Cpu}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" /><TextBlock Text="{Binding DataContext.SelectedContainerStats.Cpu, ElementName=RootPage, TargetNullValue=--}" FontSize="22" Margin="0,4,0,0" /></StackPanel><ui:SymbolIcon Grid.Column="1" Symbol="Pulse24" FontSize="24" Foreground="{DynamicResource AccentFillColorDefaultBrush}" /></Grid>
                                     </Border>
                                     <Border Style="{StaticResource MetricTileStyle}">
-                                        <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><StackPanel><TextBlock Text="Memory" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" /><TextBlock Text="{Binding DataContext.SelectedContainerStats.Memory, ElementName=RootPage, TargetNullValue=--}" FontSize="22" Margin="0,4,0,0" /></StackPanel><ui:SymbolIcon Grid.Column="1" Symbol="Database24" FontSize="24" Foreground="{DynamicResource AccentFillColorDefaultBrush}" /></Grid>
+                                        <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><StackPanel><TextBlock Text="{DynamicResource Memory}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" /><TextBlock Text="{Binding DataContext.SelectedContainerStats.Memory, ElementName=RootPage, TargetNullValue=--}" FontSize="22" Margin="0,4,0,0" /></StackPanel><ui:SymbolIcon Grid.Column="1" Symbol="Database24" FontSize="24" Foreground="{DynamicResource AccentFillColorDefaultBrush}" /></Grid>
                                     </Border>
                                     <Border Style="{StaticResource MetricTileStyle}">
-                                        <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><StackPanel><TextBlock Text="Network I/O" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" /><TextBlock Text="{Binding DataContext.SelectedContainerStats.NetworkIo, ElementName=RootPage, TargetNullValue=--}" FontSize="22" Margin="0,4,0,0" /></StackPanel><ui:SymbolIcon Grid.Column="1" Symbol="ArrowBidirectionalUpDown24" FontSize="24" Foreground="{DynamicResource AccentFillColorDefaultBrush}" /></Grid>
+                                        <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><StackPanel><TextBlock Text="{DynamicResource NetworkIo}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" /><TextBlock Text="{Binding DataContext.SelectedContainerStats.NetworkIo, ElementName=RootPage, TargetNullValue=--}" FontSize="22" Margin="0,4,0,0" /></StackPanel><ui:SymbolIcon Grid.Column="1" Symbol="ArrowBidirectionalUpDown24" FontSize="24" Foreground="{DynamicResource AccentFillColorDefaultBrush}" /></Grid>
                                     </Border>
                                     <Border Style="{StaticResource MetricTileStyle}" Margin="0">
-                                        <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><StackPanel><TextBlock Text="Block I/O" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" /><TextBlock Text="{Binding DataContext.SelectedContainerStats.BlockIo, ElementName=RootPage, TargetNullValue=--}" FontSize="22" Margin="0,4,0,0" /></StackPanel><ui:SymbolIcon Grid.Column="1" Symbol="Storage24" FontSize="24" Foreground="{DynamicResource AccentFillColorDefaultBrush}" /></Grid>
+                                        <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><StackPanel><TextBlock Text="{DynamicResource BlockIo}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" /><TextBlock Text="{Binding DataContext.SelectedContainerStats.BlockIo, ElementName=RootPage, TargetNullValue=--}" FontSize="22" Margin="0,4,0,0" /></StackPanel><ui:SymbolIcon Grid.Column="1" Symbol="Storage24" FontSize="24" Foreground="{DynamicResource AccentFillColorDefaultBrush}" /></Grid>
                                     </Border>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
@@ -345,7 +345,11 @@
                                         <StackPanel>
                                             <TextBlock Text="{DynamicResource Mounts}" Style="{StaticResource SectionTitleStyle}" />
                                             <TextBlock Text="{DynamicResource MountsHint}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" />
-                                            <TextBlock Text="{Binding Ports, StringFormat=Ports: {0}}" FontFamily="Consolas" Margin="0,12,0,0" TextWrapping="Wrap" />
+                                            <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                                                <TextBlock Text="{DynamicResource Ports}" FontFamily="Consolas" />
+                                                <TextBlock Text=": " FontFamily="Consolas" />
+                                                <TextBlock Text="{Binding Ports}" FontFamily="Consolas" TextWrapping="Wrap" />
+                                            </StackPanel>
                                         </StackPanel>
                                     </Border>
                                 </StackPanel>
@@ -387,11 +391,11 @@
                         <Border Style="{StaticResource WorkbenchPanelStyle}" Margin="0,14,0,0" Padding="0">
                             <DataGrid ItemsSource="{Binding DataContext.Stats, ElementName=RootPage}" AutoGenerateColumns="False" IsReadOnly="True" BorderThickness="0">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" />
-                                    <DataGridTextColumn Header="CPU" Binding="{Binding Cpu}" Width="110" />
-                                    <DataGridTextColumn Header="Memory" Binding="{Binding Memory}" Width="170" />
-                                    <DataGridTextColumn Header="Network I/O" Binding="{Binding NetworkIo}" Width="170" />
-                                    <DataGridTextColumn Header="PIDs" Binding="{Binding Pids}" Width="90" />
+                                    <DataGridTextColumn Header="{DynamicResource Name}" Binding="{Binding Name}" Width="*" />
+                                    <DataGridTextColumn Header="{DynamicResource Cpu}" Binding="{Binding Cpu}" Width="110" />
+                                    <DataGridTextColumn Header="{DynamicResource Memory}" Binding="{Binding Memory}" Width="170" />
+                                    <DataGridTextColumn Header="{DynamicResource NetworkIo}" Binding="{Binding NetworkIo}" Width="170" />
+                                    <DataGridTextColumn Header="{DynamicResource Pids}" Binding="{Binding Pids}" Width="90" />
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Border>
