@@ -11,7 +11,6 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="28" />
         </Grid.RowDefinitions>
 
         <ui:TitleBar Grid.Row="0" Title="ExWSLC">
@@ -50,12 +49,5 @@
             </ui:NavigationView.FooterMenuItems>
         </ui:NavigationView>
 
-        <Border Grid.Row="2" Background="{ui:ThemeResource SolidBackgroundFillColorBaseBrush}" BorderBrush="{ui:ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,1,0,0">
-            <Grid Margin="12,0,8,0">
-                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                <TextBlock Text="{Binding StatusMessage}" FontSize="11" Opacity=".72" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
-                <ProgressBar Grid.Column="1" Width="88" Height="3" IsIndeterminate="True" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
-            </Grid>
-        </Border>
     </Grid>
 </ui:FluentWindow>
