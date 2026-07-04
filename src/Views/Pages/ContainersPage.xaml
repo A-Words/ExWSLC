@@ -193,7 +193,7 @@
 
         <DataTemplate x:Key="ContainerCreateTemplate">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <StackPanel Margin="26">
+                <StackPanel Margin="0">
                     <DockPanel>
                         <ui:Button DockPanel.Dock="Right" Icon="{ui:SymbolIcon Symbol=Dismiss24}" Appearance="Secondary" Command="{Binding DataContext.CancelCreateContainerCommand, ElementName=RootPage}" VerticalAlignment="Top" />
                         <StackPanel>
