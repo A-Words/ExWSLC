@@ -9,7 +9,7 @@
       x:Name="RootPage"
       mc:Ignorable="d"
       d:DataContext="{d:DesignInstance Type=designViewModels:DesignContainersPageViewModel, IsDesignTimeCreatable=True}"
-      Background="Transparent"
+      Background="{ui:ThemeResource ApplicationBackgroundBrush}"
       Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}">
     <Page.Resources>
         <Style x:Key="WorkbenchPanelStyle" TargetType="Border">

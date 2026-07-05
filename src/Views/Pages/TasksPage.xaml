@@ -7,7 +7,7 @@
       xmlns:designViewModels="clr-namespace:ExWSLC.ViewModels.Design"
       mc:Ignorable="d"
       d:DataContext="{d:DesignInstance Type=designViewModels:DesignTasksPageViewModel, IsDesignTimeCreatable=True}"
-      Background="Transparent"
+      Background="{ui:ThemeResource ApplicationBackgroundBrush}"
       Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}">
     <Grid Margin="24,18,24,24">
         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition/></Grid.RowDefinitions>
