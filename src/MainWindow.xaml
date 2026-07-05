@@ -5,15 +5,20 @@
                  xmlns:pages="clr-namespace:ExWSLC.Views.Pages"
                  xmlns:containerPages="clr-namespace:ExWSLC.Views.Pages.Containers"
                  Title="ExWSLC" Width="1100" Height="800"
-                 WindowStartupLocation="CenterScreen" WindowBackdropType="Mica"
-                 ExtendsContentIntoTitleBar="True">
+                 WindowStartupLocation="CenterScreen"
+                 WindowBackdropType="Mica"
+                 WindowCornerPreference="Round"
+                 ExtendsContentIntoTitleBar="True"
+                 Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <ui:TitleBar Grid.Row="0" Title="ExWSLC">
+        <ui:TitleBar Grid.Row="0"
+                     Title="{Binding Title, RelativeSource={RelativeSource AncestorType={x:Type ui:FluentWindow}}}"
+                     CloseWindowByDoubleClickOnIcon="True">
             <ui:TitleBar.Icon>
                 <ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xE7B8;" FontSize="18" />
             </ui:TitleBar.Icon>
@@ -23,7 +28,6 @@
                            Grid.Row="1"
                            Background="{ui:ThemeResource ApplicationBackgroundBrush}"
                            OpenPaneLength="220"
-                           IsPaneOpen="True"
                            IsBackButtonVisible="Collapsed">
             <ui:NavigationView.MenuItems>
                 <ui:NavigationViewItem Content="{DynamicResource NavOverview}" NavigationCacheMode="Enabled" TargetPageType="{x:Type pages:OverviewPage}">
