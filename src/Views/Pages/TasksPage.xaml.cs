@@ -1,4 +1,6 @@
 using System.Windows.Controls;
+using ExWSLC.ViewModels;
+using ExWSLC.Views;
 
 namespace ExWSLC.Views.Pages;
 
@@ -7,6 +9,10 @@ public partial class TasksPage : Page
     public TasksPage()
     {
         InitializeComponent();
-        DataContext = App.Current.ViewModel;
+    }
+
+    public TasksPage(TasksPageViewModel viewModel) : this()
+    {
+        DataContext = viewModel;
     }
 }

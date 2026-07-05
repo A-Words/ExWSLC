@@ -1,0 +1,224 @@
+using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using ExWSLC.Models;
+using ExWSLC.Services;
+
+namespace ExWSLC.ViewModels;
+
+public partial class RuntimeWorkspace : ObservableObject, IDisposable
+{
+    private readonly IRuntimeCapabilityService _capabilityService;
+    private readonly ITaskService _taskService;
+    private CancellationTokenSource? _currentOperation;
+
+    public RuntimeWorkspace(
+        IContainerRuntime runtime,
+        IRuntimeCapabilityService capabilityService,
+        ISettingsService settingsService,
+        ITaskService taskService,
+        IUserInteractionService interaction)
+    {
+        Runtime = runtime;
+        _capabilityService = capabilityService;
+        SettingsService = settingsService;
+        _taskService = taskService;
+        Interaction = interaction;
+        _taskService.TasksChanged += OnTasksChanged;
+    }
+
+    public IContainerRuntime Runtime { get; }
+    public ISettingsService SettingsService { get; }
+    public IUserInteractionService Interaction { get; }
+    public CancellationTokenSource Lifetime { get; } = new();
+
+    public ObservableCollection<ContainerSummary> Containers { get; } = [];
+    public ObservableCollection<ContainerSummary> ActiveContainers { get; } = [];
+    public ObservableCollection<ImageSummary> Images { get; } = [];
+    public ObservableCollection<NetworkSummary> Networks { get; } = [];
+    public ObservableCollection<VolumeSummary> Volumes { get; } = [];
+    public ObservableCollection<ContainerStats> Stats { get; } = [];
+    public ObservableCollection<RuntimeTaskItem> Tasks { get; } = [];
+    public ObservableCollection<RuntimeTaskItem> RecentTasks { get; } = [];
+
+    [ObservableProperty] private bool _isBusy;
+    [ObservableProperty] private string _statusMessage = "Initializing...";
+    [ObservableProperty] private string _detailOutput = string.Empty;
+    [ObservableProperty] private RuntimeCapabilities _capabilities = RuntimeCapabilities.Unavailable("Not checked");
+    [ObservableProperty] private RuntimeTaskItem? _activeTask;
+
+    public int RunningContainerCount => Containers.Count(container => container.IsRunning);
+    public int StoppedContainerCount => Containers.Count - RunningContainerCount;
+    public int ImageCount => Images.Count;
+    public int NetworkCount => Networks.Count;
+    public int VolumeCount => Volumes.Count;
+    public int ActiveTaskCount => Tasks.Count(task => task.State is RuntimeTaskState.Running or RuntimeTaskState.Queued);
+    public string VersionSummary => $"CLI: {Capabilities.CliVersion}  ·  SDK: {Capabilities.SdkVersion}";
+
+    public event EventHandler? Refreshed;
+
+    public async Task InitializeAsync()
+    {
+        Capabilities = await _capabilityService.DetectAsync(Lifetime.Token);
+        OnPropertyChanged(nameof(VersionSummary));
+        if (!Capabilities.IsAvailable)
+        {
+            StatusMessage = Capabilities.Message;
+            return;
+        }
+
+        await RefreshAllAsync();
+        _ = AutoRefreshAsync(Lifetime.Token);
+    }
+
+    public async Task InstallMissingComponentsAsync(IProgress<string> progress)
+    {
+        await _capabilityService.InstallMissingComponentsAsync(progress, Lifetime.Token);
+        Capabilities = await _capabilityService.DetectAsync(Lifetime.Token);
+        OnPropertyChanged(nameof(VersionSummary));
+    }
+
+    [RelayCommand]
+    public async Task RefreshAllAsync()
+    {
+        if (IsBusy) return;
+        IsBusy = true;
+        StatusMessage = "Refreshing WSLC state...";
+        try
+        {
+            var containersTask = Runtime.GetContainersAsync(Lifetime.Token);
+            var imagesTask = Runtime.GetImagesAsync(Lifetime.Token);
+            var networksTask = Runtime.GetNetworksAsync(Lifetime.Token);
+            var volumesTask = Runtime.GetVolumesAsync(Lifetime.Token);
+            var statsTask = Runtime.GetStatsAsync(Lifetime.Token);
+            await Task.WhenAll(containersTask, imagesTask, networksTask, volumesTask, statsTask);
+            Replace(Containers, containersTask.Result);
+            Replace(ActiveContainers, containersTask.Result.Where(container => container.IsRunning).Take(4));
+            Replace(Images, imagesTask.Result);
+            Replace(Networks, networksTask.Result);
+            Replace(Volumes, volumesTask.Result);
+            Replace(Stats, statsTask.Result);
+            RaiseCounts();
+            Refreshed?.Invoke(this, EventArgs.Empty);
+            StatusMessage = $"Updated {DateTime.Now:T}";
+        }
+        catch (Exception exception)
+        {
+            StatusMessage = exception.Message;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    public async Task<OperationResult> RunTrackedAsync(
+        string title,
+        Func<IProgress<string>, CancellationToken, Task<OperationResult>> operation)
+    {
+        IsBusy = true;
+        _currentOperation = CancellationTokenSource.CreateLinkedTokenSource(Lifetime.Token);
+        try
+        {
+            return await _taskService.RunAsync(title, operation, _currentOperation.Token);
+        }
+        finally
+        {
+            _currentOperation.Dispose();
+            _currentOperation = null;
+            IsBusy = false;
+        }
+    }
+
+    public void ShowResult(OperationResult result)
+    {
+        DetailOutput = result.CombinedOutput;
+        StatusMessage = result.Success ? "Operation completed." : $"Failed ({result.ExitCode}): {result.Error}";
+        if (!result.Success && !string.IsNullOrWhiteSpace(result.Error))
+        {
+            Interaction.ShowError("WSLC operation failed", result.Error);
+        }
+    }
+
+    [RelayCommand]
+    public void ClearTasks()
+    {
+        _taskService.ClearCompleted();
+        SyncTasks();
+    }
+
+    [RelayCommand]
+    public void CancelCurrentOperation() => _currentOperation?.Cancel();
+
+    public ContainerStats? FindStats(ContainerSummary container) =>
+        Stats.FirstOrDefault(stats =>
+            stats.Id.Equals(container.Id, StringComparison.OrdinalIgnoreCase) ||
+            stats.Name.Equals(container.Name, StringComparison.OrdinalIgnoreCase));
+
+    public void RaiseSharedPropertyChanges()
+    {
+        OnPropertyChanged(nameof(DetailOutput));
+        OnPropertyChanged(nameof(Capabilities));
+        OnPropertyChanged(nameof(VersionSummary));
+    }
+
+    private async Task AutoRefreshAsync(CancellationToken cancellationToken)
+    {
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            try
+            {
+                await Task.Delay(
+                    TimeSpan.FromSeconds(Math.Clamp(SettingsService.Current.RefreshIntervalSeconds, 2, 300)),
+                    cancellationToken);
+                if (!IsBusy && Capabilities.IsAvailable)
+                {
+                    await RefreshAllAsync();
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                break;
+            }
+        }
+    }
+
+    private void OnTasksChanged(object? sender, EventArgs eventArgs) => App.Current.Dispatcher.Invoke(SyncTasks);
+
+    private void SyncTasks()
+    {
+        Replace(Tasks, _taskService.Tasks);
+        Replace(RecentTasks, _taskService.Tasks.Take(5));
+        ActiveTask = _taskService.Tasks.FirstOrDefault(task => task.State is RuntimeTaskState.Running or RuntimeTaskState.Queued);
+        OnPropertyChanged(nameof(ActiveTaskCount));
+    }
+
+    private void RaiseCounts()
+    {
+        OnPropertyChanged(nameof(RunningContainerCount));
+        OnPropertyChanged(nameof(StoppedContainerCount));
+        OnPropertyChanged(nameof(ImageCount));
+        OnPropertyChanged(nameof(NetworkCount));
+        OnPropertyChanged(nameof(VolumeCount));
+    }
+
+    public static void Replace<T>(ObservableCollection<T> target, IEnumerable<T> source)
+    {
+        target.Clear();
+        foreach (var item in source)
+        {
+            target.Add(item);
+        }
+    }
+
+    public static IEnumerable<string> SplitValues(string value) =>
+        value.Split(['\r', '\n', ','], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+    public void Dispose()
+    {
+        _taskService.TasksChanged -= OnTasksChanged;
+        _currentOperation?.Cancel();
+        Lifetime.Cancel();
+        Lifetime.Dispose();
+    }
+}

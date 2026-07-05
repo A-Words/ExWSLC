@@ -1,6 +1,8 @@
 using System.Windows;
 using System.Windows.Controls;
 using ExWSLC.Models;
+using ExWSLC.ViewModels;
+using ExWSLC.Views;
 using ExWSLC.Views.Pages.Containers;
 
 namespace ExWSLC.Views.Pages;
@@ -10,7 +12,11 @@ public partial class OverviewPage : Page
     public OverviewPage()
     {
         InitializeComponent();
-        DataContext = App.Current.ViewModel;
+    }
+
+    public OverviewPage(OverviewPageViewModel viewModel) : this()
+    {
+        DataContext = viewModel;
     }
 
     private void OpenContainers_Click(object sender, RoutedEventArgs e) => ((MainWindow)App.Current.MainWindow).Navigate(typeof(ContainersPage));
@@ -20,15 +26,20 @@ public partial class OverviewPage : Page
 
     private void ConfigureContainer_Click(object sender, RoutedEventArgs e)
     {
-        App.Current.ViewModel.ShowCreateContainerCommand.Execute(null);
+        if (DataContext is OverviewPageViewModel viewModel)
+        {
+            viewModel.ShowCreateContainer();
+        }
+
         ((MainWindow)App.Current.MainWindow).Navigate(typeof(ContainersPage));
     }
 
     private void OpenContainer_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is FrameworkElement { DataContext: ContainerSummary container })
+        if (sender is FrameworkElement { DataContext: ContainerSummary container } &&
+            DataContext is OverviewPageViewModel viewModel)
         {
-            App.Current.ViewModel.SelectedContainer = container;
+            viewModel.SelectContainer(container);
             ((MainWindow)App.Current.MainWindow).Navigate(typeof(ContainersPage));
         }
     }

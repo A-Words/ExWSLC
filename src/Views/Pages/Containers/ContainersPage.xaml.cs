@@ -1,6 +1,8 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using ExWSLC.ViewModels;
+using ExWSLC.Views;
 
 namespace ExWSLC.Views.Pages.Containers;
 
@@ -15,7 +17,11 @@ public partial class ContainersPage : Page
     public ContainersPage()
     {
         InitializeComponent();
-        DataContext = App.Current.ViewModel;
+    }
+
+    public ContainersPage(ContainersPageViewModel viewModel) : this()
+    {
+        DataContext = viewModel;
     }
 
     private void ContainerDetailHeader_SizeChanged(object sender, SizeChangedEventArgs eventArgs)

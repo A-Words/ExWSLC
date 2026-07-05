@@ -7,7 +7,6 @@ public partial class ContainerListView : UserControl
     public ContainerListView()
     {
         InitializeComponent();
-        DataContext = App.Current.ViewModel;
     }
 
     private void MoreActionsButton_Click(object sender, System.Windows.RoutedEventArgs e)

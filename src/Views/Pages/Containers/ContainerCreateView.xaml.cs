@@ -7,6 +7,5 @@ public partial class ContainerCreateView : UserControl
     public ContainerCreateView()
     {
         InitializeComponent();
-        DataContext = App.Current.ViewModel;
     }
 }

@@ -1,0 +1,89 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using ExWSLC.Models;
+using ExWSLC.Services;
+using System.ComponentModel;
+
+namespace ExWSLC.ViewModels;
+
+public partial class SettingsPageViewModel : ObservableObject
+{
+    public SettingsPageViewModel(RuntimeWorkspace workspace, ImagesPageViewModel? imagesPage = null)
+    {
+        Workspace = workspace;
+        ImagesPage = imagesPage;
+        Workspace.PropertyChanged += OnWorkspacePropertyChanged;
+        _selectedLanguage = Workspace.SettingsService.Current.Language;
+        _selectedTheme = Workspace.SettingsService.Current.Theme;
+        _refreshIntervalSeconds = Workspace.SettingsService.Current.RefreshIntervalSeconds;
+    }
+
+    public RuntimeWorkspace Workspace { get; }
+    public ImagesPageViewModel? ImagesPage { get; set; }
+    public RuntimeCapabilities Capabilities => Workspace.Capabilities;
+
+    [ObservableProperty] private string _registryServer = "docker.io";
+    [ObservableProperty] private string _registryUsername = string.Empty;
+    [ObservableProperty] private string _registryPassword = string.Empty;
+    [ObservableProperty] private string _selectedLanguage;
+    [ObservableProperty] private string _selectedTheme;
+    [ObservableProperty] private int _refreshIntervalSeconds;
+
+    [RelayCommand] private void OpenNativeSettings() => Workspace.Runtime.OpenNativeSettings();
+
+    [RelayCommand]
+    private async Task LoginRegistryAsync()
+    {
+        if (string.IsNullOrWhiteSpace(RegistryServer) || string.IsNullOrWhiteSpace(RegistryUsername) || string.IsNullOrEmpty(RegistryPassword)) return;
+        var result = await Workspace.Runtime.RegistryLoginAsync(RegistryServer, RegistryUsername, RegistryPassword, Workspace.Lifetime.Token);
+        RegistryPassword = string.Empty;
+        Workspace.ShowResult(result);
+    }
+
+    [RelayCommand]
+    private async Task ResetNativeSettingsAsync()
+    {
+        if (!Workspace.Interaction.Confirm("Reset WSLC settings", "Reset the native WSLC YAML settings to built-in defaults?")) return;
+        Workspace.ShowResult(await Workspace.Runtime.ResetNativeSettingsAsync(Workspace.Lifetime.Token));
+    }
+
+    [RelayCommand]
+    private async Task InstallComponentsAsync()
+    {
+        if (!Workspace.Interaction.Confirm("Install components", "Install missing WSL Container components using the Microsoft preview SDK?")) return;
+        Workspace.IsBusy = true;
+        try
+        {
+            await Workspace.InstallMissingComponentsAsync(new Progress<string>(line => Workspace.StatusMessage = line));
+        }
+        catch (Exception exception)
+        {
+            Workspace.Interaction.ShowError("Installation failed", exception.Message);
+        }
+        finally
+        {
+            Workspace.IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task SaveSettingsAsync()
+    {
+        Workspace.SettingsService.Current.Language = SelectedLanguage;
+        Workspace.SettingsService.Current.Theme = SelectedTheme;
+        Workspace.SettingsService.Current.RefreshIntervalSeconds = Math.Clamp(RefreshIntervalSeconds, 2, 300);
+        await Workspace.SettingsService.SaveAsync(Workspace.Lifetime.Token);
+        LocalizationService.ApplyLanguage(SelectedLanguage);
+        LocalizationService.ApplyTheme(SelectedTheme);
+        Workspace.StatusMessage = "Settings saved.";
+        ImagesPage?.RaiseLanguageChanged();
+    }
+
+    private void OnWorkspacePropertyChanged(object? sender, PropertyChangedEventArgs eventArgs)
+    {
+        if (eventArgs.PropertyName is nameof(RuntimeWorkspace.Capabilities))
+        {
+            OnPropertyChanged(nameof(Capabilities));
+        }
+    }
+}

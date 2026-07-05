@@ -1,6 +1,7 @@
 using System.Windows;
 using ExWSLC.Services;
 using ExWSLC.ViewModels;
+using ExWSLC.Views;
 using ExWSLC.Views.Pages;
 using Wpf.Ui.Controls;
 
@@ -16,6 +17,7 @@ public partial class MainWindow : FluentWindow
         _viewModel = viewModel;
         DataContext = viewModel;
         InitializeComponent();
+        RootNavigation.SetPageProviderService(new AppPageProvider(viewModel));
         SourceInitialized += OnSourceInitialized;
         Loaded += OnLoaded;
         Closed += OnClosed;
