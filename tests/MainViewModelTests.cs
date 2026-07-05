@@ -36,6 +36,22 @@ public class MainViewModelTests
     }
 
     [Fact]
+    public void ContainerSummary_ExposesDockerStyleShortIdAndDisplayPorts()
+    {
+        var container = new ContainerSummary(
+            "1234567890abcdef",
+            "web",
+            "nginx",
+            "running",
+            "Up",
+            """[{ "ContainerPort": 80, "HostPort": 8080 }]""",
+            "now");
+
+        Assert.Equal("1234567890ab", container.ShortId);
+        Assert.Equal("8080:80", container.DisplayPorts);
+    }
+
+    [Fact]
     public void ContainerListItem_FormatsStructuredPortMappings()
     {
         const string ports = """

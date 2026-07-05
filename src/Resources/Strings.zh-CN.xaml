@@ -67,7 +67,7 @@
     <sys:String x:Key="FollowLogs">跟随日志</sys:String><sys:String x:Key="StopFollowing">停止跟随</sys:String>
     <sys:String x:Key="Inspect">Inspect</sys:String>
     <sys:String x:Key="Exec">执行</sys:String>
-    <sys:String x:Key="Terminal">交互终端</sys:String>
+    <sys:String x:Key="Terminal">终端</sys:String>
     <sys:String x:Key="Output">输出与诊断</sys:String>
     <sys:String x:Key="ImagesTitle">镜像</sys:String>
     <sys:String x:Key="ImagesSubtitle">管理本地镜像、构建产物与容器注册表</sys:String>

@@ -15,6 +15,8 @@ public sealed record ContainerSummary(
     public bool IsRunning => State.Equals("running", StringComparison.OrdinalIgnoreCase) ||
                              State == "2" ||
                              Status.StartsWith("Up", StringComparison.OrdinalIgnoreCase);
+    public string ShortId => Id.Length <= 12 ? Id : Id[..12];
+    public string DisplayPorts => ContainerPortFormatter.Format(Ports);
 }
 
 public sealed record ImageSummary(
@@ -48,12 +50,23 @@ public sealed class ContainerListItem
     public ContainerStats? Stats { get; init; }
     public string Name => Container.Name;
     public string Image => Container.Image;
-    public string Ports => FormatPorts(Container.Ports);
+    public string Ports => Container.DisplayPorts;
     public bool IsRunning => Container.IsRunning;
     public string Cpu => string.IsNullOrWhiteSpace(Stats?.Cpu) ? "--" : Stats.Cpu;
     public string Memory => FormatUsedMemory(Stats?.Memory);
 
-    private static string FormatPorts(string ports)
+    private static string FormatUsedMemory(string? memory)
+    {
+        if (string.IsNullOrWhiteSpace(memory)) return "--";
+
+        var separatorIndex = memory.IndexOf('/');
+        return separatorIndex < 0 ? memory.Trim() : memory[..separatorIndex].Trim();
+    }
+}
+
+internal static class ContainerPortFormatter
+{
+    public static string Format(string ports)
     {
         var normalized = ports.Trim();
         if (normalized is "" or "[]" or "{}" or "-") return "-";
@@ -74,14 +87,6 @@ public sealed class ContainerListItem
         {
             return normalized;
         }
-    }
-
-    private static string FormatUsedMemory(string? memory)
-    {
-        if (string.IsNullOrWhiteSpace(memory)) return "--";
-
-        var separatorIndex = memory.IndexOf('/');
-        return separatorIndex < 0 ? memory.Trim() : memory[..separatorIndex].Trim();
     }
 
     private static IEnumerable<JsonElement> EnumeratePortMappings(JsonElement root)
