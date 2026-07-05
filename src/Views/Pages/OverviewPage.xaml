@@ -8,7 +8,6 @@
       xmlns:designViewModels="clr-namespace:ExWSLC.ViewModels.Design"
       mc:Ignorable="d"
       d:DataContext="{d:DesignInstance Type=designViewModels:DesignOverviewPageViewModel, IsDesignTimeCreatable=True}"
-      Background="{ui:ThemeResource ApplicationBackgroundBrush}"
       Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}">
     <Page.Resources>
         <Style x:Key="DashboardPanelStyle" TargetType="Border">

@@ -7,7 +7,6 @@
       xmlns:designViewModels="clr-namespace:ExWSLC.ViewModels.Design"
       mc:Ignorable="d"
       d:DataContext="{d:DesignInstance Type=designViewModels:DesignSettingsPageViewModel, IsDesignTimeCreatable=True}"
-      Background="{ui:ThemeResource ApplicationBackgroundBrush}"
       Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="24,18,24,28">

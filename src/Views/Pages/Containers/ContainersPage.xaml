@@ -9,7 +9,6 @@
       x:Name="RootPage"
       mc:Ignorable="d"
       d:DataContext="{d:DesignInstance Type=designViewModels:DesignContainersViewModel, IsDesignTimeCreatable=True}"
-      Background="{ui:ThemeResource ApplicationBackgroundBrush}"
       Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}">
     <Page.Resources>
         <DataTemplate x:Key="ContainerListTemplate">
