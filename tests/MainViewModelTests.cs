@@ -15,10 +15,10 @@ public class MainViewModelTests
         viewModel.Workspace.Containers.Add(new ContainerSummary("abc", "web", "nginx", "running", "Up", "80", "now"));
         viewModel.Workspace.Containers.Add(new ContainerSummary("def", "worker", "alpine", "stopped", "Exited", "", "now"));
 
-        viewModel.ContainersPage.SearchText = "nginx";
+        viewModel.Containers.SearchText = "nginx";
 
-        Assert.Single(viewModel.ContainersPage.VisibleContainerItems);
-        Assert.Equal("web", viewModel.ContainersPage.VisibleContainerItems[0].Container.Name);
+        Assert.Single(viewModel.Containers.VisibleContainerItems);
+        Assert.Equal("web", viewModel.Containers.VisibleContainerItems[0].Container.Name);
         viewModel.Dispose();
     }
 
@@ -41,22 +41,22 @@ public class MainViewModelTests
     {
         var viewModel = CreateViewModel();
         var changes = new List<string?>();
-        viewModel.ContainersPage.PropertyChanged += (_, eventArgs) => changes.Add(eventArgs.PropertyName);
+        viewModel.Containers.PropertyChanged += (_, eventArgs) => changes.Add(eventArgs.PropertyName);
 
-        viewModel.ContainersPage.SearchText = "web";
+        viewModel.Containers.SearchText = "web";
         viewModel.ImagesPage.ImageSearchText = "alpine";
 
-        Assert.Equal("web", viewModel.ContainersPage.SearchText);
+        Assert.Equal("web", viewModel.Containers.SearchText);
         Assert.Equal("alpine", viewModel.ImagesPage.ImageSearchText);
         Assert.Same(viewModel.Workspace.Tasks, viewModel.TasksPage.Tasks);
-        Assert.Contains(nameof(ContainersPageViewModel.SearchText), changes);
+        Assert.Contains(nameof(ContainersViewModel.SearchText), changes);
         viewModel.Dispose();
     }
 
     [Fact]
     public void DesignPageViewModels_ExposeSampleDataWithoutRuntimeServices()
     {
-        var containers = new DesignContainersPageViewModel();
+        var containers = new DesignContainersViewModel();
         var overview = new DesignOverviewPageViewModel();
         var images = new DesignImagesPageViewModel();
 
@@ -202,15 +202,15 @@ public class MainViewModelTests
         var viewModel = CreateViewModel(runtime, capabilities);
 
         await viewModel.InitializeAsync();
-        viewModel.ContainersPage.SelectedContainer = viewModel.ContainersPage.VisibleContainerItems[0].Container;
-        var firstSelection = viewModel.ContainersPage.SelectedContainer;
+        viewModel.Containers.SelectedContainer = viewModel.Containers.VisibleContainerItems[0].Container;
+        var firstSelection = viewModel.Containers.SelectedContainer;
 
         await viewModel.Workspace.RefreshAllCommand.ExecuteAsync(null);
 
-        Assert.NotNull(viewModel.ContainersPage.SelectedContainer);
-        Assert.NotSame(firstSelection, viewModel.ContainersPage.SelectedContainer);
-        Assert.Equal("id-web", viewModel.ContainersPage.SelectedContainer.Id);
-        Assert.Equal("Up 5 minutes", viewModel.ContainersPage.SelectedContainer.Status);
+        Assert.NotNull(viewModel.Containers.SelectedContainer);
+        Assert.NotSame(firstSelection, viewModel.Containers.SelectedContainer);
+        Assert.Equal("id-web", viewModel.Containers.SelectedContainer.Id);
+        Assert.Equal("Up 5 minutes", viewModel.Containers.SelectedContainer.Status);
         viewModel.Dispose();
     }
 
@@ -226,17 +226,17 @@ public class MainViewModelTests
         runtime.Setup(value => value.GetStatsAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
         var viewModel = CreateViewModel(runtime);
         var selectedContainer = new ContainerSummary("id-web", "web", "nginx:latest", "running", "Up", "8080:80", "now");
-        viewModel.ContainersPage.SelectedContainer = selectedContainer;
+        viewModel.Containers.SelectedContainer = selectedContainer;
 
         var refresh = viewModel.Workspace.RefreshAllCommand.ExecuteAsync(null);
-        viewModel.ContainersPage.SelectedContainer = null;
+        viewModel.Containers.SelectedContainer = null;
         refreshedContainers.SetResult([
             new ContainerSummary("id-web", "web", "nginx:latest", "running", "Up 5 minutes", "8080:80", "later")
         ]);
 
         await refresh;
 
-        Assert.Null(viewModel.ContainersPage.SelectedContainer);
+        Assert.Null(viewModel.Containers.SelectedContainer);
         viewModel.Dispose();
     }
 

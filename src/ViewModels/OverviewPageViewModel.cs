@@ -8,15 +8,15 @@ namespace ExWSLC.ViewModels;
 
 public class OverviewPageViewModel : ObservableObject
 {
-    public OverviewPageViewModel(RuntimeWorkspace workspace, ContainersPageViewModel containersPage)
+    public OverviewPageViewModel(RuntimeWorkspace workspace, ContainersViewModel containers)
     {
         Workspace = workspace;
-        ContainersPage = containersPage;
+        Containers = containers;
         Workspace.PropertyChanged += OnWorkspacePropertyChanged;
     }
 
     public RuntimeWorkspace Workspace { get; }
-    public ContainersPageViewModel ContainersPage { get; }
+    public ContainersViewModel Containers { get; }
     public ObservableCollection<ContainerSummary> ActiveContainers => Workspace.ActiveContainers;
     public ObservableCollection<RuntimeTaskItem> RecentTasks => Workspace.RecentTasks;
     public RuntimeTaskItem? ActiveTask => Workspace.ActiveTask;
@@ -30,12 +30,12 @@ public class OverviewPageViewModel : ObservableObject
     public IAsyncRelayCommand RefreshAllCommand => Workspace.RefreshAllCommand;
     public IRelayCommand CancelCurrentOperationCommand => Workspace.CancelCurrentOperationCommand;
 
-    public void ShowCreateContainer() => ContainersPage.ShowCreateContainerCommand.Execute(null);
+    public void ShowCreateContainer() => Containers.ShowCreateContainerCommand.Execute(null);
 
     public void SelectContainer(ContainerSummary container)
     {
-        ContainersPage.IsCreatingContainer = false;
-        ContainersPage.SelectedContainer = container;
+        Containers.IsCreatingContainer = false;
+        Containers.SelectedContainer = container;
     }
 
     private void OnWorkspacePropertyChanged(object? sender, PropertyChangedEventArgs eventArgs)

@@ -6,11 +6,11 @@ using ExWSLC.Models;
 
 namespace ExWSLC.ViewModels;
 
-public partial class ContainersPageViewModel : ObservableObject
+public partial class ContainersViewModel : ObservableObject
 {
     private CancellationTokenSource? _logFollow;
 
-    public ContainersPageViewModel(RuntimeWorkspace workspace)
+    public ContainersViewModel(RuntimeWorkspace workspace)
     {
         Workspace = workspace;
         Workspace.Refreshed += OnWorkspaceRefreshed;

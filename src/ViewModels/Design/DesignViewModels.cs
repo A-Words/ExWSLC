@@ -3,9 +3,9 @@ using ExWSLC.Services;
 
 namespace ExWSLC.ViewModels.Design;
 
-public sealed class DesignContainersPageViewModel : ContainersPageViewModel
+public sealed class DesignContainersViewModel : ContainersViewModel
 {
-    public DesignContainersPageViewModel() : base(DesignWorkspaceFactory.CreateWorkspace())
+    public DesignContainersViewModel() : base(DesignWorkspaceFactory.CreateWorkspace())
     {
         SearchText = "api";
         SelectedContainer = VisibleContainerItems.FirstOrDefault()?.Container;
@@ -54,7 +54,7 @@ public sealed class DesignOverviewPageViewModel : OverviewPageViewModel
     }
 
     private DesignOverviewPageViewModel(RuntimeWorkspace workspace)
-        : base(workspace, new ContainersPageViewModel(workspace))
+        : base(workspace, new ContainersViewModel(workspace))
     {
     }
 }

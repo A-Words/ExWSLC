@@ -13,17 +13,17 @@ public partial class MainViewModel : ObservableObject, IDisposable
         IUserInteractionService interaction)
     {
         Workspace = new RuntimeWorkspace(runtime, capabilityService, settingsService, taskService, interaction);
-        ContainersPage = new ContainersPageViewModel(Workspace);
+        Containers = new ContainersViewModel(Workspace);
         ImagesPage = new ImagesPageViewModel(Workspace);
         ResourcesPage = new ResourcesPageViewModel(Workspace);
         TasksPage = new TasksPageViewModel(Workspace);
         SettingsPage = new SettingsPageViewModel(Workspace, ImagesPage);
-        OverviewPage = new OverviewPageViewModel(Workspace, ContainersPage);
+        OverviewPage = new OverviewPageViewModel(Workspace, Containers);
     }
 
     public RuntimeWorkspace Workspace { get; }
     public OverviewPageViewModel OverviewPage { get; }
-    public ContainersPageViewModel ContainersPage { get; }
+    public ContainersViewModel Containers { get; }
     public ImagesPageViewModel ImagesPage { get; }
     public ResourcesPageViewModel ResourcesPage { get; }
     public TasksPageViewModel TasksPage { get; }
