@@ -13,7 +13,8 @@ public class WslcProcessRunnerTests
         var result = await runner.ExecuteAsync(
             "cmd.exe",
             ["/d", "/c", "set /p secret=& echo accepted"],
-            secret);
+            secret,
+            cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.True(result.Success, result.Error);
         Assert.Contains("accepted", result.Output);

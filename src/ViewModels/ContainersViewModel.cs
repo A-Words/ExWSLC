@@ -20,23 +20,23 @@ public partial class ContainersViewModel : ObservableObject
     public RuntimeWorkspace Workspace { get; }
     public ObservableCollection<ContainerListItem> VisibleContainerItems { get; } = [];
 
-    [ObservableProperty] private string _searchText = string.Empty;
-    [ObservableProperty] private bool _isCreatingContainer;
-    [ObservableProperty] private ContainerSummary? _selectedContainer;
-    [ObservableProperty] private string _newImage = "hello-world:latest";
-    [ObservableProperty] private string _newContainerName = string.Empty;
-    [ObservableProperty] private string _newCommand = string.Empty;
-    [ObservableProperty] private string _newCpuLimit = string.Empty;
-    [ObservableProperty] private string _newMemoryLimit = string.Empty;
-    [ObservableProperty] private string _newNetwork = string.Empty;
-    [ObservableProperty] private string _newUser = string.Empty;
-    [ObservableProperty] private string _newWorkingDirectory = string.Empty;
-    [ObservableProperty] private string _newEnvironment = string.Empty;
-    [ObservableProperty] private string _newPorts = string.Empty;
-    [ObservableProperty] private string _newVolumes = string.Empty;
-    [ObservableProperty] private bool _newUseAllGpus;
-    [ObservableProperty] private bool _newRemoveWhenStopped;
-    [ObservableProperty] private string _execText = "uname -a";
+    [ObservableProperty] public partial string SearchText { get; set; } = string.Empty;
+    [ObservableProperty] public partial bool IsCreatingContainer { get; set; }
+    [ObservableProperty] public partial ContainerSummary? SelectedContainer { get; set; }
+    [ObservableProperty] public partial string NewImage { get; set; } = "hello-world:latest";
+    [ObservableProperty] public partial string NewContainerName { get; set; } = string.Empty;
+    [ObservableProperty] public partial string NewCommand { get; set; } = string.Empty;
+    [ObservableProperty] public partial string NewCpuLimit { get; set; } = string.Empty;
+    [ObservableProperty] public partial string NewMemoryLimit { get; set; } = string.Empty;
+    [ObservableProperty] public partial string NewNetwork { get; set; } = string.Empty;
+    [ObservableProperty] public partial string NewUser { get; set; } = string.Empty;
+    [ObservableProperty] public partial string NewWorkingDirectory { get; set; } = string.Empty;
+    [ObservableProperty] public partial string NewEnvironment { get; set; } = string.Empty;
+    [ObservableProperty] public partial string NewPorts { get; set; } = string.Empty;
+    [ObservableProperty] public partial string NewVolumes { get; set; } = string.Empty;
+    [ObservableProperty] public partial bool NewUseAllGpus { get; set; }
+    [ObservableProperty] public partial bool NewRemoveWhenStopped { get; set; }
+    [ObservableProperty] public partial string ExecText { get; set; } = "uname -a";
 
     public string DetailOutput { get => Workspace.DetailOutput; set => Workspace.DetailOutput = value; }
     public ContainerStats? SelectedContainerStats => SelectedContainer is null ? null : Workspace.FindStats(SelectedContainer);

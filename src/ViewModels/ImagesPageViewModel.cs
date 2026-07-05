@@ -18,12 +18,12 @@ public partial class ImagesPageViewModel : ObservableObject
     public RuntimeWorkspace Workspace { get; }
     public ObservableCollection<ImageSummary> VisibleImages { get; } = [];
 
-    [ObservableProperty] private string _imageSearchText = string.Empty;
-    [ObservableProperty] private ImageSummary? _selectedImage;
-    [ObservableProperty] private string _imageReference = "ubuntu:latest";
-    [ObservableProperty] private string _imagePath = string.Empty;
-    [ObservableProperty] private string _imageTag = string.Empty;
-    [ObservableProperty] private string _dockerfilePath = string.Empty;
+    [ObservableProperty] public partial string ImageSearchText { get; set; } = string.Empty;
+    [ObservableProperty] public partial ImageSummary? SelectedImage { get; set; }
+    [ObservableProperty] public partial string ImageReference { get; set; } = "ubuntu:latest";
+    [ObservableProperty] public partial string ImagePath { get; set; } = string.Empty;
+    [ObservableProperty] public partial string ImageTag { get; set; } = string.Empty;
+    [ObservableProperty] public partial string DockerfilePath { get; set; } = string.Empty;
 
     public string DetailOutput { get => Workspace.DetailOutput; set => Workspace.DetailOutput = value; }
     public bool HasSelectedImage => SelectedImage is not null;

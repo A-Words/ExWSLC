@@ -16,10 +16,10 @@ public class SettingsAndTaskServiceTests
             writer.Current.Language = "en-US";
             writer.Current.Theme = "Dark";
             writer.Current.RefreshIntervalSeconds = 15;
-            await writer.SaveAsync();
+            await writer.SaveAsync(TestContext.Current.CancellationToken);
 
             var reader = new SettingsService(path);
-            await reader.LoadAsync();
+            await reader.LoadAsync(TestContext.Current.CancellationToken);
 
             Assert.Equal("en-US", reader.Current.Language);
             Assert.Equal("Dark", reader.Current.Theme);
@@ -36,7 +36,7 @@ public class SettingsAndTaskServiceTests
     {
         var service = new TaskService();
         var result = await service.RunAsync("failing task", (_, _) =>
-            Task.FromResult(new OperationResult(false, 7, string.Empty, "boom", "test")));
+            Task.FromResult(new OperationResult(false, 7, string.Empty, "boom", "test")), cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.False(result.Success);
         var task = Assert.Single(service.Tasks);

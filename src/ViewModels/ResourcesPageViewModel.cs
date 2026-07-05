@@ -18,9 +18,9 @@ public partial class ResourcesPageViewModel : ObservableObject
     public ObservableCollection<NetworkSummary> Networks => Workspace.Networks;
     public ObservableCollection<VolumeSummary> Volumes => Workspace.Volumes;
 
-    [ObservableProperty] private NetworkSummary? _selectedNetwork;
-    [ObservableProperty] private VolumeSummary? _selectedVolume;
-    [ObservableProperty] private string _resourceName = string.Empty;
+    [ObservableProperty] public partial NetworkSummary? SelectedNetwork { get; set; }
+    [ObservableProperty] public partial VolumeSummary? SelectedVolume { get; set; }
+    [ObservableProperty] public partial string ResourceName { get; set; } = string.Empty;
 
     public string DetailOutput { get => Workspace.DetailOutput; set => Workspace.DetailOutput = value; }
     public IAsyncRelayCommand RefreshAllCommand => Workspace.RefreshAllCommand;

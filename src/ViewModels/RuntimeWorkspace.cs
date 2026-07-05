@@ -41,11 +41,11 @@ public partial class RuntimeWorkspace : ObservableObject, IDisposable
     public ObservableCollection<RuntimeTaskItem> Tasks { get; } = [];
     public ObservableCollection<RuntimeTaskItem> RecentTasks { get; } = [];
 
-    [ObservableProperty] private bool _isBusy;
-    [ObservableProperty] private string _statusMessage = "Initializing...";
-    [ObservableProperty] private string _detailOutput = string.Empty;
-    [ObservableProperty] private RuntimeCapabilities _capabilities = RuntimeCapabilities.Unavailable("Not checked");
-    [ObservableProperty] private RuntimeTaskItem? _activeTask;
+    [ObservableProperty] public partial bool IsBusy { get; set; }
+    [ObservableProperty] public partial string StatusMessage { get; set; } = "Initializing...";
+    [ObservableProperty] public partial string DetailOutput { get; set; } = string.Empty;
+    [ObservableProperty] public partial RuntimeCapabilities Capabilities { get; set; } = RuntimeCapabilities.Unavailable("Not checked");
+    [ObservableProperty] public partial RuntimeTaskItem? ActiveTask { get; set; }
 
     public int RunningContainerCount => Containers.Count(container => container.IsRunning);
     public int StoppedContainerCount => Containers.Count - RunningContainerCount;

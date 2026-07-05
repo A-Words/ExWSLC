@@ -13,21 +13,21 @@ public partial class SettingsPageViewModel : ObservableObject
         Workspace = workspace;
         ImagesPage = imagesPage;
         Workspace.PropertyChanged += OnWorkspacePropertyChanged;
-        _selectedLanguage = Workspace.SettingsService.Current.Language;
-        _selectedTheme = Workspace.SettingsService.Current.Theme;
-        _refreshIntervalSeconds = Workspace.SettingsService.Current.RefreshIntervalSeconds;
+        SelectedLanguage = Workspace.SettingsService.Current.Language;
+        SelectedTheme = Workspace.SettingsService.Current.Theme;
+        RefreshIntervalSeconds = Workspace.SettingsService.Current.RefreshIntervalSeconds;
     }
 
     public RuntimeWorkspace Workspace { get; }
     public ImagesPageViewModel? ImagesPage { get; set; }
     public RuntimeCapabilities Capabilities => Workspace.Capabilities;
 
-    [ObservableProperty] private string _registryServer = "docker.io";
-    [ObservableProperty] private string _registryUsername = string.Empty;
-    [ObservableProperty] private string _registryPassword = string.Empty;
-    [ObservableProperty] private string _selectedLanguage;
-    [ObservableProperty] private string _selectedTheme;
-    [ObservableProperty] private int _refreshIntervalSeconds;
+    [ObservableProperty] public partial string RegistryServer { get; set; } = "docker.io";
+    [ObservableProperty] public partial string RegistryUsername { get; set; } = string.Empty;
+    [ObservableProperty] public partial string RegistryPassword { get; set; } = string.Empty;
+    [ObservableProperty] public partial string SelectedLanguage { get; set; }
+    [ObservableProperty] public partial string SelectedTheme { get; set; }
+    [ObservableProperty] public partial int RefreshIntervalSeconds { get; set; }
 
     [RelayCommand] private void OpenNativeSettings() => Workspace.Runtime.OpenNativeSettings();
 
