@@ -14,6 +14,7 @@
     <sys:String x:Key="Networks">Networks</sys:String><sys:String x:Key="Volumes">Volumes</sys:String>
     <sys:String x:Key="Environment">Runtime environment</sys:String><sys:String x:Key="Cpu">CPU</sys:String><sys:String x:Key="Memory">Memory</sys:String>
     <sys:String x:Key="Network">Network</sys:String><sys:String x:Key="NetworkIo">Network I/O</sys:String><sys:String x:Key="BlockIo">Block I/O</sys:String><sys:String x:Key="Pids">PIDs</sys:String>
+    <sys:String x:Key="ResourceUsage">Resources</sys:String><sys:String x:Key="PublishedPorts">Published ports</sys:String><sys:String x:Key="RawPorts">Raw port data</sys:String><sys:String x:Key="NoMountsDiscovered">The current list data does not include mount details.</sys:String>
     <sys:String x:Key="EnvironmentVariables">Environment</sys:String><sys:String x:Key="User">User</sys:String><sys:String x:Key="Workdir">Workdir</sys:String>
     <sys:String x:Key="AllGpus">All GPUs</sys:String><sys:String x:Key="RemoveWhenStopped">Remove when stopped</sys:String><sys:String x:Key="OptionalCommand">Optional command</sys:String>
     <sys:String x:Key="LiveStats">Live resource snapshot</sys:String>
@@ -84,10 +85,7 @@
     <sys:String x:Key="Status">Uptime</sys:String>
     <sys:String x:Key="Ports">Ports</sys:String>
     <sys:String x:Key="Actions">Actions</sys:String>
-    <sys:String x:Key="OverviewTab">Overview</sys:String>
-    <sys:String x:Key="Metrics">Metrics</sys:String>
     <sys:String x:Key="Configuration">Configuration</sys:String>
     <sys:String x:Key="Created">Created</sys:String>
     <sys:String x:Key="Mounts">Mounts</sys:String>
-    <sys:String x:Key="MountsHint">Published ports and mounts discovered from the selected container appear here.</sys:String>
 </ResourceDictionary>

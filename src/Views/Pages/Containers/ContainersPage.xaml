@@ -37,6 +37,72 @@
             <Setter Property="Margin" Value="0,0,6,0" />
         </Style>
 
+        <DataTemplate x:Key="DetailTabHeaderTemplate">
+            <Grid MinWidth="44" HorizontalAlignment="Left">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="2" />
+                </Grid.RowDefinitions>
+                <TextBlock Text="{Binding}" Padding="8,7,8,8" HorizontalAlignment="Center" />
+                <Border Grid.Row="1" Height="2" CornerRadius="1" Margin="6,0">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Background" Value="Transparent" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=TabItem}}" Value="True">
+                                    <Setter Property="Background" Value="{DynamicResource AccentFillColorDefaultBrush}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                </Border>
+            </Grid>
+        </DataTemplate>
+
+        <Style x:Key="DetailTabItemStyle" TargetType="TabItem" BasedOn="{StaticResource {x:Type TabItem}}">
+            <Setter Property="Width" Value="Auto" />
+            <Setter Property="MinWidth" Value="0" />
+            <Setter Property="MaxWidth" Value="82" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0,0,4,0" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+            <Setter Property="HeaderTemplate" Value="{StaticResource DetailTabHeaderTemplate}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter ContentSource="Header"
+                                              RecognizesAccessKey="True"
+                                              HorizontalAlignment="Left"
+                                              VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.45" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{ui:ThemeResource ControlFillColorTertiaryBrush}" />
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="Transparent" />
+                    <Setter Property="BorderBrush" Value="Transparent" />
+                    <Setter Property="FontWeight" Value="SemiBold" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
         <DataTemplate x:Key="ContainerListTemplate">
             <containers:ContainerListView />
         </DataTemplate>
@@ -139,58 +205,12 @@
                     </Grid>
                 </Border>
 
-                <TabControl Grid.Row="2" Margin="0">
-                    <TabItem Header="{DynamicResource OverviewTab}">
-                        <ScrollViewer VerticalScrollBarVisibility="Auto">
-                            <Grid Margin="0,14,0,0">
-                                <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="16" /><ColumnDefinition /></Grid.ColumnDefinitions>
-                                <StackPanel>
-                                    <Border Style="{StaticResource MetricTileStyle}">
-                                        <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><StackPanel><TextBlock Text="{DynamicResource Cpu}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" /><TextBlock Text="{Binding DataContext.SelectedContainerStats.Cpu, ElementName=RootPage, TargetNullValue=--}" FontSize="22" Margin="0,4,0,0" /></StackPanel><ui:SymbolIcon Grid.Column="1" Symbol="Pulse24" FontSize="24" Foreground="{DynamicResource AccentFillColorDefaultBrush}" /></Grid>
-                                    </Border>
-                                    <Border Style="{StaticResource MetricTileStyle}">
-                                        <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><StackPanel><TextBlock Text="{DynamicResource Memory}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" /><TextBlock Text="{Binding DataContext.SelectedContainerStats.Memory, ElementName=RootPage, TargetNullValue=--}" FontSize="22" Margin="0,4,0,0" /></StackPanel><ui:SymbolIcon Grid.Column="1" Symbol="Database24" FontSize="24" Foreground="{DynamicResource AccentFillColorDefaultBrush}" /></Grid>
-                                    </Border>
-                                    <Border Style="{StaticResource MetricTileStyle}">
-                                        <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><StackPanel><TextBlock Text="{DynamicResource NetworkIo}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" /><TextBlock Text="{Binding DataContext.SelectedContainerStats.NetworkIo, ElementName=RootPage, TargetNullValue=--}" FontSize="22" Margin="0,4,0,0" /></StackPanel><ui:SymbolIcon Grid.Column="1" Symbol="ArrowBidirectionalUpDown24" FontSize="24" Foreground="{DynamicResource AccentFillColorDefaultBrush}" /></Grid>
-                                    </Border>
-                                    <Border Style="{StaticResource MetricTileStyle}" Margin="0">
-                                        <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><StackPanel><TextBlock Text="{DynamicResource BlockIo}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" /><TextBlock Text="{Binding DataContext.SelectedContainerStats.BlockIo, ElementName=RootPage, TargetNullValue=--}" FontSize="22" Margin="0,4,0,0" /></StackPanel><ui:SymbolIcon Grid.Column="1" Symbol="Storage24" FontSize="24" Foreground="{DynamicResource AccentFillColorDefaultBrush}" /></Grid>
-                                    </Border>
-                                </StackPanel>
-                                <StackPanel Grid.Column="2">
-                                    <Border Style="{StaticResource WorkbenchPanelStyle}" Margin="0,0,0,12">
-                                        <StackPanel>
-                                            <TextBlock Text="{DynamicResource Configuration}" Style="{StaticResource SectionTitleStyle}" />
-                                            <Grid Margin="0,4,0,0">
-                                                <Grid.ColumnDefinitions><ColumnDefinition Width="150" /><ColumnDefinition /></Grid.ColumnDefinitions>
-                                                <Grid.RowDefinitions><RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition /></Grid.RowDefinitions>
-                                                <TextBlock Text="{DynamicResource Name}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
-                                                <TextBlock Grid.Column="1" Text="{Binding Name}" />
-                                                <TextBlock Grid.Row="1" Text="{DynamicResource Image}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" Margin="0,8,0,0" />
-                                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Image}" Margin="0,8,0,0" TextTrimming="CharacterEllipsis" />
-                                                <TextBlock Grid.Row="2" Text="{DynamicResource Created}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" Margin="0,8,0,0" />
-                                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Created}" Margin="0,8,0,0" />
-                                                <TextBlock Grid.Row="3" Text="{DynamicResource State}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" Margin="0,8,0,0" />
-                                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding State}" Margin="0,8,0,0" />
-                                            </Grid>
-                                        </StackPanel>
-                                    </Border>
-                                    <Border Style="{StaticResource WorkbenchPanelStyle}">
-                                        <StackPanel>
-                                            <TextBlock Text="{DynamicResource Mounts}" Style="{StaticResource SectionTitleStyle}" />
-                                            <TextBlock Text="{DynamicResource MountsHint}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" />
-                                            <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
-                                                <TextBlock Text="{DynamicResource Ports}" FontFamily="Consolas" />
-                                                <TextBlock Text=": " FontFamily="Consolas" />
-                                                <TextBlock Text="{Binding Ports}" FontFamily="Consolas" TextWrapping="Wrap" />
-                                            </StackPanel>
-                                        </StackPanel>
-                                    </Border>
-                                </StackPanel>
-                            </Grid>
-                        </ScrollViewer>
-                    </TabItem>
+                <TabControl Grid.Row="2" Margin="0" ItemContainerStyle="{StaticResource DetailTabItemStyle}">
+                    <TabControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" />
+                        </ItemsPanelTemplate>
+                    </TabControl.ItemsPanel>
                     <TabItem Header="{DynamicResource Logs}">
                         <Grid Margin="0,14,0,0">
                             <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition /></Grid.RowDefinitions>
@@ -202,16 +222,88 @@
                             <ui:TextBox Grid.Row="1" Text="{Binding DataContext.DetailOutput, ElementName=RootPage}" IsReadOnly="True" AcceptsReturn="True" FontFamily="Consolas" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" />
                         </Grid>
                     </TabItem>
-                    <TabItem Header="{DynamicResource Exec}">
-                        <Grid Margin="0,14,0,0">
-                            <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition /></Grid.RowDefinitions>
-                            <DockPanel Margin="0,0,0,10">
-                                <ui:Button DockPanel.Dock="Right" Content="{DynamicResource Exec}" Icon="{ui:SymbolIcon Symbol=ChevronRight24}" Appearance="Primary" Command="{Binding DataContext.ExecCommand, ElementName=RootPage}" Margin="8,0,0,0" />
-                                <ui:TextBox Text="{Binding DataContext.ExecText, ElementName=RootPage, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" />
-                            </DockPanel>
-                            <ui:TextBox Grid.Row="1" Text="{Binding DataContext.DetailOutput, ElementName=RootPage}" IsReadOnly="True" AcceptsReturn="True" FontFamily="Consolas" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" />
-                        </Grid>
+
+                    <TabItem Header="{DynamicResource ResourceUsage}">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <Grid Margin="0,14,0,0">
+                                <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="16" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <Border Style="{StaticResource MetricTileStyle}">
+                                        <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><StackPanel><TextBlock Text="{DynamicResource Cpu}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" /><TextBlock Text="{Binding DataContext.SelectedContainerStats.Cpu, ElementName=RootPage, TargetNullValue=--}" FontSize="22" Margin="0,4,0,0" /></StackPanel><ui:SymbolIcon Grid.Column="1" Symbol="Pulse24" FontSize="24" Foreground="{DynamicResource AccentFillColorDefaultBrush}" /></Grid>
+                                    </Border>
+                                    <Border Style="{StaticResource MetricTileStyle}" Margin="0">
+                                        <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><StackPanel><TextBlock Text="{DynamicResource NetworkIo}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" /><TextBlock Text="{Binding DataContext.SelectedContainerStats.NetworkIo, ElementName=RootPage, TargetNullValue=--}" FontSize="22" Margin="0,4,0,0" /></StackPanel><ui:SymbolIcon Grid.Column="1" Symbol="ArrowBidirectionalUpDown24" FontSize="24" Foreground="{DynamicResource AccentFillColorDefaultBrush}" /></Grid>
+                                    </Border>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <Border Style="{StaticResource MetricTileStyle}">
+                                        <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><StackPanel><TextBlock Text="{DynamicResource Memory}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" /><TextBlock Text="{Binding DataContext.SelectedContainerStats.Memory, ElementName=RootPage, TargetNullValue=--}" FontSize="22" Margin="0,4,0,0" /></StackPanel><ui:SymbolIcon Grid.Column="1" Symbol="Database24" FontSize="24" Foreground="{DynamicResource AccentFillColorDefaultBrush}" /></Grid>
+                                    </Border>
+                                    <Border Style="{StaticResource MetricTileStyle}" Margin="0">
+                                        <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><StackPanel><TextBlock Text="{DynamicResource BlockIo}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" /><TextBlock Text="{Binding DataContext.SelectedContainerStats.BlockIo, ElementName=RootPage, TargetNullValue=--}" FontSize="22" Margin="0,4,0,0" /></StackPanel><ui:SymbolIcon Grid.Column="1" Symbol="Storage24" FontSize="24" Foreground="{DynamicResource AccentFillColorDefaultBrush}" /></Grid>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+                        </ScrollViewer>
                     </TabItem>
+
+                    <TabItem Header="{DynamicResource Network}">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <Border Style="{StaticResource WorkbenchPanelStyle}" Margin="0,14,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="{DynamicResource PublishedPorts}" Style="{StaticResource SectionTitleStyle}" />
+                                    <Grid Margin="0,4,0,0">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="150" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions><RowDefinition /><RowDefinition /></Grid.RowDefinitions>
+                                        <TextBlock Text="{DynamicResource Ports}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                                        <TextBlock Grid.Column="1" Text="{Binding DisplayPorts}" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Row="1" Text="{DynamicResource RawPorts}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" Margin="0,10,0,0" />
+                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Ports, TargetNullValue=-}" FontFamily="Consolas" TextWrapping="Wrap" Margin="0,10,0,0" />
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+                        </ScrollViewer>
+                    </TabItem>
+
+                    <TabItem Header="{DynamicResource Mounts}">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <Border Style="{StaticResource WorkbenchPanelStyle}" Margin="0,14,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="{DynamicResource Mounts}" Style="{StaticResource SectionTitleStyle}" />
+                                    <TextBlock Text="{DynamicResource NoMountsDiscovered}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </Border>
+                        </ScrollViewer>
+                    </TabItem>
+
+                    <TabItem Header="{DynamicResource Configuration}">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <Border Style="{StaticResource WorkbenchPanelStyle}" Margin="0,14,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="{DynamicResource Configuration}" Style="{StaticResource SectionTitleStyle}" />
+                                    <Grid Margin="0,4,0,0">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="150" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions><RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition /></Grid.RowDefinitions>
+                                        <TextBlock Text="ID" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                                        <TextBlock Grid.Column="1" Text="{Binding Id}" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Row="1" Text="{DynamicResource Name}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" Margin="0,8,0,0" />
+                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Name}" Margin="0,8,0,0" />
+                                        <TextBlock Grid.Row="2" Text="{DynamicResource Image}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" Margin="0,8,0,0" />
+                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Image}" Margin="0,8,0,0" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Row="3" Text="{DynamicResource Created}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" Margin="0,8,0,0" />
+                                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Created}" Margin="0,8,0,0" />
+                                        <TextBlock Grid.Row="4" Text="{DynamicResource State}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" Margin="0,8,0,0" />
+                                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding State}" Margin="0,8,0,0" />
+                                        <TextBlock Grid.Row="5" Text="{DynamicResource Command}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" Margin="0,8,0,0" />
+                                        <TextBlock Grid.Row="5" Grid.Column="1" Text="{DynamicResource Unavailable}" Margin="0,8,0,0" />
+                                        <TextBlock Grid.Row="6" Text="{DynamicResource EnvironmentVariables}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" Margin="0,8,0,0" />
+                                        <TextBlock Grid.Row="6" Grid.Column="1" Text="{DynamicResource Unavailable}" Margin="0,8,0,0" />
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+                        </ScrollViewer>
+                    </TabItem>
+
                     <TabItem Header="{DynamicResource Inspect}">
                         <Grid Margin="0,14,0,0">
                             <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition /></Grid.RowDefinitions>
@@ -221,19 +313,6 @@
                             </WrapPanel>
                             <ui:TextBox Grid.Row="1" Text="{Binding DataContext.DetailOutput, ElementName=RootPage}" IsReadOnly="True" AcceptsReturn="True" FontFamily="Consolas" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" />
                         </Grid>
-                    </TabItem>
-                    <TabItem Header="{DynamicResource Metrics}">
-                        <Border Style="{StaticResource WorkbenchPanelStyle}" Margin="0,14,0,0" Padding="0">
-                            <DataGrid ItemsSource="{Binding DataContext.Stats, ElementName=RootPage}" AutoGenerateColumns="False" IsReadOnly="True" BorderThickness="0">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="{DynamicResource Name}" Binding="{Binding Name}" Width="*" />
-                                    <DataGridTextColumn Header="{DynamicResource Cpu}" Binding="{Binding Cpu}" Width="110" />
-                                    <DataGridTextColumn Header="{DynamicResource Memory}" Binding="{Binding Memory}" Width="170" />
-                                    <DataGridTextColumn Header="{DynamicResource NetworkIo}" Binding="{Binding NetworkIo}" Width="170" />
-                                    <DataGridTextColumn Header="{DynamicResource Pids}" Binding="{Binding Pids}" Width="90" />
-                                </DataGrid.Columns>
-                            </DataGrid>
-                        </Border>
                     </TabItem>
                 </TabControl>
             </Grid>

@@ -28,6 +28,10 @@
     <sys:String x:Key="NetworkIo">网络 I/O</sys:String>
     <sys:String x:Key="BlockIo">磁盘 I/O</sys:String>
     <sys:String x:Key="Pids">进程数</sys:String>
+    <sys:String x:Key="ResourceUsage">资源</sys:String>
+    <sys:String x:Key="PublishedPorts">端口映射</sys:String>
+    <sys:String x:Key="RawPorts">原始端口数据</sys:String>
+    <sys:String x:Key="NoMountsDiscovered">当前列表数据未包含挂载信息。</sys:String>
     <sys:String x:Key="EnvironmentVariables">环境变量</sys:String>
     <sys:String x:Key="User">用户</sys:String>
     <sys:String x:Key="Workdir">工作目录</sys:String>
@@ -146,10 +150,7 @@
     <sys:String x:Key="Status">运行时间</sys:String>
     <sys:String x:Key="Ports">端口</sys:String>
     <sys:String x:Key="Actions">操作</sys:String>
-    <sys:String x:Key="OverviewTab">总览</sys:String>
-    <sys:String x:Key="Metrics">指标</sys:String>
     <sys:String x:Key="Configuration">配置</sys:String>
     <sys:String x:Key="Created">创建时间</sys:String>
     <sys:String x:Key="Mounts">挂载</sys:String>
-    <sys:String x:Key="MountsHint">这里展示从选中容器发现的端口发布和挂载信息。</sys:String>
 </ResourceDictionary>
