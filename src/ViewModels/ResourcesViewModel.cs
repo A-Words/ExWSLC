@@ -2,28 +2,20 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ExWSLC.Models;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 
 namespace ExWSLC.ViewModels;
 
-public partial class ResourcesViewModel : ObservableObject
+public partial class ResourcesViewModel : WorkspaceViewModel
 {
-    public ResourcesViewModel(RuntimeWorkspace workspace)
+    public ResourcesViewModel(RuntimeWorkspace workspace) : base(workspace)
     {
-        Workspace = workspace;
-        Workspace.PropertyChanged += OnWorkspacePropertyChanged;
     }
-
-    public RuntimeWorkspace Workspace { get; }
     public ObservableCollection<NetworkSummary> Networks => Workspace.Networks;
     public ObservableCollection<VolumeSummary> Volumes => Workspace.Volumes;
 
     [ObservableProperty] public partial NetworkSummary? SelectedNetwork { get; set; }
     [ObservableProperty] public partial VolumeSummary? SelectedVolume { get; set; }
     [ObservableProperty] public partial string ResourceName { get; set; } = string.Empty;
-
-    public string DetailOutput { get => Workspace.DetailOutput; set => Workspace.DetailOutput = value; }
-    public IAsyncRelayCommand RefreshAllCommand => Workspace.RefreshAllCommand;
 
     [RelayCommand]
     private async Task CreateNetworkAsync()
@@ -84,11 +76,4 @@ public partial class ResourcesViewModel : ObservableObject
         await Workspace.RefreshAllAsync();
     }
 
-    private void OnWorkspacePropertyChanged(object? sender, PropertyChangedEventArgs eventArgs)
-    {
-        if (eventArgs.PropertyName is nameof(RuntimeWorkspace.DetailOutput))
-        {
-            OnPropertyChanged(nameof(DetailOutput));
-        }
-    }
 }

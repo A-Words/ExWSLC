@@ -1,23 +1,18 @@
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ExWSLC.Models;
 
 namespace ExWSLC.ViewModels;
 
-public partial class ContainersViewModel : ObservableObject
+public partial class ContainersViewModel : WorkspaceViewModel
 {
     private CancellationTokenSource? _logFollow;
 
-    public ContainersViewModel(RuntimeWorkspace workspace)
+    public ContainersViewModel(RuntimeWorkspace workspace) : base(workspace)
     {
-        Workspace = workspace;
         Workspace.Refreshed += OnWorkspaceRefreshed;
-        Workspace.PropertyChanged += OnWorkspacePropertyChanged;
     }
-
-    public RuntimeWorkspace Workspace { get; }
     public ObservableCollection<ContainerListItem> VisibleContainerItems { get; } = [];
 
     [ObservableProperty] public partial string SearchText { get; set; } = string.Empty;
@@ -38,9 +33,7 @@ public partial class ContainersViewModel : ObservableObject
     [ObservableProperty] public partial bool NewRemoveWhenStopped { get; set; }
     [ObservableProperty] public partial string ExecText { get; set; } = "uname -a";
 
-    public string DetailOutput { get => Workspace.DetailOutput; set => Workspace.DetailOutput = value; }
     public ContainerStats? SelectedContainerStats => SelectedContainer is null ? null : Workspace.FindStats(SelectedContainer);
-    public IAsyncRelayCommand RefreshAllCommand => Workspace.RefreshAllCommand;
 
     [RelayCommand] private Task StartContainerAsync() => RunContainerActionAsync("Start container", id => Workspace.Runtime.StartContainerAsync(id, Workspace.Lifetime.Token));
     [RelayCommand] private Task StopContainerAsync() => RunContainerActionAsync("Stop container", id => Workspace.Runtime.StopContainerAsync(id, Workspace.Lifetime.Token));
@@ -261,14 +254,6 @@ public partial class ContainersViewModel : ObservableObject
         ApplyContainerFilter();
         RestoreSelectedContainerIfUnchanged(selectedBeforeRefresh);
         OnPropertyChanged(nameof(SelectedContainerStats));
-    }
-
-    private void OnWorkspacePropertyChanged(object? sender, PropertyChangedEventArgs eventArgs)
-    {
-        if (eventArgs.PropertyName is nameof(RuntimeWorkspace.DetailOutput))
-        {
-            OnPropertyChanged(nameof(DetailOutput));
-        }
     }
 
     private void ApplyContainerFilter()

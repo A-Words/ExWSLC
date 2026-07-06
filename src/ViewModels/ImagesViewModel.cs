@@ -1,21 +1,16 @@
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ExWSLC.Models;
 
 namespace ExWSLC.ViewModels;
 
-public partial class ImagesViewModel : ObservableObject
+public partial class ImagesViewModel : WorkspaceViewModel
 {
-    public ImagesViewModel(RuntimeWorkspace workspace)
+    public ImagesViewModel(RuntimeWorkspace workspace) : base(workspace)
     {
-        Workspace = workspace;
         Workspace.Refreshed += (_, _) => ApplyImageFilter();
-        Workspace.PropertyChanged += OnWorkspacePropertyChanged;
     }
-
-    public RuntimeWorkspace Workspace { get; }
     public ObservableCollection<ImageSummary> VisibleImages { get; } = [];
 
     [ObservableProperty] public partial string ImageSearchText { get; set; } = string.Empty;
@@ -25,11 +20,9 @@ public partial class ImagesViewModel : ObservableObject
     [ObservableProperty] public partial string ImageTag { get; set; } = string.Empty;
     [ObservableProperty] public partial string DockerfilePath { get; set; } = string.Empty;
 
-    public string DetailOutput { get => Workspace.DetailOutput; set => Workspace.DetailOutput = value; }
     public bool HasSelectedImage => SelectedImage is not null;
     public string SelectedImageDisplayName => SelectedImage?.DisplayName ??
         (Workspace.SettingsService.Current.Language.Equals("en-US", StringComparison.OrdinalIgnoreCase) ? "Select an image" : "请选择镜像");
-    public IAsyncRelayCommand RefreshAllCommand => Workspace.RefreshAllCommand;
 
     [RelayCommand]
     private async Task PullImageAsync()
@@ -125,14 +118,6 @@ public partial class ImagesViewModel : ObservableObject
     }
 
     public void RaiseLanguageChanged() => OnPropertyChanged(nameof(SelectedImageDisplayName));
-
-    private void OnWorkspacePropertyChanged(object? sender, PropertyChangedEventArgs eventArgs)
-    {
-        if (eventArgs.PropertyName is nameof(RuntimeWorkspace.DetailOutput))
-        {
-            OnPropertyChanged(nameof(DetailOutput));
-        }
-    }
 
     private void ApplyImageFilter()
     {
