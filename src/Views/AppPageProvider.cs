@@ -1,4 +1,3 @@
-using System.Windows.Controls;
 using ExWSLC.ViewModels;
 using ExWSLC.Views.Pages;
 using ExWSLC.Views.Pages.Containers;
@@ -6,17 +5,23 @@ using Wpf.Ui.Abstractions;
 
 namespace ExWSLC.Views;
 
-internal sealed class AppPageProvider(MainViewModel viewModel) : INavigationViewPageProvider
+internal sealed class AppPageProvider : INavigationViewPageProvider
 {
-    public object? GetPage(Type pageType)
-    {
-        if (pageType == typeof(OverviewPage)) return new OverviewPage(viewModel.OverviewPage);
-        if (pageType == typeof(ContainersPage)) return new ContainersPage(viewModel.Containers);
-        if (pageType == typeof(ImagesPage)) return new ImagesPage(viewModel.ImagesPage);
-        if (pageType == typeof(ResourcesPage)) return new ResourcesPage(viewModel.ResourcesPage);
-        if (pageType == typeof(TasksPage)) return new TasksPage(viewModel.TasksPage);
-        if (pageType == typeof(SettingsPage)) return new SettingsPage(viewModel.SettingsPage);
+    private readonly Dictionary<Type, Func<object>> _pageFactories;
 
-        return Activator.CreateInstance(pageType) as Page;
+    public AppPageProvider(MainViewModel viewModel)
+    {
+        _pageFactories = new Dictionary<Type, Func<object>>
+        {
+            [typeof(OverviewPage)] = () => new OverviewPage(viewModel.OverviewPage),
+            [typeof(ContainersPage)] = () => new ContainersPage(viewModel.Containers),
+            [typeof(ImagesPage)] = () => new ImagesPage(viewModel.ImagesPage),
+            [typeof(ResourcesPage)] = () => new ResourcesPage(viewModel.ResourcesPage),
+            [typeof(TasksPage)] = () => new TasksPage(viewModel.TasksPage),
+            [typeof(SettingsPage)] = () => new SettingsPage(viewModel.SettingsPage),
+        };
     }
+
+    public object? GetPage(Type pageType) =>
+        _pageFactories.TryGetValue(pageType, out var factory) ? factory() : null;
 }
