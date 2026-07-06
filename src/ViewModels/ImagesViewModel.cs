@@ -1,7 +1,9 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using ExWSLC.Models;
+using ExWSLC.ViewModels.Messages;
 
 namespace ExWSLC.ViewModels;
 
@@ -12,6 +14,7 @@ public partial class ImagesViewModel : WorkspaceViewModel
     public ImagesViewModel(RuntimeWorkspace workspace) : base(workspace)
     {
         Workspace.Refreshed += (_, _) => ApplyImageFilter();
+        WeakReferenceMessenger.Default.Register<LanguageChangedMessage>(this, (recipient, message) => ((ImagesViewModel)recipient).RaiseLanguageChanged());
     }
     public ObservableCollection<ImageSummary> VisibleImages { get; } = [];
 

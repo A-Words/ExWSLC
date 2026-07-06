@@ -1,7 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using ExWSLC.Models;
 using ExWSLC.Services;
+using ExWSLC.ViewModels.Messages;
 using System.ComponentModel;
 
 namespace ExWSLC.ViewModels;
@@ -10,10 +12,9 @@ public partial class SettingsViewModel : ObservableObject
 {
     private const string DefaultRegistryServer = "docker.io";
 
-    public SettingsViewModel(RuntimeWorkspace workspace, ImagesViewModel? imagesPage = null)
+    public SettingsViewModel(RuntimeWorkspace workspace)
     {
         Workspace = workspace;
-        ImagesPage = imagesPage;
         Workspace.PropertyChanged += OnWorkspacePropertyChanged;
         SelectedLanguage = Workspace.SettingsService.Current.Language;
         SelectedTheme = Workspace.SettingsService.Current.Theme;
@@ -21,7 +22,6 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     public RuntimeWorkspace Workspace { get; }
-    public ImagesViewModel? ImagesPage { get; set; }
     public RuntimeCapabilities Capabilities => Workspace.Capabilities;
 
     [ObservableProperty] public partial string RegistryServer { get; set; } = DefaultRegistryServer;
@@ -78,7 +78,7 @@ public partial class SettingsViewModel : ObservableObject
         LocalizationService.ApplyLanguage(SelectedLanguage);
         LocalizationService.ApplyTheme(SelectedTheme);
         Workspace.StatusMessage = "Settings saved.";
-        ImagesPage?.RaiseLanguageChanged();
+        WeakReferenceMessenger.Default.Send(new LanguageChangedMessage(SelectedLanguage));
     }
 
     private void OnWorkspacePropertyChanged(object? sender, PropertyChangedEventArgs eventArgs)

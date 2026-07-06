@@ -17,7 +17,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         ImagesPage = new ImagesViewModel(Workspace);
         ResourcesPage = new ResourcesViewModel(Workspace);
         TasksPage = new TasksViewModel(Workspace);
-        SettingsPage = new SettingsViewModel(Workspace, ImagesPage);
+        SettingsPage = new SettingsViewModel(Workspace);
         OverviewPage = new OverviewViewModel(Workspace, Containers);
     }
 
