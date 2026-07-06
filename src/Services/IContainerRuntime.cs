@@ -1,16 +1,6 @@
-using ExWSLC.Models;
+﻿using ExWSLC.Models;
 
 namespace ExWSLC.Services;
-
-public interface IProcessRunner
-{
-    Task<OperationResult> ExecuteAsync(
-        string fileName,
-        IReadOnlyList<string> arguments,
-        string? standardInput = null,
-        IProgress<string>? progress = null,
-        CancellationToken cancellationToken = default);
-}
 
 public interface IContainerRuntime
 {
@@ -49,34 +39,4 @@ public interface IContainerRuntime
     void OpenInteractiveTerminal(string containerId);
     void OpenNativeSettings();
     Task<OperationResult> ResetNativeSettingsAsync(CancellationToken cancellationToken = default);
-}
-
-public interface IRuntimeCapabilityService
-{
-    Task<RuntimeCapabilities> DetectAsync(CancellationToken cancellationToken = default);
-    Task InstallMissingComponentsAsync(IProgress<string>? progress = null, CancellationToken cancellationToken = default);
-}
-
-public interface ISettingsService
-{
-    AppSettings Current { get; }
-    Task LoadAsync(CancellationToken cancellationToken = default);
-    Task SaveAsync(CancellationToken cancellationToken = default);
-}
-
-public interface ITaskService
-{
-    IReadOnlyList<RuntimeTaskItem> Tasks { get; }
-    event EventHandler? TasksChanged;
-    Task<OperationResult> RunAsync(string title, Func<IProgress<string>, CancellationToken, Task<OperationResult>> operation, CancellationToken cancellationToken = default);
-    void ClearCompleted();
-}
-
-public interface IUserInteractionService
-{
-    bool Confirm(string title, string message);
-    void ShowError(string title, string message);
-    string? PickOpenFile(string title, string filter);
-    string? PickSaveFile(string title, string filter, string defaultName);
-    string? PickFolder(string title);
 }
