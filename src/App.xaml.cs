@@ -1,31 +1,47 @@
 using System.Windows;
 using ExWSLC.Services;
 using ExWSLC.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ExWSLC;
 
 public partial class App : Application
 {
     public static new App Current => (App)Application.Current;
-    public MainViewModel ViewModel { get; private set; } = null!;
+
+    public IServiceProvider Services { get; private set; } = null!;
 
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
-        var settings = new SettingsService();
+
+        var services = new ServiceCollection();
+        ConfigureServices(services);
+        Services = services.BuildServiceProvider();
+
+        var settings = Services.GetRequiredService<ISettingsService>();
         await settings.LoadAsync();
         LocalizationService.ApplyLanguage(settings.Current.Language);
 
-        var runner = new WslcProcessRunner();
-        var runtime = new WslcContainerRuntime(runner);
-        ViewModel = new MainViewModel(
-            runtime,
-            new RuntimeCapabilityService(runner),
-            settings,
-            new TaskService(),
-            new UserInteractionService());
-
-        MainWindow = new MainWindow(ViewModel);
+        MainWindow = Services.GetRequiredService<MainWindow>();
         MainWindow.Show();
+    }
+
+    private static void ConfigureServices(IServiceCollection services)
+    {
+        // Services
+        services.AddSingleton<IProcessRunner, WslcProcessRunner>();
+        services.AddSingleton<IContainerRuntime, WslcContainerRuntime>();
+        services.AddSingleton<IRuntimeCapabilityService, RuntimeCapabilityService>();
+        services.AddSingleton<ISettingsService, SettingsService>();
+        services.AddSingleton<ITaskService, TaskService>();
+        services.AddSingleton<IUserInteractionService, UserInteractionService>();
+
+        // ViewModels
+        services.AddSingleton<RuntimeWorkspace>();
+        services.AddSingleton<MainViewModel>();
+
+        // Window
+        services.AddSingleton<MainWindow>();
     }
 }

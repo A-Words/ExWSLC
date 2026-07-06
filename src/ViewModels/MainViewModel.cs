@@ -5,14 +5,9 @@ namespace ExWSLC.ViewModels;
 
 public partial class MainViewModel : ObservableObject, IDisposable
 {
-    public MainViewModel(
-        IContainerRuntime runtime,
-        IRuntimeCapabilityService capabilityService,
-        ISettingsService settingsService,
-        ITaskService taskService,
-        IUserInteractionService interaction)
+    public MainViewModel(RuntimeWorkspace workspace)
     {
-        Workspace = new RuntimeWorkspace(runtime, capabilityService, settingsService, taskService, interaction);
+        Workspace = workspace;
         Containers = new ContainersViewModel(Workspace);
         ImagesPage = new ImagesViewModel(Workspace);
         ResourcesPage = new ResourcesViewModel(Workspace);

@@ -249,6 +249,7 @@ public class MainViewModelTests
         var interaction = new Mock<IUserInteractionService>();
         interaction.Setup(value => value.ConfirmAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(true);
         interaction.Setup(value => value.ShowErrorAsync(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.CompletedTask);
-        return new MainViewModel(runtime.Object, capabilities.Object, settings.Object, new TaskService(), interaction.Object);
+        var workspace = new RuntimeWorkspace(runtime.Object, capabilities.Object, settings.Object, new TaskService(), interaction.Object);
+        return new MainViewModel(workspace);
     }
 }
