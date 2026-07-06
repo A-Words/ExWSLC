@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ExWSLC.Helpers;
 using ExWSLC.Models;
 using ExWSLC.Services;
 
@@ -69,7 +70,11 @@ public partial class RuntimeWorkspace : ObservableObject, IDisposable
         }
 
         await RefreshAllAsync();
-        _ = AutoRefreshAsync(Lifetime.Token);
+        var autoRefresh = new AutoRefreshService(
+            RefreshAllAsync,
+            () => !IsBusy && Capabilities.IsAvailable,
+            () => SettingsService.Current.RefreshIntervalSeconds);
+        _ = autoRefresh.RunAsync(Lifetime.Token);
     }
 
     public async Task InstallMissingComponentsAsync(IProgress<string> progress)
@@ -93,12 +98,12 @@ public partial class RuntimeWorkspace : ObservableObject, IDisposable
             var volumesTask = Runtime.GetVolumesAsync(Lifetime.Token);
             var statsTask = Runtime.GetStatsAsync(Lifetime.Token);
             await Task.WhenAll(containersTask, imagesTask, networksTask, volumesTask, statsTask);
-            Replace(Containers, containersTask.Result);
-            Replace(ActiveContainers, containersTask.Result.Where(container => container.IsRunning).Take(4));
-            Replace(Images, imagesTask.Result);
-            Replace(Networks, networksTask.Result);
-            Replace(Volumes, volumesTask.Result);
-            Replace(Stats, statsTask.Result);
+            Containers.ReplaceAll(containersTask.Result);
+            ActiveContainers.ReplaceAll(containersTask.Result.Where(container => container.IsRunning).Take(4));
+            Images.ReplaceAll(imagesTask.Result);
+            Networks.ReplaceAll(networksTask.Result);
+            Volumes.ReplaceAll(volumesTask.Result);
+            Stats.ReplaceAll(statsTask.Result);
             RaiseCounts();
             Refreshed?.Invoke(this, EventArgs.Empty);
             StatusMessage = $"Updated {DateTime.Now:T}";
@@ -163,38 +168,12 @@ public partial class RuntimeWorkspace : ObservableObject, IDisposable
         OnPropertyChanged(nameof(VersionSummary));
     }
 
-    private async Task AutoRefreshAsync(CancellationToken cancellationToken)
-    {
-        while (!cancellationToken.IsCancellationRequested)
-        {
-            try
-            {
-                await Task.Delay(
-                    TimeSpan.FromSeconds(Math.Clamp(SettingsService.Current.RefreshIntervalSeconds, 2, 300)),
-                    cancellationToken);
-                if (!IsBusy && Capabilities.IsAvailable)
-                {
-                    await RefreshAllAsync();
-                }
-            }
-            catch (OperationCanceledException)
-            {
-                break;
-            }
-            catch
-            {
-                // Swallow unexpected errors to keep the auto-refresh loop alive.
-                // RefreshAllAsync already surfaces errors via StatusMessage.
-            }
-        }
-    }
-
     private void OnTasksChanged(object? sender, EventArgs eventArgs) => App.Current.Dispatcher.Invoke(SyncTasks);
 
     private void SyncTasks()
     {
-        Replace(Tasks, _taskService.Tasks);
-        Replace(RecentTasks, _taskService.Tasks.Take(5));
+        Tasks.ReplaceAll(_taskService.Tasks);
+        RecentTasks.ReplaceAll(_taskService.Tasks.Take(5));
         ActiveTask = _taskService.Tasks.FirstOrDefault(task => task.State is RuntimeTaskState.Running or RuntimeTaskState.Queued);
         OnPropertyChanged(nameof(ActiveTaskCount));
     }
@@ -207,18 +186,6 @@ public partial class RuntimeWorkspace : ObservableObject, IDisposable
         OnPropertyChanged(nameof(NetworkCount));
         OnPropertyChanged(nameof(VolumeCount));
     }
-
-    public static void Replace<T>(ObservableCollection<T> target, IEnumerable<T> source)
-    {
-        target.Clear();
-        foreach (var item in source)
-        {
-            target.Add(item);
-        }
-    }
-
-    public static IEnumerable<string> SplitValues(string value) =>
-        value.Split(['\r', '\n', ','], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
     public void Dispose()
     {

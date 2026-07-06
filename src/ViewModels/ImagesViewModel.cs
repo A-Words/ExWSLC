@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using ExWSLC.Helpers;
 using ExWSLC.Models;
 using ExWSLC.ViewModels.Messages;
 
@@ -127,7 +128,7 @@ public partial class ImagesViewModel : WorkspaceViewModel
     private void ApplyImageFilter()
     {
         var query = ImageSearchText.Trim();
-        RuntimeWorkspace.Replace(VisibleImages, Workspace.Images.Where(image => string.IsNullOrEmpty(query) ||
+        VisibleImages.ReplaceAll(Workspace.Images.Where(image => string.IsNullOrEmpty(query) ||
             image.DisplayName.Contains(query, StringComparison.OrdinalIgnoreCase) ||
             image.Id.Contains(query, StringComparison.OrdinalIgnoreCase)));
     }

@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Text;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ExWSLC.Helpers;
 using ExWSLC.Models;
 
 namespace ExWSLC.ViewModels;
@@ -243,14 +244,14 @@ public partial class ContainersViewModel : WorkspaceViewModel
             UseAllGpus = NewUseAllGpus,
             RemoveWhenStopped = NewRemoveWhenStopped
         };
-        foreach (var line in RuntimeWorkspace.SplitValues(NewEnvironment))
+        foreach (var line in StringSplitter.SplitValues(NewEnvironment))
         {
             var index = line.IndexOf('=');
             if (index > 0) spec.Environment.Add(new(line[..index].Trim(), line[(index + 1)..]));
         }
 
-        spec.Ports.AddRange(RuntimeWorkspace.SplitValues(NewPorts));
-        spec.Volumes.AddRange(RuntimeWorkspace.SplitValues(NewVolumes));
+        spec.Ports.AddRange(StringSplitter.SplitValues(NewPorts));
+        spec.Volumes.AddRange(StringSplitter.SplitValues(NewVolumes));
         return spec;
     }
 
@@ -270,7 +271,7 @@ public partial class ContainersViewModel : WorkspaceViewModel
             container.Image.Contains(query, StringComparison.OrdinalIgnoreCase) ||
             container.Id.Contains(query, StringComparison.OrdinalIgnoreCase)).ToArray();
 
-        RuntimeWorkspace.Replace(VisibleContainerItems, visible.Select(container => new ContainerListItem
+        VisibleContainerItems.ReplaceAll(visible.Select(container => new ContainerListItem
         {
             Container = container,
             Stats = Workspace.FindStats(container)

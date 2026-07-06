@@ -1,4 +1,5 @@
-﻿using ExWSLC.Models;
+﻿using ExWSLC.Helpers;
+using ExWSLC.Models;
 
 namespace ExWSLC.ViewModels.Design;
 
@@ -29,14 +30,14 @@ internal static class DesignWorkspaceFactory
             }
         };
 
-        RuntimeWorkspace.Replace(workspace.Containers, SampleContainers);
-        RuntimeWorkspace.Replace(workspace.ActiveContainers, SampleContainers.Where(container => container.IsRunning));
-        RuntimeWorkspace.Replace(workspace.Images, SampleImages);
-        RuntimeWorkspace.Replace(workspace.Networks, SampleNetworks);
-        RuntimeWorkspace.Replace(workspace.Volumes, SampleVolumes);
-        RuntimeWorkspace.Replace(workspace.Stats, SampleStats);
-        RuntimeWorkspace.Replace(workspace.Tasks, SampleTasks);
-        RuntimeWorkspace.Replace(workspace.RecentTasks, SampleTasks.Take(3));
+        workspace.Containers.ReplaceAll(SampleContainers);
+        workspace.ActiveContainers.ReplaceAll(SampleContainers.Where(container => container.IsRunning));
+        workspace.Images.ReplaceAll(SampleImages);
+        workspace.Networks.ReplaceAll(SampleNetworks);
+        workspace.Volumes.ReplaceAll(SampleVolumes);
+        workspace.Stats.ReplaceAll(SampleStats);
+        workspace.Tasks.ReplaceAll(SampleTasks);
+        workspace.RecentTasks.ReplaceAll(SampleTasks.Take(3));
         return workspace;
     }
 
