@@ -7,6 +7,9 @@ namespace ExWSLC.ViewModels;
 
 public partial class ContainersViewModel : WorkspaceViewModel
 {
+    private const string DefaultImage = "hello-world:latest";
+    private const string DefaultExecCommand = "uname -a";
+
     private CancellationTokenSource? _logFollow;
 
     public ContainersViewModel(RuntimeWorkspace workspace) : base(workspace)
@@ -18,7 +21,7 @@ public partial class ContainersViewModel : WorkspaceViewModel
     [ObservableProperty] public partial string SearchText { get; set; } = string.Empty;
     [ObservableProperty] public partial bool IsCreatingContainer { get; set; }
     [ObservableProperty] public partial ContainerSummary? SelectedContainer { get; set; }
-    [ObservableProperty] public partial string NewImage { get; set; } = "hello-world:latest";
+    [ObservableProperty] public partial string NewImage { get; set; } = DefaultImage;
     [ObservableProperty] public partial string NewContainerName { get; set; } = string.Empty;
     [ObservableProperty] public partial string NewCommand { get; set; } = string.Empty;
     [ObservableProperty] public partial string NewCpuLimit { get; set; } = string.Empty;
@@ -31,7 +34,7 @@ public partial class ContainersViewModel : WorkspaceViewModel
     [ObservableProperty] public partial string NewVolumes { get; set; } = string.Empty;
     [ObservableProperty] public partial bool NewUseAllGpus { get; set; }
     [ObservableProperty] public partial bool NewRemoveWhenStopped { get; set; }
-    [ObservableProperty] public partial string ExecText { get; set; } = "uname -a";
+    [ObservableProperty] public partial string ExecText { get; set; } = DefaultExecCommand;
 
     public ContainerStats? SelectedContainerStats => SelectedContainer is null ? null : Workspace.FindStats(SelectedContainer);
 

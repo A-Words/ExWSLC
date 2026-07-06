@@ -7,6 +7,8 @@ namespace ExWSLC.ViewModels;
 
 public partial class ImagesViewModel : WorkspaceViewModel
 {
+    private const string DefaultImageReference = "ubuntu:latest";
+
     public ImagesViewModel(RuntimeWorkspace workspace) : base(workspace)
     {
         Workspace.Refreshed += (_, _) => ApplyImageFilter();
@@ -15,7 +17,7 @@ public partial class ImagesViewModel : WorkspaceViewModel
 
     [ObservableProperty] public partial string ImageSearchText { get; set; } = string.Empty;
     [ObservableProperty] public partial ImageSummary? SelectedImage { get; set; }
-    [ObservableProperty] public partial string ImageReference { get; set; } = "ubuntu:latest";
+    [ObservableProperty] public partial string ImageReference { get; set; } = DefaultImageReference;
     [ObservableProperty] public partial string ImagePath { get; set; } = string.Empty;
     [ObservableProperty] public partial string ImageTag { get; set; } = string.Empty;
     [ObservableProperty] public partial string DockerfilePath { get; set; } = string.Empty;

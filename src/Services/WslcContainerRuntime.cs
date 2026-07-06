@@ -220,11 +220,11 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner) : IContai
 
     internal static string NormalizeContainerState(string state) => state switch
     {
-        "0" => "Invalid",
-        "1" => "Created",
-        "2" => "Running",
-        "3" => "Exited",
-        "4" => "Deleted",
+        ContainerState.CodeInvalid => ContainerState.Invalid,
+        ContainerState.CodeCreated => ContainerState.Created,
+        ContainerState.CodeRunning => ContainerState.Running,
+        ContainerState.CodeExited => ContainerState.Exited,
+        ContainerState.CodeDeleted => ContainerState.Deleted,
         _ => state
     };
 

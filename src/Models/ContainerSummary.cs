@@ -11,8 +11,8 @@ public sealed record ContainerSummary(
     string Ports,
     string Created)
 {
-    public bool IsRunning => State.Equals("running", StringComparison.OrdinalIgnoreCase) ||
-                             State == "2" ||
+    public bool IsRunning => State.Equals(ContainerState.Running, StringComparison.OrdinalIgnoreCase) ||
+                             State == ContainerState.CodeRunning ||
                              Status.StartsWith("Up", StringComparison.OrdinalIgnoreCase);
     public string ShortId => Id.Length <= 12 ? Id : Id[..12];
     public string DisplayPorts => ContainerPortFormatter.Format(Ports);

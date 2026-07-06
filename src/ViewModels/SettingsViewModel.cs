@@ -8,6 +8,8 @@ namespace ExWSLC.ViewModels;
 
 public partial class SettingsViewModel : ObservableObject
 {
+    private const string DefaultRegistryServer = "docker.io";
+
     public SettingsViewModel(RuntimeWorkspace workspace, ImagesViewModel? imagesPage = null)
     {
         Workspace = workspace;
@@ -22,7 +24,7 @@ public partial class SettingsViewModel : ObservableObject
     public ImagesViewModel? ImagesPage { get; set; }
     public RuntimeCapabilities Capabilities => Workspace.Capabilities;
 
-    [ObservableProperty] public partial string RegistryServer { get; set; } = "docker.io";
+    [ObservableProperty] public partial string RegistryServer { get; set; } = DefaultRegistryServer;
     [ObservableProperty] public partial string RegistryUsername { get; set; } = string.Empty;
     [ObservableProperty] public partial string RegistryPassword { get; set; } = string.Empty;
     [ObservableProperty] public partial string SelectedLanguage { get; set; }
