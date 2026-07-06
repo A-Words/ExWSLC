@@ -6,9 +6,9 @@ using System.ComponentModel;
 
 namespace ExWSLC.ViewModels;
 
-public class OverviewPageViewModel : ObservableObject
+public class OverviewViewModel : ObservableObject
 {
-    public OverviewPageViewModel(RuntimeWorkspace workspace, ContainersViewModel containers)
+    public OverviewViewModel(RuntimeWorkspace workspace, ContainersViewModel containers)
     {
         Workspace = workspace;
         Containers = containers;

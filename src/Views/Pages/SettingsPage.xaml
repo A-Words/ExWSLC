@@ -6,7 +6,7 @@
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:designViewModels="clr-namespace:ExWSLC.ViewModels.Design"
       mc:Ignorable="d"
-      d:DataContext="{d:DesignInstance Type=designViewModels:DesignSettingsPageViewModel, IsDesignTimeCreatable=True}"
+      d:DataContext="{d:DesignInstance Type=designViewModels:DesignSettingsViewModel, IsDesignTimeCreatable=True}"
       Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="24,18,24,28">

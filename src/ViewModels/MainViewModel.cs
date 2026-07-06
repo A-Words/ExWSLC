@@ -14,20 +14,20 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         Workspace = new RuntimeWorkspace(runtime, capabilityService, settingsService, taskService, interaction);
         Containers = new ContainersViewModel(Workspace);
-        ImagesPage = new ImagesPageViewModel(Workspace);
-        ResourcesPage = new ResourcesPageViewModel(Workspace);
-        TasksPage = new TasksPageViewModel(Workspace);
-        SettingsPage = new SettingsPageViewModel(Workspace, ImagesPage);
-        OverviewPage = new OverviewPageViewModel(Workspace, Containers);
+        ImagesPage = new ImagesViewModel(Workspace);
+        ResourcesPage = new ResourcesViewModel(Workspace);
+        TasksPage = new TasksViewModel(Workspace);
+        SettingsPage = new SettingsViewModel(Workspace, ImagesPage);
+        OverviewPage = new OverviewViewModel(Workspace, Containers);
     }
 
     public RuntimeWorkspace Workspace { get; }
-    public OverviewPageViewModel OverviewPage { get; }
+    public OverviewViewModel OverviewPage { get; }
     public ContainersViewModel Containers { get; }
-    public ImagesPageViewModel ImagesPage { get; }
-    public ResourcesPageViewModel ResourcesPage { get; }
-    public TasksPageViewModel TasksPage { get; }
-    public SettingsPageViewModel SettingsPage { get; }
+    public ImagesViewModel ImagesPage { get; }
+    public ResourcesViewModel ResourcesPage { get; }
+    public TasksViewModel TasksPage { get; }
+    public SettingsViewModel SettingsPage { get; }
 
     public Task InitializeAsync() => Workspace.InitializeAsync();
 

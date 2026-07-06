@@ -7,7 +7,7 @@
       xmlns:designViewModels="clr-namespace:ExWSLC.ViewModels.Design"
       x:Name="RootPage"
       mc:Ignorable="d"
-      d:DataContext="{d:DesignInstance Type=designViewModels:DesignImagesPageViewModel, IsDesignTimeCreatable=True}"
+      d:DataContext="{d:DesignInstance Type=designViewModels:DesignImagesViewModel, IsDesignTimeCreatable=True}"
       Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}">
     <Page.Resources>
         <DataTemplate x:Key="ImageListTemplate">

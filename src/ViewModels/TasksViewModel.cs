@@ -5,7 +5,7 @@ using System.Collections.ObjectModel;
 
 namespace ExWSLC.ViewModels;
 
-public class TasksPageViewModel(RuntimeWorkspace workspace) : ObservableObject
+public class TasksViewModel(RuntimeWorkspace workspace) : ObservableObject
 {
     public RuntimeWorkspace Workspace { get; } = workspace;
     public ObservableCollection<RuntimeTaskItem> Tasks => Workspace.Tasks;

@@ -6,9 +6,9 @@ using System.ComponentModel;
 
 namespace ExWSLC.ViewModels;
 
-public partial class SettingsPageViewModel : ObservableObject
+public partial class SettingsViewModel : ObservableObject
 {
-    public SettingsPageViewModel(RuntimeWorkspace workspace, ImagesPageViewModel? imagesPage = null)
+    public SettingsViewModel(RuntimeWorkspace workspace, ImagesViewModel? imagesPage = null)
     {
         Workspace = workspace;
         ImagesPage = imagesPage;
@@ -19,7 +19,7 @@ public partial class SettingsPageViewModel : ObservableObject
     }
 
     public RuntimeWorkspace Workspace { get; }
-    public ImagesPageViewModel? ImagesPage { get; set; }
+    public ImagesViewModel? ImagesPage { get; set; }
     public RuntimeCapabilities Capabilities => Workspace.Capabilities;
 
     [ObservableProperty] public partial string RegistryServer { get; set; } = "docker.io";

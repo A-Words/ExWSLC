@@ -37,7 +37,7 @@ public class MainViewModelTests
     }
 
     [Fact]
-    public void PageViewModels_HaveSeparatePageStateAndSharedWorkspace()
+    public void ViewModels_HaveSeparateStateAndSharedWorkspace()
     {
         var viewModel = CreateViewModel();
         var changes = new List<string?>();
@@ -54,11 +54,11 @@ public class MainViewModelTests
     }
 
     [Fact]
-    public void DesignPageViewModels_ExposeSampleDataWithoutRuntimeServices()
+    public void DesignViewModels_ExposeSampleDataWithoutRuntimeServices()
     {
         var containers = new DesignContainersViewModel();
-        var overview = new DesignOverviewPageViewModel();
-        var images = new DesignImagesPageViewModel();
+        var overview = new DesignOverviewViewModel();
+        var images = new DesignImagesViewModel();
 
         Assert.NotEmpty(containers.VisibleContainerItems);
         Assert.NotNull(containers.SelectedContainer);

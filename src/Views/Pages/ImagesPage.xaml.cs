@@ -11,7 +11,7 @@ public partial class ImagesPage : Page
         InitializeComponent();
     }
 
-    public ImagesPage(ImagesPageViewModel viewModel) : this()
+    public ImagesPage(ImagesViewModel viewModel) : this()
     {
         DataContext = viewModel;
     }

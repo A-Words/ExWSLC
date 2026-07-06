@@ -12,18 +12,18 @@ public sealed class DesignContainersViewModel : ContainersViewModel
     }
 }
 
-public sealed class DesignImagesPageViewModel : ImagesPageViewModel
+public sealed class DesignImagesViewModel : ImagesViewModel
 {
-    public DesignImagesPageViewModel() : base(DesignWorkspaceFactory.CreateWorkspace())
+    public DesignImagesViewModel() : base(DesignWorkspaceFactory.CreateWorkspace())
     {
         ImageSearchText = "ubuntu";
         SelectedImage = VisibleImages.FirstOrDefault();
     }
 }
 
-public sealed class DesignResourcesPageViewModel : ResourcesPageViewModel
+public sealed class DesignResourcesViewModel : ResourcesViewModel
 {
-    public DesignResourcesPageViewModel() : base(DesignWorkspaceFactory.CreateWorkspace())
+    public DesignResourcesViewModel() : base(DesignWorkspaceFactory.CreateWorkspace())
     {
         ResourceName = "dev-network";
         SelectedNetwork = Networks.FirstOrDefault();
@@ -31,29 +31,29 @@ public sealed class DesignResourcesPageViewModel : ResourcesPageViewModel
     }
 }
 
-public sealed class DesignTasksPageViewModel : TasksPageViewModel
+public sealed class DesignTasksViewModel : TasksViewModel
 {
-    public DesignTasksPageViewModel() : base(DesignWorkspaceFactory.CreateWorkspace())
+    public DesignTasksViewModel() : base(DesignWorkspaceFactory.CreateWorkspace())
     {
     }
 }
 
-public sealed class DesignSettingsPageViewModel : SettingsPageViewModel
+public sealed class DesignSettingsViewModel : SettingsViewModel
 {
-    public DesignSettingsPageViewModel() : base(DesignWorkspaceFactory.CreateWorkspace())
+    public DesignSettingsViewModel() : base(DesignWorkspaceFactory.CreateWorkspace())
     {
         RegistryUsername = "developer";
     }
 }
 
-public sealed class DesignOverviewPageViewModel : OverviewPageViewModel
+public sealed class DesignOverviewViewModel : OverviewViewModel
 {
-    public DesignOverviewPageViewModel()
+    public DesignOverviewViewModel()
         : this(DesignWorkspaceFactory.CreateWorkspace())
     {
     }
 
-    private DesignOverviewPageViewModel(RuntimeWorkspace workspace)
+    private DesignOverviewViewModel(RuntimeWorkspace workspace)
         : base(workspace, new ContainersViewModel(workspace))
     {
     }

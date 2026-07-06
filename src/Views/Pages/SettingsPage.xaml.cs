@@ -12,7 +12,7 @@ public partial class SettingsPage : System.Windows.Controls.Page
         InitializeComponent();
     }
 
-    public SettingsPage(SettingsPageViewModel viewModel) : this()
+    public SettingsPage(SettingsViewModel viewModel) : this()
     {
         DataContext = viewModel;
     }
@@ -20,7 +20,7 @@ public partial class SettingsPage : System.Windows.Controls.Page
     private void RegistryPasswordBox_OnPasswordChanged(object sender, RoutedEventArgs e)
     {
         if (sender is Wpf.Ui.Controls.PasswordBox passwordBox &&
-            DataContext is SettingsPageViewModel viewModel)
+            DataContext is SettingsViewModel viewModel)
         {
             viewModel.RegistryPassword = passwordBox.Password;
         }

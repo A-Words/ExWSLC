@@ -6,9 +6,9 @@ using System.ComponentModel;
 
 namespace ExWSLC.ViewModels;
 
-public partial class ResourcesPageViewModel : ObservableObject
+public partial class ResourcesViewModel : ObservableObject
 {
-    public ResourcesPageViewModel(RuntimeWorkspace workspace)
+    public ResourcesViewModel(RuntimeWorkspace workspace)
     {
         Workspace = workspace;
         Workspace.PropertyChanged += OnWorkspacePropertyChanged;

@@ -6,9 +6,9 @@ using ExWSLC.Models;
 
 namespace ExWSLC.ViewModels;
 
-public partial class ImagesPageViewModel : ObservableObject
+public partial class ImagesViewModel : ObservableObject
 {
-    public ImagesPageViewModel(RuntimeWorkspace workspace)
+    public ImagesViewModel(RuntimeWorkspace workspace)
     {
         Workspace = workspace;
         Workspace.Refreshed += (_, _) => ApplyImageFilter();

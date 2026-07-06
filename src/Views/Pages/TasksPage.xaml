@@ -6,7 +6,7 @@
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:designViewModels="clr-namespace:ExWSLC.ViewModels.Design"
       mc:Ignorable="d"
-      d:DataContext="{d:DesignInstance Type=designViewModels:DesignTasksPageViewModel, IsDesignTimeCreatable=True}"
+      d:DataContext="{d:DesignInstance Type=designViewModels:DesignTasksViewModel, IsDesignTimeCreatable=True}"
       Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}">
     <Grid Margin="24,18,24,24">
         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition/></Grid.RowDefinitions>

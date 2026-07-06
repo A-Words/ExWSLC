@@ -14,7 +14,7 @@ public partial class OverviewPage : Page
         InitializeComponent();
     }
 
-    public OverviewPage(OverviewPageViewModel viewModel) : this()
+    public OverviewPage(OverviewViewModel viewModel) : this()
     {
         DataContext = viewModel;
     }
@@ -26,7 +26,7 @@ public partial class OverviewPage : Page
 
     private void ConfigureContainer_Click(object sender, RoutedEventArgs e)
     {
-        if (DataContext is OverviewPageViewModel viewModel)
+        if (DataContext is OverviewViewModel viewModel)
         {
             viewModel.ShowCreateContainer();
         }
@@ -37,7 +37,7 @@ public partial class OverviewPage : Page
     private void OpenContainer_Click(object sender, RoutedEventArgs e)
     {
         if (sender is FrameworkElement { DataContext: ContainerSummary container } &&
-            DataContext is OverviewPageViewModel viewModel)
+            DataContext is OverviewViewModel viewModel)
         {
             viewModel.SelectContainer(container);
             ((MainWindow)App.Current.MainWindow).Navigate(typeof(ContainersPage));

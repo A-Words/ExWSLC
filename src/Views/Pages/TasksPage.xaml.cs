@@ -11,7 +11,7 @@ public partial class TasksPage : Page
         InitializeComponent();
     }
 
-    public TasksPage(TasksPageViewModel viewModel) : this()
+    public TasksPage(TasksViewModel viewModel) : this()
     {
         DataContext = viewModel;
     }

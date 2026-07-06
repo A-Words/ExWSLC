@@ -11,7 +11,7 @@ public partial class ResourcesPage : Page
         InitializeComponent();
     }
 
-    public ResourcesPage(ResourcesPageViewModel viewModel) : this()
+    public ResourcesPage(ResourcesViewModel viewModel) : this()
     {
         DataContext = viewModel;
     }
