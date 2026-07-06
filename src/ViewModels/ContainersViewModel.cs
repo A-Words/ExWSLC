@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Text;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ExWSLC.Models;
@@ -117,9 +118,11 @@ public partial class ContainersViewModel : WorkspaceViewModel
         _logFollow = CancellationTokenSource.CreateLinkedTokenSource(Workspace.Lifetime.Token);
         Workspace.DetailOutput = string.Empty;
         OnPropertyChanged(nameof(DetailOutput));
+        var logBuilder = new StringBuilder();
         var progress = new Progress<string>(line =>
         {
-            Workspace.DetailOutput += line + Environment.NewLine;
+            logBuilder.AppendLine(line);
+            Workspace.DetailOutput = logBuilder.ToString();
             OnPropertyChanged(nameof(DetailOutput));
         });
         try

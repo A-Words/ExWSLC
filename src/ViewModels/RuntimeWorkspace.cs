@@ -11,6 +11,7 @@ public partial class RuntimeWorkspace : ObservableObject, IDisposable
     private readonly IRuntimeCapabilityService _capabilityService;
     private readonly ITaskService _taskService;
     private CancellationTokenSource? _currentOperation;
+    private bool _disposed;
 
     public RuntimeWorkspace(
         IContainerRuntime runtime,
@@ -180,6 +181,11 @@ public partial class RuntimeWorkspace : ObservableObject, IDisposable
             {
                 break;
             }
+            catch
+            {
+                // Swallow unexpected errors to keep the auto-refresh loop alive.
+                // RefreshAllAsync already surfaces errors via StatusMessage.
+            }
         }
     }
 
@@ -216,6 +222,8 @@ public partial class RuntimeWorkspace : ObservableObject, IDisposable
 
     public void Dispose()
     {
+        if (_disposed) return;
+        _disposed = true;
         _taskService.TasksChanged -= OnTasksChanged;
         _currentOperation?.Cancel();
         Lifetime.Cancel();
