@@ -246,6 +246,9 @@ public class MainViewModelTests
         capabilities ??= new Mock<IRuntimeCapabilityService>();
         var settings = new Mock<ISettingsService>();
         settings.SetupGet(value => value.Current).Returns(new AppSettings());
-        return new MainViewModel(runtime.Object, capabilities.Object, settings.Object, new TaskService(), Mock.Of<IUserInteractionService>());
+        var interaction = new Mock<IUserInteractionService>();
+        interaction.Setup(value => value.ConfirmAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(true);
+        interaction.Setup(value => value.ShowErrorAsync(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.CompletedTask);
+        return new MainViewModel(runtime.Object, capabilities.Object, settings.Object, new TaskService(), interaction.Object);
     }
 }

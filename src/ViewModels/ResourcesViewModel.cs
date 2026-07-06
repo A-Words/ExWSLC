@@ -28,7 +28,7 @@ public partial class ResourcesViewModel : WorkspaceViewModel
     [RelayCommand]
     private async Task RemoveNetworkAsync()
     {
-        if (SelectedNetwork is null || !Workspace.Interaction.Confirm("Remove network", $"Remove network {SelectedNetwork.Name}?")) return;
+        if (SelectedNetwork is null || !await Workspace.Interaction.ConfirmAsync("Remove network", $"Remove network {SelectedNetwork.Name}?")) return;
         Workspace.ShowResult(await Workspace.Runtime.RemoveNetworkAsync(SelectedNetwork.Name, Workspace.Lifetime.Token));
         await Workspace.RefreshAllAsync();
     }
@@ -44,7 +44,7 @@ public partial class ResourcesViewModel : WorkspaceViewModel
     [RelayCommand]
     private async Task RemoveVolumeAsync()
     {
-        if (SelectedVolume is null || !Workspace.Interaction.Confirm("Remove volume", $"Remove volume {SelectedVolume.Name}?")) return;
+        if (SelectedVolume is null || !await Workspace.Interaction.ConfirmAsync("Remove volume", $"Remove volume {SelectedVolume.Name}?")) return;
         Workspace.ShowResult(await Workspace.Runtime.RemoveVolumeAsync(SelectedVolume.Name, Workspace.Lifetime.Token));
         await Workspace.RefreshAllAsync();
     }
@@ -71,7 +71,7 @@ public partial class ResourcesViewModel : WorkspaceViewModel
     private async Task PruneAsync(string? resource)
     {
         if (resource is not ("network" or "volume")) return;
-        if (!Workspace.Interaction.Confirm("Prune resources", $"Remove every unused {resource} resource?")) return;
+        if (!await Workspace.Interaction.ConfirmAsync("Prune resources", $"Remove every unused {resource} resource?")) return;
         Workspace.ShowResult(await Workspace.Runtime.PruneAsync(resource, Workspace.Lifetime.Token));
         await Workspace.RefreshAllAsync();
     }

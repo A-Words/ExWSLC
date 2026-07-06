@@ -64,7 +64,7 @@ public partial class ContainersViewModel : WorkspaceViewModel
     [RelayCommand]
     private async Task RemoveContainerFromListAsync(ContainerSummary? container)
     {
-        if (container is null || !Workspace.Interaction.Confirm("Remove container", $"Permanently remove {container.Name}?")) return;
+        if (container is null || !await Workspace.Interaction.ConfirmAsync("Remove container", $"Permanently remove {container.Name}?")) return;
         SelectedContainer = null;
         Workspace.ShowResult(await Workspace.Runtime.RemoveContainerAsync(container.Id, true, Workspace.Lifetime.Token));
         await Workspace.RefreshAllAsync();
@@ -73,14 +73,14 @@ public partial class ContainersViewModel : WorkspaceViewModel
     [RelayCommand]
     private async Task KillContainerAsync()
     {
-        if (SelectedContainer is null || !Workspace.Interaction.Confirm("Force stop", $"Send SIGKILL to {SelectedContainer.Name}?")) return;
+        if (SelectedContainer is null || !await Workspace.Interaction.ConfirmAsync("Force stop", $"Send SIGKILL to {SelectedContainer.Name}?")) return;
         await RunContainerActionAsync("Kill container", id => Workspace.Runtime.KillContainerAsync(id, Workspace.Lifetime.Token));
     }
 
     [RelayCommand]
     private async Task RemoveContainerAsync()
     {
-        if (SelectedContainer is null || !Workspace.Interaction.Confirm("Remove container", $"Permanently remove {SelectedContainer.Name}?")) return;
+        if (SelectedContainer is null || !await Workspace.Interaction.ConfirmAsync("Remove container", $"Permanently remove {SelectedContainer.Name}?")) return;
         await RunContainerActionAsync("Remove container", id => Workspace.Runtime.RemoveContainerAsync(id, true, Workspace.Lifetime.Token));
     }
 
@@ -100,7 +100,7 @@ public partial class ContainersViewModel : WorkspaceViewModel
         }
         catch (ArgumentException exception)
         {
-            Workspace.Interaction.ShowError("Invalid container", exception.Message);
+            await Workspace.Interaction.ShowErrorAsync("Invalid container", exception.Message);
         }
     }
 
@@ -169,7 +169,7 @@ public partial class ContainersViewModel : WorkspaceViewModel
         var restartAfterExport = SelectedContainer.IsRunning;
         if (restartAfterExport)
         {
-            if (!Workspace.Interaction.Confirm("Export container", "WSLC requires the container to be stopped for export. Stop it temporarily and restart it afterwards?")) return;
+            if (!await Workspace.Interaction.ConfirmAsync("Export container", "WSLC requires the container to be stopped for export. Stop it temporarily and restart it afterwards?")) return;
             var stop = await Workspace.Runtime.StopContainerAsync(SelectedContainer.Id, Workspace.Lifetime.Token);
             if (!stop.Success)
             {

@@ -131,13 +131,13 @@ public partial class RuntimeWorkspace : ObservableObject, IDisposable
         }
     }
 
-    public void ShowResult(OperationResult result)
+    public async void ShowResult(OperationResult result)
     {
         DetailOutput = result.CombinedOutput;
         StatusMessage = result.Success ? "Operation completed." : $"Failed ({result.ExitCode}): {result.Error}";
         if (!result.Success && !string.IsNullOrWhiteSpace(result.Error))
         {
-            Interaction.ShowError("WSLC operation failed", result.Error);
+            await Interaction.ShowErrorAsync("WSLC operation failed", result.Error);
         }
     }
 

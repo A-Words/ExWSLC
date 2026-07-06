@@ -1,15 +1,35 @@
 using System.Windows;
 using Microsoft.Win32;
+using Wpf.Ui.Controls;
+using MessageBoxResult = Wpf.Ui.Controls.MessageBoxResult;
 
 namespace ExWSLC.Services;
 
 public sealed class UserInteractionService : IUserInteractionService
 {
-    public bool Confirm(string title, string message) =>
-        MessageBox.Show(message, title, MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes;
+    public async Task<bool> ConfirmAsync(string title, string message)
+    {
+        var messageBox = new Wpf.Ui.Controls.MessageBox
+        {
+            Title = title,
+            Content = message,
+            PrimaryButtonText = "Yes",
+            CloseButtonText = "No"
+        };
+        var result = await messageBox.ShowDialogAsync();
+        return result == MessageBoxResult.Primary;
+    }
 
-    public void ShowError(string title, string message) =>
-        MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Error);
+    public async Task ShowErrorAsync(string title, string message)
+    {
+        var messageBox = new Wpf.Ui.Controls.MessageBox
+        {
+            Title = title,
+            Content = message,
+            CloseButtonText = "OK"
+        };
+        await messageBox.ShowDialogAsync();
+    }
 
     public string? PickOpenFile(string title, string filter)
     {

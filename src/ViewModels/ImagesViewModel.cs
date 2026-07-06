@@ -93,7 +93,7 @@ public partial class ImagesViewModel : WorkspaceViewModel
     [RelayCommand]
     private async Task RemoveImageAsync()
     {
-        if (SelectedImage is null || !Workspace.Interaction.Confirm("Remove image", $"Permanently remove {SelectedImage.DisplayName}?")) return;
+        if (SelectedImage is null || !await Workspace.Interaction.ConfirmAsync("Remove image", $"Permanently remove {SelectedImage.DisplayName}?")) return;
         Workspace.ShowResult(await Workspace.Runtime.RemoveImageAsync(SelectedImage.DisplayName, true, Workspace.Lifetime.Token));
         await Workspace.RefreshAllAsync();
     }
@@ -109,7 +109,7 @@ public partial class ImagesViewModel : WorkspaceViewModel
     private async Task PruneAsync(string? resource)
     {
         if (resource is not "image") return;
-        if (!Workspace.Interaction.Confirm("Prune resources", "Remove every unused image resource?")) return;
+        if (!await Workspace.Interaction.ConfirmAsync("Prune resources", "Remove every unused image resource?")) return;
         Workspace.ShowResult(await Workspace.Runtime.PruneAsync(resource, Workspace.Lifetime.Token));
         await Workspace.RefreshAllAsync();
     }

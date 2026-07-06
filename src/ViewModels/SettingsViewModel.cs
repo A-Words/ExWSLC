@@ -45,14 +45,14 @@ public partial class SettingsViewModel : ObservableObject
     [RelayCommand]
     private async Task ResetNativeSettingsAsync()
     {
-        if (!Workspace.Interaction.Confirm("Reset WSLC settings", "Reset the native WSLC YAML settings to built-in defaults?")) return;
+        if (!await Workspace.Interaction.ConfirmAsync("Reset WSLC settings", "Reset the native WSLC YAML settings to built-in defaults?")) return;
         Workspace.ShowResult(await Workspace.Runtime.ResetNativeSettingsAsync(Workspace.Lifetime.Token));
     }
 
     [RelayCommand]
     private async Task InstallComponentsAsync()
     {
-        if (!Workspace.Interaction.Confirm("Install components", "Install missing WSL Container components using the Microsoft preview SDK?")) return;
+        if (!await Workspace.Interaction.ConfirmAsync("Install components", "Install missing WSL Container components using the Microsoft preview SDK?")) return;
         Workspace.IsBusy = true;
         try
         {
@@ -60,7 +60,7 @@ public partial class SettingsViewModel : ObservableObject
         }
         catch (Exception exception)
         {
-            Workspace.Interaction.ShowError("Installation failed", exception.Message);
+            await Workspace.Interaction.ShowErrorAsync("Installation failed", exception.Message);
         }
         finally
         {
