@@ -8,6 +8,7 @@
       xmlns:designViewModels="clr-namespace:ExWSLC.ViewModels.Design"
       x:Name="RootPage"
       mc:Ignorable="d"
+      ScrollViewer.CanContentScroll="False"
       d:DataContext="{d:DesignInstance Type=designViewModels:DesignContainersViewModel, IsDesignTimeCreatable=True}"
       Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}">
     <Page.Resources>

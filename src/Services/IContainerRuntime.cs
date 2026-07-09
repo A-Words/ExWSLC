@@ -17,7 +17,6 @@ public interface IContainerRuntime
     Task<OperationResult> RunContainerAsync(ContainerCreateSpec spec, IProgress<string>? progress = null, CancellationToken cancellationToken = default);
     Task<OperationResult> ExportContainerAsync(string id, string path, IProgress<string>? progress = null, CancellationToken cancellationToken = default);
     Task<OperationResult> InspectContainerAsync(string id, CancellationToken cancellationToken = default);
-    Task<OperationResult> GetLogsAsync(string id, int tail = 300, CancellationToken cancellationToken = default);
     Task<OperationResult> FollowLogsAsync(string id, IProgress<string>? progress = null, CancellationToken cancellationToken = default);
     Task<OperationResult> ExecAsync(string id, string command, IProgress<string>? progress = null, CancellationToken cancellationToken = default);
     Task<OperationResult> PullImageAsync(string image, IProgress<string>? progress = null, CancellationToken cancellationToken = default);

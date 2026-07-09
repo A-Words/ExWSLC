@@ -1,5 +1,5 @@
 using System.Collections.ObjectModel;
-using System.Text;
+using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ExWSLC.Helpers;
@@ -11,14 +11,28 @@ public partial class ContainersViewModel : WorkspaceViewModel
 {
     private const string DefaultImage = "hello-world:latest";
     private const string DefaultExecCommand = "uname -a";
+    private const int MaxLogLines = 5000;
+    private const int LogTrimBatch = 500;
+    private const int LogsTabIndex = 0;
 
     private CancellationTokenSource? _logFollow;
+    private string? _followedContainerId;
+    private string? _currentContainerId;
 
     public ContainersViewModel(RuntimeWorkspace workspace) : base(workspace)
     {
         Workspace.Refreshed += OnWorkspaceRefreshed;
     }
     public ObservableCollection<ContainerListItem> VisibleContainerItems { get; } = [];
+
+    /// <summary>Log lines for the selected container's Logs tab, one row per line.</summary>
+    public ObservableCollection<LogLine> LogLines { get; } = [];
+
+    /// <summary>Index of the active detail tab, two-way bound to the detail SelectorBar.</summary>
+    [ObservableProperty] public partial int SelectedDetailTabIndex { get; set; }
+
+    /// <summary>Set by the design-time view model to disable live log following in the designer.</summary>
+    protected bool IsDesignMode { get; set; }
 
     [ObservableProperty] public partial string SearchText { get; set; } = string.Empty;
     [ObservableProperty] public partial bool IsCreatingContainer { get; set; }
@@ -105,40 +119,103 @@ public partial class ContainersViewModel : WorkspaceViewModel
         }
     }
 
-    [RelayCommand]
-    private async Task ShowLogsAsync()
+    private bool ShouldFollowLogs => SelectedContainer is not null && SelectedDetailTabIndex == LogsTabIndex;
+
+    partial void OnSelectedDetailTabIndexChanged(int value) => EvaluateFollow();
+
+    /// <summary>
+    /// Starts or stops live log following based on whether the Logs tab is active and a container is
+    /// selected. The Logs tab always follows; following restarts when the selected container changes.
+    /// </summary>
+    private void EvaluateFollow()
     {
-        if (SelectedContainer is null) return;
-        Workspace.ShowResult(await Workspace.Runtime.GetLogsAsync(SelectedContainer.Id, cancellationToken: Workspace.Lifetime.Token));
+        if (IsDesignMode) return;
+
+        var container = SelectedContainer;
+        if (container is not null && SelectedDetailTabIndex == LogsTabIndex)
+        {
+            if (_logFollow is not null && container.Id == _followedContainerId)
+                return; // already following this container
+            _logFollow?.Cancel(); // following a different container, or winding down: restart
+            StartFollow();
+        }
+        else
+        {
+            _logFollow?.Cancel();
+        }
     }
 
-    [RelayCommand]
-    private async Task FollowLogsAsync()
+    private async void StartFollow()
     {
-        if (SelectedContainer is null || _logFollow is not null) return;
+        var container = SelectedContainer;
+        if (container is null || _logFollow is not null) return; // nothing to follow, or a previous follow is still winding down
+
+        // Yield first so the body never runs synchronously. If FollowLogsAsync completes immediately
+        // (a fast-exiting follow, e.g. a stopped/nonexistent container), the restart in the finally
+        // is posted to a fresh message-loop iteration instead of recursing on the call stack.
+        await Task.Yield();
+
+        // Conditions may have changed during the yield; re-check before committing.
+        container = SelectedContainer;
+        if (container is null || !ShouldFollowLogs || _logFollow is not null) return;
+
         _logFollow = CancellationTokenSource.CreateLinkedTokenSource(Workspace.Lifetime.Token);
-        Workspace.DetailOutput = string.Empty;
-        OnPropertyChanged(nameof(DetailOutput));
-        var logBuilder = new StringBuilder();
-        var progress = new Progress<string>(line =>
-        {
-            logBuilder.AppendLine(line);
-            Workspace.DetailOutput = logBuilder.ToString();
-            OnPropertyChanged(nameof(DetailOutput));
-        });
+        _followedContainerId = container.Id;
+        LogLines.Clear();
+        // Progress<T> marshals callbacks to the UI thread, so appending here is safe.
+        var progress = new Progress<string>(AppendLogLine);
         try
         {
-            var result = await Workspace.Runtime.FollowLogsAsync(SelectedContainer.Id, progress, _logFollow.Token);
-            if (result.ExitCode != -2) Workspace.ShowResult(result);
+            var result = await Workspace.Runtime.FollowLogsAsync(container.Id, progress, _logFollow.Token);
+            if (result.ExitCode != -2 && !result.Success && !string.IsNullOrWhiteSpace(result.Error))
+            {
+                await Workspace.Interaction.ShowErrorAsync("WSLC operation failed", result.Error);
+            }
+        }
+        catch (Exception exception)
+        {
+            // StartFollow is async void, so swallow to avoid crashing the app; report instead.
+            _ = Workspace.Interaction.ShowErrorAsync("WSLC operation failed", exception.Message);
         }
         finally
         {
+            // Restart only when WE cancelled to switch containers. A follow that ended on its own
+            // (stopped/nonexistent container) or due to shutdown must not restart, or it would spin.
+            var cancelledByUs = _logFollow.IsCancellationRequested;
             _logFollow.Dispose();
             _logFollow = null;
+            _followedContainerId = null;
+            if (cancelledByUs && ShouldFollowLogs && !Workspace.Lifetime.IsCancellationRequested)
+            {
+                StartFollow();
+            }
         }
     }
 
-    [RelayCommand] private void StopFollowingLogs() => _logFollow?.Cancel();
+    [RelayCommand]
+    private void CopyLogs()
+    {
+        if (LogLines.Count == 0) return;
+        Clipboard.SetText(string.Join(Environment.NewLine, LogLines.Select(line => line.Text)));
+    }
+
+    [RelayCommand] private void ClearLogs() => LogLines.Clear();
+
+    private void AppendLogLine(string line)
+    {
+        LogLines.Add(new LogLine(line));
+        TrimLogLines();
+    }
+
+    private void TrimLogLines()
+    {
+        if (LogLines.Count <= MaxLogLines) return;
+        var excess = LogLines.Count - MaxLogLines + LogTrimBatch;
+        for (var i = 0; i < excess && LogLines.Count > 0; i++)
+        {
+            LogLines.RemoveAt(0);
+        }
+    }
 
     [RelayCommand]
     private async Task InspectContainerAsync()
@@ -210,6 +287,18 @@ public partial class ContainersViewModel : WorkspaceViewModel
     partial void OnSelectedContainerChanged(ContainerSummary? value)
     {
         if (value is not null) IsCreatingContainer = false;
+
+        // Auto-refresh replaces the selected container with a fresh instance of the same container;
+        // treat that as "no real change" so live logs aren't wiped and following isn't restarted on
+        // every refresh cycle.
+        var isSameContainer = value is not null && value.Id == _currentContainerId;
+        _currentContainerId = value?.Id;
+        if (!isSameContainer)
+        {
+            LogLines.Clear();
+            SelectedDetailTabIndex = LogsTabIndex;
+        }
+        EvaluateFollow();
         OnPropertyChanged(nameof(SelectedContainerStats));
     }
 

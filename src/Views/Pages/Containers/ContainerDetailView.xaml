@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              xmlns:controls="clr-namespace:ExWSLC.Controls"
+             xmlns:behaviors="clr-namespace:ExWSLC.Behaviors"
              xmlns:designViewModels="clr-namespace:ExWSLC.ViewModels.Design"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=designViewModels:DesignContainersViewModel, IsDesignTimeCreatable=True}"
@@ -40,15 +41,45 @@
             <Setter Property="Margin" Value="0,0,6,0" />
         </Style>
 
+        <!-- WPF-UI's default TextBox content-host style swaps in a template with no ScrollBar
+             elements, so output boxes never show scrollbars. Override it locally (DynamicResource
+             resolves to the nearest scope) with the standard ScrollViewer template so the read-only
+             log/inspect boxes show scrollbars on overflow. Visibility stays driven by the TextBox's
+             own ScrollViewer.VerticalScrollBarVisibility/HorizontalScrollBarVisibility (set to Auto). -->
+        <Style x:Key="DefaultTextBoxScrollViewerStyle" TargetType="ScrollViewer" BasedOn="{StaticResource {x:Type ScrollViewer}}" />
+
         <DataTemplate x:Key="LogsDetailTemplate">
             <Grid Margin="0,14,0,0">
                 <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition /></Grid.RowDefinitions>
                 <WrapPanel Margin="0,0,0,10">
-                    <ui:Button Content="{DynamicResource Refresh}" Command="{Binding ShowLogsCommand}" Margin="0,0,8,0" />
-                    <ui:Button Content="{DynamicResource FollowLogs}" Command="{Binding FollowLogsCommand}" Margin="0,0,8,0" />
-                    <ui:Button Content="{DynamicResource StopFollowing}" Command="{Binding StopFollowingLogsCommand}" />
+                    <ui:Button Content="{DynamicResource CopyLogs}" Command="{Binding CopyLogsCommand}" Margin="0,0,8,0" />
+                    <ui:Button Content="{DynamicResource ClearLogs}" Command="{Binding ClearLogsCommand}" />
                 </WrapPanel>
-                <ui:TextBox Grid.Row="1" Text="{Binding DetailOutput}" IsReadOnly="True" AcceptsReturn="True" FontFamily="Consolas" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" />
+                <Border Grid.Row="1" Style="{StaticResource WorkbenchPanelStyle}" Padding="4,2">
+                    <ListBox ItemsSource="{Binding LogLines}"
+                             Background="Transparent"
+                             BorderThickness="0"
+                             FontFamily="Consolas"
+                             FontSize="13"
+                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             VirtualizingPanel.IsVirtualizing="True"
+                             behaviors:ListBoxAutoScrollBehavior.IsEnabled="True">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                                <Setter Property="Padding" Value="6,0" />
+                                <Setter Property="MinHeight" Value="0" />
+                                <Setter Property="HorizontalAlignment" Value="Left" />
+                                <Setter Property="VerticalAlignment" Value="Center" />
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Text}" FontFamily="Consolas" TextWrapping="NoWrap" />
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Border>
             </Grid>
         </DataTemplate>
 
@@ -140,7 +171,7 @@
                     <ui:Button Content="{DynamicResource Inspect}" Appearance="Primary" Command="{Binding InspectContainerCommand}" Margin="0,0,8,0" />
                     <ui:Button Content="{DynamicResource Export}" Command="{Binding ExportContainerCommand}" />
                 </WrapPanel>
-                <ui:TextBox Grid.Row="1" Text="{Binding DetailOutput}" IsReadOnly="True" AcceptsReturn="True" FontFamily="Consolas" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" />
+                <ui:TextBox Grid.Row="1" Text="{Binding DetailOutput}" IsReadOnly="True" AcceptsReturn="True" FontFamily="Consolas" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto" />
             </Grid>
         </DataTemplate>
     </UserControl.Resources>
@@ -244,7 +275,7 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <controls:SelectorBar x:Name="DetailSelector" SelectedIndex="0">
+            <controls:SelectorBar x:Name="DetailSelector" SelectedIndex="{Binding SelectedDetailTabIndex, Mode=TwoWay}">
                 <controls:SelectorBarItem Text="{DynamicResource Logs}" Tag="{StaticResource LogsDetailTemplate}" />
                 <controls:SelectorBarItem Text="{DynamicResource ResourceUsage}" Tag="{StaticResource ResourceUsageDetailTemplate}" />
                 <controls:SelectorBarItem Text="{DynamicResource Network}" Tag="{StaticResource NetworkDetailTemplate}" />

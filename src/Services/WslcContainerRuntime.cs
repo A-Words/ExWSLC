@@ -99,11 +99,8 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner) : IContai
     public Task<OperationResult> InspectContainerAsync(string id, CancellationToken cancellationToken = default) =>
         RunAsync(["container", "inspect", id], cancellationToken: cancellationToken);
 
-    public Task<OperationResult> GetLogsAsync(string id, int tail = 300, CancellationToken cancellationToken = default) =>
-        RunAsync(["container", "logs", "--tail", tail.ToString(), "--timestamps", id], cancellationToken: cancellationToken);
-
     public Task<OperationResult> FollowLogsAsync(string id, IProgress<string>? progress = null, CancellationToken cancellationToken = default) =>
-        RunAsync(["container", "logs", "--follow", "--tail", "100", "--timestamps", id], progress: progress, cancellationToken: cancellationToken);
+        RunAsync(["container", "logs", "--follow", id], progress: progress, cancellationToken: cancellationToken);
 
     public Task<OperationResult> ExecAsync(string id, string command, IProgress<string>? progress = null, CancellationToken cancellationToken = default) =>
         RunAsync(["exec", id, "/bin/sh", "-lc", command], progress: progress, cancellationToken: cancellationToken);

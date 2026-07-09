@@ -68,7 +68,7 @@
     <sys:String x:Key="Remove">删除</sys:String>
     <sys:String x:Key="Export">导出</sys:String>
     <sys:String x:Key="Logs">日志</sys:String>
-    <sys:String x:Key="FollowLogs">跟随日志</sys:String><sys:String x:Key="StopFollowing">停止跟随</sys:String>
+    <sys:String x:Key="FollowLogs">跟随日志</sys:String><sys:String x:Key="StopFollowing">停止跟随</sys:String><sys:String x:Key="CopyLogs">复制日志</sys:String><sys:String x:Key="ClearLogs">清空</sys:String>
     <sys:String x:Key="Inspect">Inspect</sys:String>
     <sys:String x:Key="Exec">执行</sys:String>
     <sys:String x:Key="Terminal">终端</sys:String>

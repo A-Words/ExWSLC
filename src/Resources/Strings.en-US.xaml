@@ -31,7 +31,7 @@
     <sys:String x:Key="Advanced">Advanced options</sys:String><sys:String x:Key="Run">Run</sys:String>
     <sys:String x:Key="Start">Start</sys:String><sys:String x:Key="Stop">Stop</sys:String><sys:String x:Key="Restart">Restart</sys:String><sys:String x:Key="Details">Details</sys:String>
     <sys:String x:Key="Kill">Force stop</sys:String><sys:String x:Key="Remove">Remove</sys:String><sys:String x:Key="Export">Export</sys:String>
-    <sys:String x:Key="Logs">Logs</sys:String><sys:String x:Key="FollowLogs">Follow logs</sys:String><sys:String x:Key="StopFollowing">Stop following</sys:String><sys:String x:Key="Inspect">Inspect</sys:String><sys:String x:Key="Exec">Exec</sys:String>
+    <sys:String x:Key="Logs">Logs</sys:String><sys:String x:Key="FollowLogs">Follow logs</sys:String><sys:String x:Key="StopFollowing">Stop following</sys:String><sys:String x:Key="CopyLogs">Copy logs</sys:String><sys:String x:Key="ClearLogs">Clear</sys:String><sys:String x:Key="Inspect">Inspect</sys:String><sys:String x:Key="Exec">Exec</sys:String>
     <sys:String x:Key="Terminal">Interactive terminal</sys:String><sys:String x:Key="Output">Output &amp; diagnostics</sys:String>
     <sys:String x:Key="ImagesTitle">Images</sys:String><sys:String x:Key="Pull">Pull</sys:String><sys:String x:Key="Build">Build</sys:String>
     <sys:String x:Key="ImagesSubtitle">Manage local images, builds, and container registries</sys:String><sys:String x:Key="SearchImages">Search image name, tag, or ID</sys:String>
