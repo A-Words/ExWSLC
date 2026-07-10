@@ -6,6 +6,8 @@ internal static class JsonElementExtensions
 {
     public static string ReadString(this JsonElement element, params string[] names)
     {
+        if (element.ValueKind != JsonValueKind.Object) return string.Empty;
+
         foreach (var property in element.EnumerateObject())
         {
             if (!names.Any(name => property.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
@@ -26,6 +28,8 @@ internal static class JsonElementExtensions
 
     public static int ReadInt(this JsonElement element, params string[] names)
     {
+        if (element.ValueKind != JsonValueKind.Object) return 0;
+
         foreach (var property in element.EnumerateObject())
         {
             if (!names.Any(name => property.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
@@ -50,6 +54,12 @@ internal static class JsonElementExtensions
 
     public static bool TryGetPropertyIgnoreCase(this JsonElement element, string name, out JsonElement value)
     {
+        if (element.ValueKind != JsonValueKind.Object)
+        {
+            value = default;
+            return false;
+        }
+
         foreach (var property in element.EnumerateObject())
         {
             if (property.Name.Equals(name, StringComparison.OrdinalIgnoreCase))

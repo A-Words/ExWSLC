@@ -14,10 +14,14 @@ public partial class ContainersViewModel : WorkspaceViewModel
     private const int MaxLogLines = 5000;
     private const int LogTrimBatch = 500;
     private const int LogsTabIndex = 0;
+    private const int NetworkTabIndex = 2;
 
     private CancellationTokenSource? _logFollow;
+    private CancellationTokenSource? _networkDetailsLoad;
+    private string? _networkDetailsLoadContainerId;
     private string? _followedContainerId;
     private string? _currentContainerId;
+    private readonly Dictionary<string, ContainerNetworkDetails> _networkDetailsCache = [];
 
     public ContainersViewModel(RuntimeWorkspace workspace) : base(workspace)
     {
@@ -51,8 +55,14 @@ public partial class ContainersViewModel : WorkspaceViewModel
     [ObservableProperty] public partial bool NewUseAllGpus { get; set; }
     [ObservableProperty] public partial bool NewRemoveWhenStopped { get; set; }
     [ObservableProperty] public partial string ExecText { get; set; } = DefaultExecCommand;
+    [ObservableProperty] public partial ContainerNetworkDetails? NetworkDetails { get; set; }
+    [ObservableProperty] public partial bool IsNetworkDetailsLoading { get; set; }
+    [ObservableProperty] public partial string NetworkDetailsError { get; set; } = string.Empty;
+    [ObservableProperty] public partial DateTimeOffset? NetworkDetailsUpdatedAt { get; set; }
 
     public ContainerStats? SelectedContainerStats => SelectedContainer is null ? null : Workspace.FindStats(SelectedContainer);
+    public bool HasNetworkDetails => NetworkDetails is not null;
+    public bool HasNetworkDetailsError => !string.IsNullOrWhiteSpace(NetworkDetailsError);
 
     [RelayCommand] private Task StartContainerAsync() => RunContainerActionAsync("Start container", id => Workspace.Runtime.StartContainerAsync(id, Workspace.Lifetime.Token));
     [RelayCommand] private Task StopContainerAsync() => RunContainerActionAsync("Stop container", id => Workspace.Runtime.StopContainerAsync(id, Workspace.Lifetime.Token));
@@ -81,7 +91,9 @@ public partial class ContainersViewModel : WorkspaceViewModel
     {
         if (container is null || !await Workspace.Interaction.ConfirmAsync("Remove container", $"Permanently remove {container.Name}?")) return;
         SelectedContainer = null;
-        Workspace.ShowResult(await Workspace.Runtime.RemoveContainerAsync(container.Id, true, Workspace.Lifetime.Token));
+        var result = await Workspace.Runtime.RemoveContainerAsync(container.Id, true, Workspace.Lifetime.Token);
+        Workspace.ShowResult(result);
+        if (result.Success) _networkDetailsCache.Remove(container.Id);
         await Workspace.RefreshAllAsync();
     }
 
@@ -121,7 +133,18 @@ public partial class ContainersViewModel : WorkspaceViewModel
 
     private bool ShouldFollowLogs => SelectedContainer is not null && SelectedDetailTabIndex == LogsTabIndex;
 
-    partial void OnSelectedDetailTabIndexChanged(int value) => EvaluateFollow();
+    partial void OnSelectedDetailTabIndexChanged(int value)
+    {
+        EvaluateFollow();
+        if (value == NetworkTabIndex)
+        {
+            _ = LoadNetworkDetailsAsync(force: false);
+        }
+        else
+        {
+            _networkDetailsLoad?.Cancel();
+        }
+    }
 
     /// <summary>
     /// Starts or stops live log following based on whether the Logs tab is active and a container is
@@ -201,6 +224,15 @@ public partial class ContainersViewModel : WorkspaceViewModel
 
     [RelayCommand] private void ClearLogs() => LogLines.Clear();
 
+    [RelayCommand]
+    private void CopyNetworkValue(string? value)
+    {
+        if (!string.IsNullOrWhiteSpace(value)) Clipboard.SetText(value);
+    }
+
+    [RelayCommand]
+    private Task RefreshNetworkDetailsAsync() => LoadNetworkDetailsAsync(force: true);
+
     private void AppendLogLine(string line)
     {
         LogLines.Add(new LogLine(line));
@@ -242,13 +274,14 @@ public partial class ContainersViewModel : WorkspaceViewModel
     private async Task ExportContainerAsync()
     {
         if (SelectedContainer is null) return;
+        var containerId = SelectedContainer.Id;
         var path = Workspace.Interaction.PickSaveFile("Export container", "Tar archive (*.tar)|*.tar", $"{SelectedContainer.Name}.tar");
         if (path is null) return;
         var restartAfterExport = SelectedContainer.IsRunning;
         if (restartAfterExport)
         {
             if (!await Workspace.Interaction.ConfirmAsync("Export container", "WSLC requires the container to be stopped for export. Stop it temporarily and restart it afterwards?")) return;
-            var stop = await Workspace.Runtime.StopContainerAsync(SelectedContainer.Id, Workspace.Lifetime.Token);
+            var stop = await Workspace.Runtime.StopContainerAsync(containerId, Workspace.Lifetime.Token);
             if (!stop.Success)
             {
                 Workspace.ShowResult(stop);
@@ -256,13 +289,14 @@ public partial class ContainersViewModel : WorkspaceViewModel
             }
         }
 
-        var export = await Workspace.RunTrackedAsync("Export container", (progress, token) => Workspace.Runtime.ExportContainerAsync(SelectedContainer.Id, path, progress, token));
+        var export = await Workspace.RunTrackedAsync("Export container", (progress, token) => Workspace.Runtime.ExportContainerAsync(containerId, path, progress, token));
         Workspace.ShowResult(export);
         if (restartAfterExport)
         {
-            var start = await Workspace.Runtime.StartContainerAsync(SelectedContainer.Id, Workspace.Lifetime.Token);
+            var start = await Workspace.Runtime.StartContainerAsync(containerId, Workspace.Lifetime.Token);
             if (!start.Success) Workspace.ShowResult(start);
             await Workspace.RefreshAllAsync();
+            InvalidateNetworkDetails(containerId);
         }
     }
 
@@ -297,24 +331,121 @@ public partial class ContainersViewModel : WorkspaceViewModel
         {
             LogLines.Clear();
             SelectedDetailTabIndex = LogsTabIndex;
+            _networkDetailsLoad?.Cancel();
+            NetworkDetailsError = string.Empty;
+            NetworkDetailsUpdatedAt = null;
+            if (value is not null && _networkDetailsCache.TryGetValue(value.Id, out var cachedDetails))
+            {
+                NetworkDetails = cachedDetails;
+            }
+            else
+            {
+                NetworkDetails = null;
+            }
         }
         EvaluateFollow();
         OnPropertyChanged(nameof(SelectedContainerStats));
     }
 
+    partial void OnNetworkDetailsChanged(ContainerNetworkDetails? value) => OnPropertyChanged(nameof(HasNetworkDetails));
+
+    partial void OnNetworkDetailsErrorChanged(string value) => OnPropertyChanged(nameof(HasNetworkDetailsError));
+
+    private async Task LoadNetworkDetailsAsync(bool force)
+    {
+        if (IsDesignMode || SelectedContainer is not { } container) return;
+
+        if (_networkDetailsLoad is not null &&
+            string.Equals(_networkDetailsLoadContainerId, container.Id, StringComparison.OrdinalIgnoreCase))
+        {
+            if (!force && !_networkDetailsLoad.IsCancellationRequested) return;
+            _networkDetailsLoad.Cancel();
+        }
+
+        if (!force && _networkDetailsCache.TryGetValue(container.Id, out var cachedDetails))
+        {
+            NetworkDetails = cachedDetails;
+            NetworkDetailsError = string.Empty;
+            return;
+        }
+
+        var load = CancellationTokenSource.CreateLinkedTokenSource(Workspace.Lifetime.Token);
+        _networkDetailsLoad = load;
+        _networkDetailsLoadContainerId = container.Id;
+        IsNetworkDetailsLoading = true;
+        NetworkDetailsError = string.Empty;
+        try
+        {
+            var result = await Workspace.Runtime.InspectContainerAsync(container.Id, load.Token);
+            if (load.IsCancellationRequested || !IsCurrentNetworkContainer(container.Id)) return;
+
+            if (!result.Success)
+            {
+                NetworkDetailsError = string.IsNullOrWhiteSpace(result.Error)
+                    ? "WSLC could not load network details."
+                    : result.Error;
+                return;
+            }
+
+            if (!ContainerNetworkDetailsParser.TryParse(result.Output, out var details))
+            {
+                NetworkDetailsError = "WSLC returned unsupported network detail data.";
+                return;
+            }
+
+            _networkDetailsCache[container.Id] = details;
+            NetworkDetails = details;
+            NetworkDetailsUpdatedAt = DateTimeOffset.Now;
+        }
+        catch (OperationCanceledException) when (load.IsCancellationRequested)
+        {
+            // The user selected a different container or left the Network tab.
+        }
+        catch (Exception exception)
+        {
+            if (!load.IsCancellationRequested &&
+                ReferenceEquals(_networkDetailsLoad, load) &&
+                IsCurrentNetworkContainer(container.Id))
+            {
+                NetworkDetailsError = exception.Message;
+            }
+        }
+        finally
+        {
+            if (ReferenceEquals(_networkDetailsLoad, load))
+            {
+                _networkDetailsLoad = null;
+                _networkDetailsLoadContainerId = null;
+                IsNetworkDetailsLoading = false;
+            }
+
+            load.Dispose();
+        }
+    }
+
+    private bool IsCurrentNetworkContainer(string containerId) =>
+        SelectedDetailTabIndex == NetworkTabIndex &&
+        SelectedContainer is { } container &&
+        container.Id.Equals(containerId, StringComparison.OrdinalIgnoreCase);
+
     private async Task RunContainerActionAsync(string title, Func<string, Task<OperationResult>> operation)
     {
         if (SelectedContainer is null) return;
-        Workspace.ShowResult(await operation(SelectedContainer.Id));
+        var containerId = SelectedContainer.Id;
+        var result = await operation(containerId);
+        Workspace.ShowResult(result);
         await Workspace.RefreshAllAsync();
+        if (result.Success) InvalidateNetworkDetails(containerId);
     }
 
     private async Task RunContainerActionAsync(ContainerSummary? container, Func<string, Task<OperationResult>> operation)
     {
         if (container is null) return;
         SelectedContainer = null;
-        Workspace.ShowResult(await operation(container.Id));
+        var result = await operation(container.Id);
+        Workspace.ShowResult(result);
         await Workspace.RefreshAllAsync();
+        if (result.Success) _networkDetailsCache.Remove(container.Id);
     }
 
     private ContainerCreateSpec BuildCreateSpec()
@@ -349,7 +480,23 @@ public partial class ContainersViewModel : WorkspaceViewModel
         var selectedBeforeRefresh = SelectedContainer;
         ApplyContainerFilter();
         RestoreSelectedContainerIfUnchanged(selectedBeforeRefresh);
+        var existingContainerIds = Workspace.Containers.Select(container => container.Id).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        foreach (var containerId in _networkDetailsCache.Keys.Where(containerId => !existingContainerIds.Contains(containerId)).ToArray())
+        {
+            _networkDetailsCache.Remove(containerId);
+        }
         OnPropertyChanged(nameof(SelectedContainerStats));
+    }
+
+    private void InvalidateNetworkDetails(string containerId)
+    {
+        _networkDetailsCache.Remove(containerId);
+        if (SelectedContainer is not { } container || !container.Id.Equals(containerId, StringComparison.OrdinalIgnoreCase)) return;
+
+        NetworkDetails = null;
+        NetworkDetailsUpdatedAt = null;
+        NetworkDetailsError = string.Empty;
+        if (SelectedDetailTabIndex == NetworkTabIndex) _ = LoadNetworkDetailsAsync(force: true);
     }
 
     private void ApplyContainerFilter()

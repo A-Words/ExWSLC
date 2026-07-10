@@ -7,6 +7,7 @@
              xmlns:controls="clr-namespace:ExWSLC.Controls"
              xmlns:behaviors="clr-namespace:ExWSLC.Behaviors"
              xmlns:designViewModels="clr-namespace:ExWSLC.ViewModels.Design"
+             xmlns:models="clr-namespace:ExWSLC.Models"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=designViewModels:DesignContainersViewModel, IsDesignTimeCreatable=True}"
              Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}">
@@ -39,6 +40,36 @@
         <Style x:Key="DetailMetaLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
             <Setter Property="Foreground" Value="{ui:ThemeResource TextFillColorSecondaryBrush}" />
             <Setter Property="Margin" Value="0,0,6,0" />
+        </Style>
+
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
+        <Style x:Key="NetworkDetailLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+            <Setter Property="Foreground" Value="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+            <Setter Property="Margin" Value="0,0,12,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+
+        <Style x:Key="NetworkIconButtonStyle" TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+            <Setter Property="Appearance" Value="Secondary" />
+            <Setter Property="Width" Value="28" />
+            <Setter Property="Height" Value="28" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="8,0,0,0" />
+        </Style>
+
+        <Style x:Key="NetworkPortExposureTextStyle" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+            <Setter Property="Text" Value="{DynamicResource DefaultBinding}" />
+            <Setter Property="Foreground" Value="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Exposure}" Value="{x:Static models:ContainerPortExposure.LocalOnly}">
+                    <Setter Property="Text" Value="{DynamicResource LocalOnly}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Exposure}" Value="{x:Static models:ContainerPortExposure.PotentiallyExposed}">
+                    <Setter Property="Text" Value="{DynamicResource PotentiallyExposed}" />
+                    <Setter Property="Foreground" Value="{ui:ThemeResource SystemFillColorCautionBrush}" />
+                </DataTrigger>
+            </Style.Triggers>
         </Style>
 
         <!-- WPF-UI's default TextBox content-host style swaps in a template with no ScrollBar
@@ -108,20 +139,187 @@
         </DataTemplate>
 
         <DataTemplate x:Key="NetworkDetailTemplate">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <Border Style="{StaticResource WorkbenchPanelStyle}" Margin="0,14,0,0">
-                    <StackPanel>
-                        <TextBlock Text="{DynamicResource PublishedPorts}" Style="{StaticResource SectionTitleStyle}" />
-                        <Grid Margin="0,4,0,0">
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="150" /><ColumnDefinition /></Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions><RowDefinition /><RowDefinition /></Grid.RowDefinitions>
-                            <TextBlock Text="{DynamicResource Ports}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
-                            <TextBlock Grid.Column="1" Text="{Binding SelectedContainer.DisplayPorts}" TextTrimming="CharacterEllipsis" />
-                            <TextBlock Grid.Row="1" Text="{DynamicResource RawPorts}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" Margin="0,10,0,0" />
-                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedContainer.Ports, TargetNullValue=-}" FontFamily="Consolas" TextWrapping="Wrap" Margin="0,10,0,0" />
-                        </Grid>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <StackPanel Margin="0,14,16,0">
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center"
+                                Margin="0,20,0,20"
+                                Visibility="{Binding IsNetworkDetailsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <ui:ProgressRing Width="22" Height="22" IsIndeterminate="True" Margin="0,0,10,0" />
+                        <TextBlock Text="{DynamicResource LoadingNetworkDetails}" VerticalAlignment="Center" />
                     </StackPanel>
-                </Border>
+
+                    <ui:InfoBar IsOpen="{Binding HasNetworkDetailsError}"
+                                IsClosable="False"
+                                Severity="Error"
+                                Title="{DynamicResource NetworkDetailsUnavailable}"
+                                Message="{Binding NetworkDetailsError}"
+                                Margin="0,0,0,12" />
+
+                    <ui:InfoBar IsOpen="{Binding NetworkDetails.RuntimeAddressesUnavailable}"
+                                IsClosable="False"
+                                Severity="Informational"
+                                Message="{DynamicResource RuntimeAddressesUnavailable}"
+                                Margin="0,0,0,12" />
+
+                    <StackPanel Visibility="{Binding HasNetworkDetails, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Border Style="{StaticResource WorkbenchPanelStyle}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource NetworkDetailsTitle}" Style="{StaticResource SectionTitleStyle}" />
+                                <Grid Margin="0,10,0,0">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="150" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions><RowDefinition /><RowDefinition /></Grid.RowDefinitions>
+                                    <TextBlock Text="{DynamicResource NetworkMode}" Style="{StaticResource NetworkDetailLabelStyle}" />
+                                    <TextBlock Grid.Column="1" Text="{Binding NetworkDetails.DisplayNetworkMode}" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Row="1" Text="{DynamicResource ContainerHostName}" Style="{StaticResource NetworkDetailLabelStyle}" Margin="0,10,12,0" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding NetworkDetails.DisplayHostName}" TextTrimming="CharacterEllipsis" Margin="0,10,0,0" />
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource WorkbenchPanelStyle}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource ConnectedNetworks}" Style="{StaticResource SectionTitleStyle}" />
+                                <ItemsControl ItemsSource="{Binding NetworkDetails.Networks}" Margin="0,4,0,0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Padding="0,14,0,14">
+                                                <StackPanel>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                                        <ui:SymbolIcon Symbol="PlugConnected24" FontSize="20" Foreground="{DynamicResource AccentFillColorDefaultBrush}" Margin="0,0,10,0" />
+                                                        <StackPanel Grid.Column="1">
+                                                            <TextBlock Text="{Binding Name}" FontSize="16" />
+                                                            <TextBlock Text="{Binding DisplayAliases}" Style="{StaticResource MutedTextStyle}" TextTrimming="CharacterEllipsis" />
+                                                        </StackPanel>
+                                                        <ui:Button Grid.Column="2"
+                                                                   Icon="{ui:SymbolIcon Symbol=Copy20}"
+                                                                   Command="{Binding DataContext.CopyNetworkValueCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                   CommandParameter="{Binding Name}"
+                                                                   ToolTip="{DynamicResource Copy}"
+                                                                   Style="{StaticResource NetworkIconButtonStyle}" />
+                                                    </Grid>
+                                                    <Grid Margin="0,14,0,0">
+                                                        <Grid.ColumnDefinitions><ColumnDefinition Width="150" /><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                                        <Grid.RowDefinitions><RowDefinition /><RowDefinition /></Grid.RowDefinitions>
+                                                        <TextBlock Text="{DynamicResource IpAddress}" Style="{StaticResource NetworkDetailLabelStyle}" />
+                                                        <TextBlock Grid.Column="1" Text="{Binding DisplayIpAddress}" TextTrimming="CharacterEllipsis" />
+                                                        <ui:Button Grid.Column="2"
+                                                                   Icon="{ui:SymbolIcon Symbol=Copy20}"
+                                                                   Command="{Binding DataContext.CopyNetworkValueCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                   CommandParameter="{Binding IpAddress}"
+                                                                   IsEnabled="{Binding HasIpAddress}"
+                                                                   ToolTip="{DynamicResource Copy}"
+                                                                   Style="{StaticResource NetworkIconButtonStyle}" />
+                                                        <TextBlock Grid.Row="1" Text="{DynamicResource Gateway}" Style="{StaticResource NetworkDetailLabelStyle}" Margin="0,10,12,0" />
+                                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding DisplayGateway}" TextTrimming="CharacterEllipsis" Margin="0,10,0,0" />
+                                                    </Grid>
+                                                    <ui:CardExpander Header="{DynamicResource InterfaceDetails}"
+                                                                     Icon="{ui:SymbolIcon Symbol=NetworkAdapter16}"
+                                                                     ContentPadding="16,0,16,12"
+                                                                     Margin="0,14,0,0">
+                                                        <Grid Margin="0,12,0,0">
+                                                            <Grid.ColumnDefinitions><ColumnDefinition Width="150" /><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                                            <Grid.RowDefinitions><RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition /></Grid.RowDefinitions>
+                                                            <TextBlock Text="{DynamicResource MacAddress}" Style="{StaticResource NetworkDetailLabelStyle}" />
+                                                            <TextBlock Grid.Column="1" Text="{Binding DisplayMacAddress}" TextTrimming="CharacterEllipsis" />
+                                                            <ui:Button Grid.Column="2"
+                                                                       Icon="{ui:SymbolIcon Symbol=Copy20}"
+                                                                       Command="{Binding DataContext.CopyNetworkValueCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                       CommandParameter="{Binding MacAddress}"
+                                                                       IsEnabled="{Binding HasMacAddress}"
+                                                                       ToolTip="{DynamicResource Copy}"
+                                                                       Style="{StaticResource NetworkIconButtonStyle}" />
+                                                            <TextBlock Grid.Row="1" Text="{DynamicResource NetworkId}" Style="{StaticResource NetworkDetailLabelStyle}" Margin="0,10,12,0" />
+                                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding DisplayNetworkId}" TextTrimming="CharacterEllipsis" Margin="0,10,0,0" />
+                                                            <ui:Button Grid.Row="1" Grid.Column="2"
+                                                                       Icon="{ui:SymbolIcon Symbol=Copy20}"
+                                                                       Command="{Binding DataContext.CopyNetworkValueCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                       CommandParameter="{Binding NetworkId}"
+                                                                       IsEnabled="{Binding HasNetworkId}"
+                                                                       ToolTip="{DynamicResource Copy}"
+                                                                       Style="{StaticResource NetworkIconButtonStyle}" />
+                                                            <TextBlock Grid.Row="2" Text="{DynamicResource EndpointId}" Style="{StaticResource NetworkDetailLabelStyle}" Margin="0,10,12,0" />
+                                                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding DisplayEndpointId}" TextTrimming="CharacterEllipsis" Margin="0,10,0,0" />
+                                                            <ui:Button Grid.Row="2" Grid.Column="2"
+                                                                       Icon="{ui:SymbolIcon Symbol=Copy20}"
+                                                                       Command="{Binding DataContext.CopyNetworkValueCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                       CommandParameter="{Binding EndpointId}"
+                                                                       IsEnabled="{Binding HasEndpointId}"
+                                                                       ToolTip="{DynamicResource Copy}"
+                                                                       Style="{StaticResource NetworkIconButtonStyle}" />
+                                                            <TextBlock Grid.Row="3" Text="{DynamicResource Aliases}" Style="{StaticResource NetworkDetailLabelStyle}" Margin="0,10,12,0" />
+                                                            <TextBlock Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding DisplayAliases}" TextWrapping="Wrap" Margin="0,10,0,0" />
+                                                        </Grid>
+                                                    </ui:CardExpander>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <TextBlock Text="{DynamicResource NoNetworkAttachments}" TextWrapping="Wrap">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource MutedTextStyle}">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding NetworkDetails.HasNetworks}" Value="False">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource WorkbenchPanelStyle}">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource PortMappings}" Style="{StaticResource SectionTitleStyle}" />
+                                <ItemsControl ItemsSource="{Binding NetworkDetails.PortBindings}" Margin="0,4,0,0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,12,0,0">
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                                <ui:SymbolIcon Symbol="PlugConnected24" FontSize="20" Foreground="{DynamicResource AccentFillColorDefaultBrush}" Margin="0,1,10,0" />
+                                                <StackPanel Grid.Column="1">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding DisplayHostEndpoint}" FontSize="15" VerticalAlignment="Center" />
+                                                        <ui:SymbolIcon Symbol="ArrowRight24" FontSize="16" Margin="10,0" VerticalAlignment="Center" />
+                                                        <TextBlock Text="{Binding DisplayContainerEndpoint}" FontSize="15" VerticalAlignment="Center" />
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                                                        <TextBlock Text="{Binding Protocol}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                                                        <TextBlock Text=" · " Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                                                        <TextBlock Style="{StaticResource NetworkPortExposureTextStyle}" />
+                                                    </StackPanel>
+                                                </StackPanel>
+                                                <ui:Button Grid.Column="2"
+                                                           Icon="{ui:SymbolIcon Symbol=Copy20}"
+                                                           Command="{Binding DataContext.CopyNetworkValueCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                           CommandParameter="{Binding DisplayHostEndpoint}"
+                                                           IsEnabled="{Binding HasHostBinding}"
+                                                           ToolTip="{DynamicResource Copy}"
+                                                           Style="{StaticResource NetworkIconButtonStyle}" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <TextBlock Text="{DynamicResource NoPublishedPorts}" TextWrapping="Wrap">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource MutedTextStyle}">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding NetworkDetails.HasPortBindings}" Value="False">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
             </ScrollViewer>
         </DataTemplate>
 
