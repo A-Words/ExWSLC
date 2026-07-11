@@ -58,6 +58,47 @@
             <Setter Property="Margin" Value="8,0,0,0" />
         </Style>
 
+        <Style x:Key="MountCardStyle" TargetType="Border" BasedOn="{StaticResource WorkbenchPanelStyle}">
+            <Setter Property="Background" Value="{ui:ThemeResource LayerFillColorDefaultBrush}" />
+            <Setter Property="Padding" Value="14,12" />
+            <Setter Property="Margin" Value="0,0,0,8" />
+        </Style>
+
+        <Style x:Key="MountBadgeStyle" TargetType="Border">
+            <Setter Property="Background" Value="{ui:ThemeResource ControlFillColorTertiaryBrush}" />
+            <Setter Property="BorderBrush" Value="{ui:ThemeResource CardStrokeColorDefaultBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="Padding" Value="8,3" />
+            <Setter Property="Margin" Value="6,0,0,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+
+        <Style x:Key="MountBadgeTextStyle" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Foreground" Value="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+        </Style>
+
+        <Style x:Key="MountDetailLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+            <Setter Property="Width" Value="96" />
+            <Setter Property="Foreground" Value="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+
+        <Style x:Key="MountAccessTextStyle" TargetType="TextBlock" BasedOn="{StaticResource MountBadgeTextStyle}">
+            <Setter Property="Text" Value="{DynamicResource Unavailable}" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Access}" Value="{x:Static models:ContainerMountAccess.ReadWrite}">
+                    <Setter Property="Text" Value="{DynamicResource ReadWrite}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Access}" Value="{x:Static models:ContainerMountAccess.ReadOnly}">
+                    <Setter Property="Text" Value="{DynamicResource ReadOnly}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="MountIconButtonStyle" TargetType="ui:Button" BasedOn="{StaticResource NetworkIconButtonStyle}" />
+
         <Style x:Key="NetworkPortExposureTextStyle" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
             <Setter Property="Text" Value="{DynamicResource DefaultBinding}" />
             <Setter Property="Foreground" Value="{ui:ThemeResource TextFillColorSecondaryBrush}" />
@@ -324,13 +365,187 @@
         </DataTemplate>
 
         <DataTemplate x:Key="MountsDetailTemplate">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <Border Style="{StaticResource WorkbenchPanelStyle}" Margin="0,14,0,0">
-                    <StackPanel>
-                        <TextBlock Text="{DynamicResource Mounts}" Style="{StaticResource SectionTitleStyle}" />
-                        <TextBlock Text="{DynamicResource NoMountsDiscovered}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" />
-                    </StackPanel>
-                </Border>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <Grid Margin="0,14,16,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0"
+                                    Orientation="Horizontal"
+                                    HorizontalAlignment="Center"
+                                    Margin="0,10,0,18"
+                                    Visibility="{Binding IsMountDetailsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <ui:ProgressRing Width="22" Height="22" IsIndeterminate="True" Margin="0,0,10,0" />
+                            <TextBlock Text="{DynamicResource LoadingMountDetails}" VerticalAlignment="Center" />
+                        </StackPanel>
+
+                        <ui:InfoBar Grid.Row="1"
+                                    IsOpen="{Binding HasMountDetailsError}"
+                                    IsClosable="False"
+                                    Severity="Error"
+                                    Title="{DynamicResource MountDetailsUnavailable}"
+                                    Message="{Binding MountDetailsError}"
+                                    Margin="0,0,0,12" />
+
+                        <ItemsControl Grid.Row="2"
+                                      ItemsSource="{Binding MountDetails.Mounts}"
+                                      Visibility="{Binding MountDetails.HasMounts, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource MountCardStyle}">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="36" />
+                                                    <ColumnDefinition />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <Border Width="32"
+                                                        Height="32"
+                                                        CornerRadius="6"
+                                                        Background="{ui:ThemeResource ControlFillColorTertiaryBrush}"
+                                                        HorizontalAlignment="Left"
+                                                        VerticalAlignment="Center">
+                                                    <ui:SymbolIcon FontSize="18"
+                                                                   Foreground="{DynamicResource AccentFillColorDefaultBrush}"
+                                                                   HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center">
+                                                        <ui:SymbolIcon.Style>
+                                                            <Style TargetType="ui:SymbolIcon">
+                                                                <Setter Property="Symbol" Value="FolderLink24" />
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Kind}" Value="{x:Static models:ContainerMountKind.Tmpfs}">
+                                                                        <Setter Property="Symbol" Value="Storage24" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Kind}" Value="{x:Static models:ContainerMountKind.Volume}">
+                                                                        <Setter Property="Symbol" Value="HardDrive24" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </ui:SymbolIcon.Style>
+                                                    </ui:SymbolIcon>
+                                                </Border>
+
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{Binding DisplayDestination}"
+                                                           FontSize="16"
+                                                           FontWeight="SemiBold"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           VerticalAlignment="Center"
+                                                           Margin="10,0,14,0"
+                                                           ToolTip="{Binding DisplayDestination}" />
+
+                                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <Border Style="{StaticResource MountBadgeStyle}" ToolTip="{DynamicResource MountType}">
+                                                        <TextBlock Text="{Binding Type}" Style="{StaticResource MountBadgeTextStyle}" />
+                                                    </Border>
+                                                    <Border Style="{StaticResource MountBadgeStyle}" ToolTip="{DynamicResource AccessMode}">
+                                                        <TextBlock Style="{StaticResource MountAccessTextStyle}" />
+                                                    </Border>
+                                                </StackPanel>
+                                            </Grid>
+
+                                            <StackPanel Grid.Row="1" Margin="46,12,0,0">
+                                                <Grid Visibility="{Binding HasSource, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Text="{DynamicResource SourcePath}" Style="{StaticResource MountDetailLabelStyle}" />
+                                                    <TextBlock Grid.Column="1"
+                                                               Text="{Binding DisplaySource}"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               VerticalAlignment="Center"
+                                                               ToolTip="{Binding DisplaySource}" />
+                                                    <ui:Button Grid.Column="2"
+                                                               Icon="{ui:SymbolIcon Symbol=Copy20}"
+                                                               Command="{Binding DataContext.CopyMountValueCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                               CommandParameter="{Binding Source}"
+                                                               IsEnabled="{Binding HasSource}"
+                                                               AutomationProperties.Name="{DynamicResource CopySourcePath}"
+                                                               ToolTip="{DynamicResource Copy}"
+                                                               Style="{StaticResource MountIconButtonStyle}" />
+                                                </Grid>
+
+                                                <Grid Margin="0,8,0,0"
+                                                      Visibility="{Binding HasDestination, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Text="{DynamicResource ContainerPath}" Style="{StaticResource MountDetailLabelStyle}" />
+                                                    <TextBlock Grid.Column="1"
+                                                               Text="{Binding DisplayDestination}"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               VerticalAlignment="Center"
+                                                               ToolTip="{Binding DisplayDestination}" />
+                                                    <ui:Button Grid.Column="2"
+                                                               Icon="{ui:SymbolIcon Symbol=Copy20}"
+                                                               Command="{Binding DataContext.CopyMountValueCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                               CommandParameter="{Binding Destination}"
+                                                               IsEnabled="{Binding HasDestination}"
+                                                               AutomationProperties.Name="{DynamicResource CopyContainerPath}"
+                                                               ToolTip="{DynamicResource Copy}"
+                                                               Style="{StaticResource MountIconButtonStyle}" />
+                                                </Grid>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <Border Grid.Row="2"
+                                Background="{ui:ThemeResource ControlFillColorTertiaryBrush}"
+                                BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="6"
+                                Padding="24,26">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding HasMountDetails}" Value="True" />
+                                                <Condition Binding="{Binding MountDetails.HasMounts}" Value="False" />
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </MultiDataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <StackPanel HorizontalAlignment="Center" MaxWidth="420">
+                                <ui:SymbolIcon Symbol="FolderOpen24"
+                                               FontSize="30"
+                                               Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
+                                               HorizontalAlignment="Center"
+                                               Margin="0,0,0,10" />
+                                <TextBlock Text="{DynamicResource NoMountsDiscovered}"
+                                           FontSize="16"
+                                           FontWeight="SemiBold"
+                                           TextAlignment="Center"
+                                           HorizontalAlignment="Center" />
+                                <TextBlock Text="{DynamicResource NoMountsDiscoveredHint}"
+                                           Style="{StaticResource MutedTextStyle}"
+                                           TextWrapping="Wrap"
+                                           TextAlignment="Center"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,5,0,0" />
+                            </StackPanel>
+                        </Border>
+                </Grid>
             </ScrollViewer>
         </DataTemplate>
 

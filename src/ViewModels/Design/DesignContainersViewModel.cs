@@ -28,6 +28,11 @@ public sealed class DesignContainersViewModel : ContainersViewModel
                 new ContainerPortBinding("127.0.0.1", "8080", "80", "tcp"),
                 new ContainerPortBinding("0.0.0.0", "8443", "443", "tcp")
             ]);
+        MountDetails = new ContainerMountDetails(
+        [
+            new ContainerMount("bind", @"C:\workspace\api-gateway", "/workspace", true),
+            new ContainerMount("tmpfs", string.Empty, "/run/api-gateway", true)
+        ]);
 
         LogLines.Add(new LogLine("2026-07-09 10:14:22 [info]  Starting nginx 1.27.0 (main process)"));
         LogLines.Add(new LogLine("2026-07-09 10:14:22 [info]  Loading configuration from /etc/nginx/nginx.conf"));
@@ -36,5 +41,6 @@ public sealed class DesignContainersViewModel : ContainersViewModel
         LogLines.Add(new LogLine("2026-07-09 10:14:25 [info]  GET /health 200 - 4 ms"));
         LogLines.Add(new LogLine("2026-07-09 10:14:26 [error] Upstream timed out (110: Connection timed out)"));
         LogLines.Add(new LogLine("2026-07-09 10:14:27 [info]  Retrying upstream 'cache' (attempt 2/3)"));
+        SelectedDetailTabIndex = 3;
     }
 }

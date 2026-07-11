@@ -15,13 +15,17 @@ public partial class ContainersViewModel : WorkspaceViewModel
     private const int LogTrimBatch = 500;
     private const int LogsTabIndex = 0;
     private const int NetworkTabIndex = 2;
+    private const int MountsTabIndex = 3;
 
     private CancellationTokenSource? _logFollow;
     private CancellationTokenSource? _networkDetailsLoad;
+    private CancellationTokenSource? _mountDetailsLoad;
     private string? _networkDetailsLoadContainerId;
+    private string? _mountDetailsLoadContainerId;
     private string? _followedContainerId;
     private string? _currentContainerId;
     private readonly Dictionary<string, ContainerNetworkDetails> _networkDetailsCache = [];
+    private readonly Dictionary<string, ContainerMountDetails> _mountDetailsCache = [];
 
     public ContainersViewModel(RuntimeWorkspace workspace) : base(workspace)
     {
@@ -59,10 +63,15 @@ public partial class ContainersViewModel : WorkspaceViewModel
     [ObservableProperty] public partial bool IsNetworkDetailsLoading { get; set; }
     [ObservableProperty] public partial string NetworkDetailsError { get; set; } = string.Empty;
     [ObservableProperty] public partial DateTimeOffset? NetworkDetailsUpdatedAt { get; set; }
+    [ObservableProperty] public partial ContainerMountDetails? MountDetails { get; set; }
+    [ObservableProperty] public partial bool IsMountDetailsLoading { get; set; }
+    [ObservableProperty] public partial string MountDetailsError { get; set; } = string.Empty;
 
     public ContainerStats? SelectedContainerStats => SelectedContainer is null ? null : Workspace.FindStats(SelectedContainer);
     public bool HasNetworkDetails => NetworkDetails is not null;
     public bool HasNetworkDetailsError => !string.IsNullOrWhiteSpace(NetworkDetailsError);
+    public bool HasMountDetails => MountDetails is not null;
+    public bool HasMountDetailsError => !string.IsNullOrWhiteSpace(MountDetailsError);
 
     [RelayCommand] private Task StartContainerAsync() => RunContainerActionAsync("Start container", id => Workspace.Runtime.StartContainerAsync(id, Workspace.Lifetime.Token));
     [RelayCommand] private Task StopContainerAsync() => RunContainerActionAsync("Stop container", id => Workspace.Runtime.StopContainerAsync(id, Workspace.Lifetime.Token));
@@ -93,7 +102,11 @@ public partial class ContainersViewModel : WorkspaceViewModel
         SelectedContainer = null;
         var result = await Workspace.Runtime.RemoveContainerAsync(container.Id, true, Workspace.Lifetime.Token);
         Workspace.ShowResult(result);
-        if (result.Success) _networkDetailsCache.Remove(container.Id);
+        if (result.Success)
+        {
+            _networkDetailsCache.Remove(container.Id);
+            _mountDetailsCache.Remove(container.Id);
+        }
         await Workspace.RefreshAllAsync();
     }
 
@@ -136,13 +149,20 @@ public partial class ContainersViewModel : WorkspaceViewModel
     partial void OnSelectedDetailTabIndexChanged(int value)
     {
         EvaluateFollow();
-        if (value == NetworkTabIndex)
+        switch (value)
         {
-            _ = LoadNetworkDetailsAsync(force: false);
-        }
-        else
-        {
-            _networkDetailsLoad?.Cancel();
+            case NetworkTabIndex:
+                _mountDetailsLoad?.Cancel();
+                _ = LoadNetworkDetailsAsync(force: false);
+                break;
+            case MountsTabIndex:
+                _networkDetailsLoad?.Cancel();
+                _ = LoadMountDetailsAsync(force: false);
+                break;
+            default:
+                _networkDetailsLoad?.Cancel();
+                _mountDetailsLoad?.Cancel();
+                break;
         }
     }
 
@@ -232,6 +252,15 @@ public partial class ContainersViewModel : WorkspaceViewModel
 
     [RelayCommand]
     private Task RefreshNetworkDetailsAsync() => LoadNetworkDetailsAsync(force: true);
+
+    [RelayCommand]
+    private void CopyMountValue(string? value)
+    {
+        if (!string.IsNullOrWhiteSpace(value)) Clipboard.SetText(value);
+    }
+
+    [RelayCommand]
+    private Task RefreshMountDetailsAsync() => LoadMountDetailsAsync(force: true);
 
     private void AppendLogLine(string line)
     {
@@ -332,8 +361,10 @@ public partial class ContainersViewModel : WorkspaceViewModel
             LogLines.Clear();
             SelectedDetailTabIndex = LogsTabIndex;
             _networkDetailsLoad?.Cancel();
+            _mountDetailsLoad?.Cancel();
             NetworkDetailsError = string.Empty;
             NetworkDetailsUpdatedAt = null;
+            MountDetailsError = string.Empty;
             if (value is not null && _networkDetailsCache.TryGetValue(value.Id, out var cachedDetails))
             {
                 NetworkDetails = cachedDetails;
@@ -341,6 +372,15 @@ public partial class ContainersViewModel : WorkspaceViewModel
             else
             {
                 NetworkDetails = null;
+            }
+
+            if (value is not null && _mountDetailsCache.TryGetValue(value.Id, out var cachedMountDetails))
+            {
+                MountDetails = cachedMountDetails;
+            }
+            else
+            {
+                MountDetails = null;
             }
         }
         EvaluateFollow();
@@ -350,6 +390,10 @@ public partial class ContainersViewModel : WorkspaceViewModel
     partial void OnNetworkDetailsChanged(ContainerNetworkDetails? value) => OnPropertyChanged(nameof(HasNetworkDetails));
 
     partial void OnNetworkDetailsErrorChanged(string value) => OnPropertyChanged(nameof(HasNetworkDetailsError));
+
+    partial void OnMountDetailsChanged(ContainerMountDetails? value) => OnPropertyChanged(nameof(HasMountDetails));
+
+    partial void OnMountDetailsErrorChanged(string value) => OnPropertyChanged(nameof(HasMountDetailsError));
 
     private async Task LoadNetworkDetailsAsync(bool force)
     {
@@ -428,6 +472,85 @@ public partial class ContainersViewModel : WorkspaceViewModel
         SelectedContainer is { } container &&
         container.Id.Equals(containerId, StringComparison.OrdinalIgnoreCase);
 
+    private async Task LoadMountDetailsAsync(bool force)
+    {
+        if (IsDesignMode || SelectedContainer is not { } container) return;
+
+        if (_mountDetailsLoad is not null &&
+            string.Equals(_mountDetailsLoadContainerId, container.Id, StringComparison.OrdinalIgnoreCase))
+        {
+            if (!force && !_mountDetailsLoad.IsCancellationRequested) return;
+            _mountDetailsLoad.Cancel();
+        }
+
+        if (!force && _mountDetailsCache.TryGetValue(container.Id, out var cachedDetails))
+        {
+            // A cancelled refresh can still be winding down if the runtime ignores cancellation.
+            // The cached value is already usable, so do not leave the page in a loading state.
+            IsMountDetailsLoading = false;
+            MountDetails = cachedDetails;
+            MountDetailsError = string.Empty;
+            return;
+        }
+
+        var load = CancellationTokenSource.CreateLinkedTokenSource(Workspace.Lifetime.Token);
+        _mountDetailsLoad = load;
+        _mountDetailsLoadContainerId = container.Id;
+        IsMountDetailsLoading = true;
+        MountDetailsError = string.Empty;
+        try
+        {
+            var result = await Workspace.Runtime.InspectContainerAsync(container.Id, load.Token);
+            if (load.IsCancellationRequested || !IsCurrentMountContainer(container.Id)) return;
+
+            if (!result.Success)
+            {
+                MountDetailsError = string.IsNullOrWhiteSpace(result.Error)
+                    ? "WSLC could not load mount details."
+                    : result.Error;
+                return;
+            }
+
+            if (!ContainerMountDetailsParser.TryParse(result.Output, out var details))
+            {
+                MountDetailsError = "WSLC returned unsupported mount detail data.";
+                return;
+            }
+
+            _mountDetailsCache[container.Id] = details;
+            MountDetails = details;
+        }
+        catch (OperationCanceledException) when (load.IsCancellationRequested)
+        {
+            // The user selected a different container or left the Mounts tab.
+        }
+        catch (Exception exception)
+        {
+            if (!load.IsCancellationRequested &&
+                ReferenceEquals(_mountDetailsLoad, load) &&
+                IsCurrentMountContainer(container.Id))
+            {
+                MountDetailsError = exception.Message;
+            }
+        }
+        finally
+        {
+            if (ReferenceEquals(_mountDetailsLoad, load))
+            {
+                _mountDetailsLoad = null;
+                _mountDetailsLoadContainerId = null;
+                IsMountDetailsLoading = false;
+            }
+
+            load.Dispose();
+        }
+    }
+
+    private bool IsCurrentMountContainer(string containerId) =>
+        SelectedDetailTabIndex == MountsTabIndex &&
+        SelectedContainer is { } container &&
+        container.Id.Equals(containerId, StringComparison.OrdinalIgnoreCase);
+
     private async Task RunContainerActionAsync(string title, Func<string, Task<OperationResult>> operation)
     {
         if (SelectedContainer is null) return;
@@ -484,6 +607,10 @@ public partial class ContainersViewModel : WorkspaceViewModel
         foreach (var containerId in _networkDetailsCache.Keys.Where(containerId => !existingContainerIds.Contains(containerId)).ToArray())
         {
             _networkDetailsCache.Remove(containerId);
+        }
+        foreach (var containerId in _mountDetailsCache.Keys.Where(containerId => !existingContainerIds.Contains(containerId)).ToArray())
+        {
+            _mountDetailsCache.Remove(containerId);
         }
         OnPropertyChanged(nameof(SelectedContainerStats));
     }
