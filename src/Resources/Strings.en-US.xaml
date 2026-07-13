@@ -99,6 +99,11 @@
     <sys:String x:Key="Ports">Ports</sys:String>
     <sys:String x:Key="Actions">Actions</sys:String>
     <sys:String x:Key="Configuration">Configuration</sys:String>
+    <sys:String x:Key="LoadingConfiguration">Loading container configuration…</sys:String>
+    <sys:String x:Key="ConfigurationUnavailable">Container configuration is unavailable</sys:String>
+    <sys:String x:Key="ContainerCommandHint">Command executed when the container starts</sys:String>
+    <sys:String x:Key="EnvironmentVariablesHint">Key-value pairs passed to the container process</sys:String>
+    <sys:String x:Key="NoEnvironmentVariables">No environment variables are configured</sys:String>
     <sys:String x:Key="Created">Created</sys:String>
     <sys:String x:Key="Mounts">Mounts</sys:String>
 </ResourceDictionary>

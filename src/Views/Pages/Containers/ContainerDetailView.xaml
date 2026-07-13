@@ -99,6 +99,11 @@
 
         <Style x:Key="MountIconButtonStyle" TargetType="ui:Button" BasedOn="{StaticResource NetworkIconButtonStyle}" />
 
+        <Style x:Key="ConfigurationCardStyle" TargetType="Border" BasedOn="{StaticResource WorkbenchPanelStyle}">
+            <Setter Property="Background" Value="{ui:ThemeResource LayerFillColorDefaultBrush}" />
+            <Setter Property="Padding" Value="0" />
+        </Style>
+
         <Style x:Key="NetworkPortExposureTextStyle" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
             <Setter Property="Text" Value="{DynamicResource DefaultBinding}" />
             <Setter Property="Foreground" Value="{ui:ThemeResource TextFillColorSecondaryBrush}" />
@@ -550,30 +555,141 @@
         </DataTemplate>
 
         <DataTemplate x:Key="ConfigurationDetailTemplate">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <Border Style="{StaticResource WorkbenchPanelStyle}" Margin="0,14,0,0">
-                    <StackPanel>
-                        <TextBlock Text="{DynamicResource Configuration}" Style="{StaticResource SectionTitleStyle}" />
-                        <Grid Margin="0,4,0,0">
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="150" /><ColumnDefinition /></Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions><RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition /></Grid.RowDefinitions>
-                            <TextBlock Text="ID" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
-                            <TextBlock Grid.Column="1" Text="{Binding SelectedContainer.Id}" TextTrimming="CharacterEllipsis" />
-                            <TextBlock Grid.Row="1" Text="{DynamicResource Name}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" Margin="0,8,0,0" />
-                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedContainer.Name}" Margin="0,8,0,0" />
-                            <TextBlock Grid.Row="2" Text="{DynamicResource Image}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" Margin="0,8,0,0" />
-                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedContainer.Image}" Margin="0,8,0,0" TextTrimming="CharacterEllipsis" />
-                            <TextBlock Grid.Row="3" Text="{DynamicResource Created}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" Margin="0,8,0,0" />
-                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedContainer.Created}" Margin="0,8,0,0" />
-                            <TextBlock Grid.Row="4" Text="{DynamicResource State}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" Margin="0,8,0,0" />
-                            <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding SelectedContainer.State}" Margin="0,8,0,0" />
-                            <TextBlock Grid.Row="5" Text="{DynamicResource Command}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" Margin="0,8,0,0" />
-                            <TextBlock Grid.Row="5" Grid.Column="1" Text="{DynamicResource Unavailable}" Margin="0,8,0,0" />
-                            <TextBlock Grid.Row="6" Text="{DynamicResource EnvironmentVariables}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" Margin="0,8,0,0" />
-                            <TextBlock Grid.Row="6" Grid.Column="1" Text="{DynamicResource Unavailable}" Margin="0,8,0,0" />
-                        </Grid>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <Grid Margin="0,14,16,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center"
+                                Margin="0,20"
+                                Visibility="{Binding IsInspectDetailsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <ui:ProgressRing Width="22" Height="22" IsIndeterminate="True" Margin="0,0,10,0" />
+                        <TextBlock Text="{DynamicResource LoadingConfiguration}" VerticalAlignment="Center" />
                     </StackPanel>
-                </Border>
+
+                    <ui:InfoBar Grid.Row="1"
+                                IsOpen="{Binding HasInspectDetailsError}"
+                                IsClosable="False"
+                                Severity="Error"
+                                Title="{DynamicResource ConfigurationUnavailable}"
+                                Message="{Binding InspectDetailsError}"
+                                Margin="0,0,0,12" />
+
+                    <StackPanel Grid.Row="2">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasInspectDetails}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+
+                        <Border Style="{StaticResource ConfigurationCardStyle}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <Grid Margin="16,14,16,12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="40" />
+                                        <ColumnDefinition />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Width="32" Height="32" CornerRadius="6" Background="{ui:ThemeResource ControlFillColorTertiaryBrush}">
+                                        <ui:SymbolIcon Symbol="Code24" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <StackPanel Grid.Column="1" Margin="10,0,12,0">
+                                        <TextBlock Text="{DynamicResource Command}" FontSize="16" FontWeight="SemiBold" />
+                                        <TextBlock Text="{DynamicResource ContainerCommandHint}" Style="{StaticResource MutedTextStyle}" Margin="0,2,0,0" />
+                                    </StackPanel>
+                                    <ui:Button Grid.Column="2"
+                                               Icon="{ui:SymbolIcon Symbol=Copy20}"
+                                               Command="{Binding CopyConfigurationValueCommand}"
+                                               CommandParameter="{Binding InspectDetails.Config.DisplayCommand}"
+                                               IsEnabled="{Binding InspectDetails.Config.HasCommand}"
+                                               Style="{StaticResource NetworkIconButtonStyle}"
+                                               ToolTip="{DynamicResource Copy}"
+                                               AutomationProperties.Name="{DynamicResource Copy}" />
+                                </Grid>
+                                <Border Background="{ui:ThemeResource ControlFillColorTertiaryBrush}"
+                                        BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
+                                        BorderThickness="0,1,0,0"
+                                        CornerRadius="0,0,8,8"
+                                        Padding="16,14">
+                                    <TextBlock Text="{Binding InspectDetails.Config.DisplayCommand}"
+                                               FontFamily="Consolas"
+                                               FontSize="13"
+                                               TextWrapping="Wrap" />
+                                </Border>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource ConfigurationCardStyle}">
+                            <StackPanel>
+                                <Grid Margin="16,14,16,12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="40" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Width="32" Height="32" CornerRadius="6" Background="{ui:ThemeResource ControlFillColorTertiaryBrush}">
+                                        <ui:SymbolIcon Symbol="Tag24" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                        <TextBlock Text="{DynamicResource EnvironmentVariables}" FontSize="16" FontWeight="SemiBold" />
+                                        <TextBlock Text="{DynamicResource EnvironmentVariablesHint}" Style="{StaticResource MutedTextStyle}" Margin="0,2,0,0" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <ItemsControl ItemsSource="{Binding InspectDetails.EnvironmentVariables}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
+                                                    BorderThickness="0,1,0,0"
+                                                    Padding="16,12">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="220" />
+                                                        <ColumnDefinition />
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Text="{Binding Key}"
+                                                               FontFamily="Consolas"
+                                                               FontWeight="SemiBold"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               ToolTip="{Binding Key}" />
+                                                    <TextBlock Grid.Column="1"
+                                                               Text="{Binding DisplayValue}"
+                                                               FontFamily="Consolas"
+                                                               TextWrapping="Wrap"
+                                                               Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
+                                                               Margin="18,0,0,0" />
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <TextBlock Text="{DynamicResource NoEnvironmentVariables}"
+                                           TextAlignment="Center"
+                                           Margin="16,22,16,24">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource MutedTextStyle}">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding InspectDetails.HasEnvironmentVariables}" Value="False">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
             </ScrollViewer>
         </DataTemplate>
 
@@ -584,7 +700,7 @@
                     <ui:Button Content="{DynamicResource Inspect}" Appearance="Primary" Command="{Binding InspectContainerCommand}" Margin="0,0,8,0" />
                     <ui:Button Content="{DynamicResource Export}" Command="{Binding ExportContainerCommand}" />
                 </WrapPanel>
-                <ui:TextBox Grid.Row="1" Text="{Binding DetailOutput}" IsReadOnly="True" AcceptsReturn="True" FontFamily="Consolas" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto" />
+                <ui:TextBox Grid.Row="1" Text="{Binding InspectOutput, Mode=OneWay}" IsReadOnly="True" AcceptsReturn="True" FontFamily="Consolas" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto" />
             </Grid>
         </DataTemplate>
     </UserControl.Resources>

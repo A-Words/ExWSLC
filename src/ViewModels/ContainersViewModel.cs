@@ -16,16 +16,21 @@ public partial class ContainersViewModel : WorkspaceViewModel
     private const int LogsTabIndex = 0;
     private const int NetworkTabIndex = 2;
     private const int MountsTabIndex = 3;
+    private const int ConfigurationTabIndex = 4;
+    private const int InspectTabIndex = 5;
 
     private CancellationTokenSource? _logFollow;
     private CancellationTokenSource? _networkDetailsLoad;
     private CancellationTokenSource? _mountDetailsLoad;
+    private CancellationTokenSource? _inspectDetailsLoad;
     private string? _networkDetailsLoadContainerId;
     private string? _mountDetailsLoadContainerId;
+    private string? _inspectDetailsLoadContainerId;
     private string? _followedContainerId;
     private string? _currentContainerId;
     private readonly Dictionary<string, ContainerNetworkDetails> _networkDetailsCache = [];
     private readonly Dictionary<string, ContainerMountDetails> _mountDetailsCache = [];
+    private readonly Dictionary<string, ContainerInspectDetails> _inspectDetailsCache = [];
 
     public ContainersViewModel(RuntimeWorkspace workspace) : base(workspace)
     {
@@ -66,12 +71,19 @@ public partial class ContainersViewModel : WorkspaceViewModel
     [ObservableProperty] public partial ContainerMountDetails? MountDetails { get; set; }
     [ObservableProperty] public partial bool IsMountDetailsLoading { get; set; }
     [ObservableProperty] public partial string MountDetailsError { get; set; } = string.Empty;
+    [ObservableProperty] public partial ContainerInspectDetails? InspectDetails { get; set; }
+    [ObservableProperty] public partial bool IsInspectDetailsLoading { get; set; }
+    [ObservableProperty] public partial string InspectDetailsError { get; set; } = string.Empty;
+    [ObservableProperty] public partial DateTimeOffset? InspectDetailsUpdatedAt { get; set; }
+    [ObservableProperty] public partial string InspectOutput { get; set; } = string.Empty;
 
     public ContainerStats? SelectedContainerStats => SelectedContainer is null ? null : Workspace.FindStats(SelectedContainer);
     public bool HasNetworkDetails => NetworkDetails is not null;
     public bool HasNetworkDetailsError => !string.IsNullOrWhiteSpace(NetworkDetailsError);
     public bool HasMountDetails => MountDetails is not null;
     public bool HasMountDetailsError => !string.IsNullOrWhiteSpace(MountDetailsError);
+    public bool HasInspectDetails => InspectDetails is not null;
+    public bool HasInspectDetailsError => !string.IsNullOrWhiteSpace(InspectDetailsError);
 
     [RelayCommand] private Task StartContainerAsync() => RunContainerActionAsync("Start container", id => Workspace.Runtime.StartContainerAsync(id, Workspace.Lifetime.Token));
     [RelayCommand] private Task StopContainerAsync() => RunContainerActionAsync("Stop container", id => Workspace.Runtime.StopContainerAsync(id, Workspace.Lifetime.Token));
@@ -106,6 +118,7 @@ public partial class ContainersViewModel : WorkspaceViewModel
         {
             _networkDetailsCache.Remove(container.Id);
             _mountDetailsCache.Remove(container.Id);
+            _inspectDetailsCache.Remove(container.Id);
         }
         await Workspace.RefreshAllAsync();
     }
@@ -153,15 +166,24 @@ public partial class ContainersViewModel : WorkspaceViewModel
         {
             case NetworkTabIndex:
                 _mountDetailsLoad?.Cancel();
+                _inspectDetailsLoad?.Cancel();
                 _ = LoadNetworkDetailsAsync(force: false);
                 break;
             case MountsTabIndex:
                 _networkDetailsLoad?.Cancel();
+                _inspectDetailsLoad?.Cancel();
                 _ = LoadMountDetailsAsync(force: false);
+                break;
+            case ConfigurationTabIndex:
+            case InspectTabIndex:
+                _networkDetailsLoad?.Cancel();
+                _mountDetailsLoad?.Cancel();
+                _ = LoadInspectDetailsAsync(force: false);
                 break;
             default:
                 _networkDetailsLoad?.Cancel();
                 _mountDetailsLoad?.Cancel();
+                _inspectDetailsLoad?.Cancel();
                 break;
         }
     }
@@ -281,8 +303,13 @@ public partial class ContainersViewModel : WorkspaceViewModel
     [RelayCommand]
     private async Task InspectContainerAsync()
     {
-        if (SelectedContainer is null) return;
-        Workspace.ShowResult(await Workspace.Runtime.InspectContainerAsync(SelectedContainer.Id, Workspace.Lifetime.Token));
+        await LoadInspectDetailsAsync(force: true);
+    }
+
+    [RelayCommand]
+    private void CopyConfigurationValue(string? value)
+    {
+        if (!string.IsNullOrWhiteSpace(value) && value != "--") Clipboard.SetText(value);
     }
 
     [RelayCommand]
@@ -362,9 +389,12 @@ public partial class ContainersViewModel : WorkspaceViewModel
             SelectedDetailTabIndex = LogsTabIndex;
             _networkDetailsLoad?.Cancel();
             _mountDetailsLoad?.Cancel();
+            _inspectDetailsLoad?.Cancel();
             NetworkDetailsError = string.Empty;
             NetworkDetailsUpdatedAt = null;
             MountDetailsError = string.Empty;
+            InspectDetailsError = string.Empty;
+            InspectDetailsUpdatedAt = null;
             if (value is not null && _networkDetailsCache.TryGetValue(value.Id, out var cachedDetails))
             {
                 NetworkDetails = cachedDetails;
@@ -382,6 +412,17 @@ public partial class ContainersViewModel : WorkspaceViewModel
             {
                 MountDetails = null;
             }
+
+            if (value is not null && _inspectDetailsCache.TryGetValue(value.Id, out var cachedInspectDetails))
+            {
+                InspectDetails = cachedInspectDetails;
+                InspectOutput = cachedInspectDetails.RawJson;
+            }
+            else
+            {
+                InspectDetails = null;
+                InspectOutput = string.Empty;
+            }
         }
         EvaluateFollow();
         OnPropertyChanged(nameof(SelectedContainerStats));
@@ -394,6 +435,89 @@ public partial class ContainersViewModel : WorkspaceViewModel
     partial void OnMountDetailsChanged(ContainerMountDetails? value) => OnPropertyChanged(nameof(HasMountDetails));
 
     partial void OnMountDetailsErrorChanged(string value) => OnPropertyChanged(nameof(HasMountDetailsError));
+
+    partial void OnInspectDetailsChanged(ContainerInspectDetails? value) => OnPropertyChanged(nameof(HasInspectDetails));
+
+    partial void OnInspectDetailsErrorChanged(string value) => OnPropertyChanged(nameof(HasInspectDetailsError));
+
+    private async Task LoadInspectDetailsAsync(bool force)
+    {
+        if (IsDesignMode || SelectedContainer is not { } container) return;
+
+        if (_inspectDetailsLoad is not null &&
+            string.Equals(_inspectDetailsLoadContainerId, container.Id, StringComparison.OrdinalIgnoreCase))
+        {
+            if (!force && !_inspectDetailsLoad.IsCancellationRequested) return;
+            _inspectDetailsLoad.Cancel();
+        }
+
+        if (!force && _inspectDetailsCache.TryGetValue(container.Id, out var cachedDetails))
+        {
+            InspectDetails = cachedDetails;
+            InspectOutput = cachedDetails.RawJson;
+            InspectDetailsError = string.Empty;
+            return;
+        }
+
+        var load = CancellationTokenSource.CreateLinkedTokenSource(Workspace.Lifetime.Token);
+        _inspectDetailsLoad = load;
+        _inspectDetailsLoadContainerId = container.Id;
+        IsInspectDetailsLoading = true;
+        InspectDetailsError = string.Empty;
+        try
+        {
+            var result = await Workspace.Runtime.InspectContainerAsync(container.Id, load.Token);
+            if (load.IsCancellationRequested || !IsCurrentInspectContainer(container.Id)) return;
+
+            if (!result.Success)
+            {
+                InspectDetailsError = string.IsNullOrWhiteSpace(result.Error)
+                    ? "WSLC could not load container configuration."
+                    : result.Error;
+                return;
+            }
+
+            if (!ContainerInspectDetailsParser.TryParse(result.Output, out var details))
+            {
+                InspectDetailsError = "WSLC returned unsupported container configuration data.";
+                return;
+            }
+
+            _inspectDetailsCache[container.Id] = details;
+            InspectDetails = details;
+            InspectOutput = details.RawJson;
+            InspectDetailsUpdatedAt = DateTimeOffset.Now;
+        }
+        catch (OperationCanceledException) when (load.IsCancellationRequested)
+        {
+            // The user selected a different container or left Configuration/Inspect.
+        }
+        catch (Exception exception)
+        {
+            if (!load.IsCancellationRequested &&
+                ReferenceEquals(_inspectDetailsLoad, load) &&
+                IsCurrentInspectContainer(container.Id))
+            {
+                InspectDetailsError = exception.Message;
+            }
+        }
+        finally
+        {
+            if (ReferenceEquals(_inspectDetailsLoad, load))
+            {
+                _inspectDetailsLoad = null;
+                _inspectDetailsLoadContainerId = null;
+                IsInspectDetailsLoading = false;
+            }
+
+            load.Dispose();
+        }
+    }
+
+    private bool IsCurrentInspectContainer(string containerId) =>
+        SelectedDetailTabIndex is ConfigurationTabIndex or InspectTabIndex &&
+        SelectedContainer is { } container &&
+        container.Id.Equals(containerId, StringComparison.OrdinalIgnoreCase);
 
     private async Task LoadNetworkDetailsAsync(bool force)
     {
@@ -611,6 +735,10 @@ public partial class ContainersViewModel : WorkspaceViewModel
         foreach (var containerId in _mountDetailsCache.Keys.Where(containerId => !existingContainerIds.Contains(containerId)).ToArray())
         {
             _mountDetailsCache.Remove(containerId);
+        }
+        foreach (var containerId in _inspectDetailsCache.Keys.Where(containerId => !existingContainerIds.Contains(containerId)).ToArray())
+        {
+            _inspectDetailsCache.Remove(containerId);
         }
         OnPropertyChanged(nameof(SelectedContainerStats));
     }
