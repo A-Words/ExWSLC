@@ -695,12 +695,7 @@
 
         <DataTemplate x:Key="InspectDetailTemplate">
             <Grid Margin="0,14,0,0">
-                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition /></Grid.RowDefinitions>
-                <WrapPanel Margin="0,0,0,10">
-                    <ui:Button Content="{DynamicResource Inspect}" Appearance="Primary" Command="{Binding InspectContainerCommand}" Margin="0,0,8,0" />
-                    <ui:Button Content="{DynamicResource Export}" Command="{Binding ExportContainerCommand}" />
-                </WrapPanel>
-                <ui:TextBox Grid.Row="1" Text="{Binding InspectOutput, Mode=OneWay}" IsReadOnly="True" AcceptsReturn="True" FontFamily="Consolas" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto" />
+                <ui:TextBox Text="{Binding InspectOutput, Mode=OneWay}" IsReadOnly="True" AcceptsReturn="True" FontFamily="Consolas" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto" />
             </Grid>
         </DataTemplate>
     </UserControl.Resources>
