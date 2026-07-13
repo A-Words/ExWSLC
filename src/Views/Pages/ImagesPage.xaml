@@ -40,7 +40,7 @@
 
                 <Border Style="{StaticResource CompactCardStyle}" Margin="0,0,0,10"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/><ColumnDefinition Width="220"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><ui:SymbolIcon Symbol="Tag24" FontSize="23" Margin="0,0,14,0"/><StackPanel Grid.Column="1"><TextBlock Text="{DynamicResource Tag}" FontSize="16"/><TextBlock Text="{DynamicResource TagHint}" Style="{StaticResource MutedTextStyle}"/></StackPanel><ui:TextBox Grid.Column="2" Text="{Binding ImageTag}" PlaceholderText="registry/name:tag" VerticalAlignment="Center" Margin="12,0"/><WrapPanel Grid.Column="3"><ui:Button Content="{DynamicResource Tag}" Command="{Binding TagImageCommand}"/><ui:Button Content="{DynamicResource Push}" Command="{Binding PushImageCommand}"/></WrapPanel></Grid></Border>
 
-                <TextBlock Text="{DynamicResource Output}" Style="{StaticResource SectionTitleStyle}" Margin="0,8,0,10"/><ui:TextBox Text="{Binding DetailOutput}" IsReadOnly="True" AcceptsReturn="True" FontFamily="Consolas" MinHeight="180" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
+                <TextBlock Text="{DynamicResource Output}" Style="{StaticResource SectionTitleStyle}" Margin="0,8,0,10"/><ui:TextBox Text="{Binding DetailOutput, Mode=OneWay}" IsReadOnly="True" AcceptsReturn="True" FontFamily="Consolas" MinHeight="180" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
             </StackPanel></ScrollViewer>
         </Border>
     </Grid>
