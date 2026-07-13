@@ -190,4 +190,8 @@
     <sys:String x:Key="NoEnvironmentVariables">未配置环境变量</sys:String>
     <sys:String x:Key="Created">创建时间</sys:String>
     <sys:String x:Key="Mounts">挂载</sys:String>
+    <sys:String x:Key="ArchivePath">归档路径</sys:String>
+    <sys:String x:Key="ImportImageName">导入后的镜像名称</sys:String>
+    <sys:String x:Key="ImageInspectOutput">镜像 Inspect 输出</sys:String>
+    <sys:String x:Key="OperationOutput">操作输出</sys:String>
 </ResourceDictionary>

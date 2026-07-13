@@ -106,4 +106,8 @@
     <sys:String x:Key="NoEnvironmentVariables">No environment variables are configured</sys:String>
     <sys:String x:Key="Created">Created</sys:String>
     <sys:String x:Key="Mounts">Mounts</sys:String>
+    <sys:String x:Key="ArchivePath">Archive path</sys:String>
+    <sys:String x:Key="ImportImageName">Imported image name</sys:String>
+    <sys:String x:Key="ImageInspectOutput">Image inspect output</sys:String>
+    <sys:String x:Key="OperationOutput">Operation output</sys:String>
 </ResourceDictionary>
