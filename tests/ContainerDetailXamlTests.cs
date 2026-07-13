@@ -7,21 +7,18 @@ public class ContainerDetailXamlTests
     [Fact]
     public void ContainerInspectOutput_UsesOneWayBindingForReadOnlyViewModelProperty()
     {
-        var xamlPath = Path.GetFullPath(Path.Combine(
-            AppContext.BaseDirectory,
-            "..",
-            "..",
-            "..",
-            "..",
-            "src",
+        var xamlPath = Path.Combine(
+            TestPaths.SourceDirectory,
             "Views",
             "Pages",
             "Containers",
-            "ContainerDetailView.xaml"));
+            "ContainerDetailView.xaml");
 
         var xaml = File.ReadAllText(xamlPath);
 
-        Assert.Contains("Text=\"{Binding InspectOutput, Mode=OneWay}\"", xaml);
-        Assert.DoesNotContain("Text=\"{Binding InspectOutput}\"", xaml);
+        Assert.Contains("<controls:JsonTextViewer", xaml);
+        Assert.Contains("JsonText=\"{Binding InspectOutput, Mode=OneWay}\"", xaml);
+        Assert.Contains("AutomationProperties.Name=\"{DynamicResource Inspect}\"", xaml);
+        Assert.DoesNotContain("JsonText=\"{Binding InspectOutput}\"", xaml);
     }
 }

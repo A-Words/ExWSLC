@@ -8,13 +8,7 @@ public class XamlBindingTests
     [Fact]
     public void EveryReadOnlyOutputTextBox_UsesOneWayBinding()
     {
-        var sourceDirectory = Path.GetFullPath(Path.Combine(
-            AppContext.BaseDirectory,
-            "..",
-            "..",
-            "..",
-            "..",
-            "src"));
+        var sourceDirectory = TestPaths.SourceDirectory;
         var readOnlyTextBoxes = Directory.EnumerateFiles(sourceDirectory, "*.xaml", SearchOption.AllDirectories)
             .SelectMany(path => Regex.Matches(File.ReadAllText(path), "<ui:TextBox[^>]*IsReadOnly=\"True\"[^>]*/>")
                 .Select(match => (Path: path, Markup: match.Value)))

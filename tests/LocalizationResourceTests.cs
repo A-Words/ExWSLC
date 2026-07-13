@@ -45,11 +45,5 @@ public class LocalizationResourceTests
         Assert.True(duplicateKeys.Length == 0, $"Duplicate {language} resources: {string.Join(", ", duplicateKeys)}");
     }
 
-    private static string GetSourceDirectory() => Path.GetFullPath(Path.Combine(
-        AppContext.BaseDirectory,
-        "..",
-        "..",
-        "..",
-        "..",
-        "src"));
+    private static string GetSourceDirectory() => TestPaths.SourceDirectory;
 }

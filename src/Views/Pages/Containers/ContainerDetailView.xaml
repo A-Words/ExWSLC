@@ -695,7 +695,15 @@
 
         <DataTemplate x:Key="InspectDetailTemplate">
             <Grid Margin="0,14,0,0">
-                <ui:TextBox Text="{Binding InspectOutput, Mode=OneWay}" IsReadOnly="True" AcceptsReturn="True" FontFamily="Consolas" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto" />
+                <Border Style="{StaticResource WorkbenchPanelStyle}" Padding="0" ClipToBounds="True">
+                    <controls:JsonTextViewer JsonText="{Binding InspectOutput, Mode=OneWay}"
+                                             Background="Transparent"
+                                             Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
+                                             LineNumbersForeground="{ui:ThemeResource TextFillColorTertiaryBrush}"
+                                             BorderThickness="0"
+                                             Padding="10,8"
+                                             AutomationProperties.Name="{DynamicResource Inspect}" />
+                </Border>
             </Grid>
         </DataTemplate>
     </UserControl.Resources>
