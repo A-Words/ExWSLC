@@ -110,4 +110,8 @@
     <sys:String x:Key="ImportImageName">Imported image name</sys:String>
     <sys:String x:Key="ImageInspectOutput">Image inspect output</sys:String>
     <sys:String x:Key="OperationOutput">Operation output</sys:String>
+    <sys:String x:Key="NetworkName">Network name</sys:String>
+    <sys:String x:Key="VolumeName">Volume name</sys:String>
+    <sys:String x:Key="NetworkInspectOutput">Network inspect output</sys:String>
+    <sys:String x:Key="VolumeInspectOutput">Volume inspect output</sys:String>
 </ResourceDictionary>

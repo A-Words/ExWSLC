@@ -194,4 +194,8 @@
     <sys:String x:Key="ImportImageName">导入后的镜像名称</sys:String>
     <sys:String x:Key="ImageInspectOutput">镜像 Inspect 输出</sys:String>
     <sys:String x:Key="OperationOutput">操作输出</sys:String>
+    <sys:String x:Key="NetworkName">网络名称</sys:String>
+    <sys:String x:Key="VolumeName">卷名称</sys:String>
+    <sys:String x:Key="NetworkInspectOutput">网络 Inspect 输出</sys:String>
+    <sys:String x:Key="VolumeInspectOutput">卷 Inspect 输出</sys:String>
 </ResourceDictionary>

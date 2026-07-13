@@ -4,7 +4,8 @@ public sealed class DesignResourcesViewModel : ResourcesViewModel
 {
     public DesignResourcesViewModel() : base(DesignWorkspaceFactory.CreateWorkspace())
     {
-        ResourceName = "dev-network";
+        NetworkName = "dev-network";
+        VolumeName = "dev-volume";
         SelectedNetwork = Networks.FirstOrDefault();
         SelectedVolume = Volumes.FirstOrDefault();
     }
