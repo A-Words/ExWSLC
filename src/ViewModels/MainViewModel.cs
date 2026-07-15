@@ -10,7 +10,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
         Workspace = workspace;
         Containers = new ContainersViewModel(Workspace);
         ImagesPage = new ImagesViewModel(Workspace);
-        ResourcesPage = new ResourcesViewModel(Workspace);
+        NetworksPage = new NetworksViewModel(Workspace);
+        VolumesPage = new VolumesViewModel(Workspace);
         TasksPage = new TasksViewModel(Workspace);
         SettingsPage = new SettingsViewModel(Workspace);
         OverviewPage = new OverviewViewModel(Workspace, Containers);
@@ -20,7 +21,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public OverviewViewModel OverviewPage { get; }
     public ContainersViewModel Containers { get; }
     public ImagesViewModel ImagesPage { get; }
-    public ResourcesViewModel ResourcesPage { get; }
+    public NetworksViewModel NetworksPage { get; }
+    public VolumesViewModel VolumesPage { get; }
     public TasksViewModel TasksPage { get; }
     public SettingsViewModel SettingsPage { get; }
 

@@ -32,10 +32,11 @@ internal sealed class DesignContainerRuntime : IContainerRuntime
     public Task<OperationResult> RemoveImageAsync(string image, bool force, CancellationToken cancellationToken = default) => Task.FromResult(Success);
     public Task<OperationResult> InspectImageAsync(string image, CancellationToken cancellationToken = default) => Task.FromResult(Success);
     public Task<OperationResult> PruneAsync(string resource, CancellationToken cancellationToken = default) => Task.FromResult(Success);
-    public Task<OperationResult> CreateNetworkAsync(string name, CancellationToken cancellationToken = default) => Task.FromResult(Success);
+    public Task<OperationResult> CreateNetworkAsync(NetworkCreateSpec spec, CancellationToken cancellationToken = default) => Task.FromResult(Success);
     public Task<OperationResult> RemoveNetworkAsync(string name, CancellationToken cancellationToken = default) => Task.FromResult(Success);
-    public Task<OperationResult> CreateVolumeAsync(string name, CancellationToken cancellationToken = default) => Task.FromResult(Success);
-    public Task<OperationResult> RemoveVolumeAsync(string name, CancellationToken cancellationToken = default) => Task.FromResult(Success);
+    public Task<OperationResult> CreateVolumeAsync(VolumeCreateSpec spec, CancellationToken cancellationToken = default) => Task.FromResult(Success);
+    public Task<OperationResult> RemoveVolumeAsync(string name, bool force, CancellationToken cancellationToken = default) => Task.FromResult(Success);
+    public Task<OperationResult> PruneVolumesAsync(VolumePruneSpec spec, CancellationToken cancellationToken = default) => Task.FromResult(Success);
     public Task<OperationResult> InspectResourceAsync(string resource, string name, CancellationToken cancellationToken = default) => Task.FromResult(Success);
     public Task<OperationResult> RegistryLoginAsync(string server, string username, string password, CancellationToken cancellationToken = default) => Task.FromResult(Success);
     public void OpenInteractiveTerminal(string containerId) { }

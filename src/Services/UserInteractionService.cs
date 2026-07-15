@@ -13,8 +13,8 @@ public sealed class UserInteractionService : IUserInteractionService
         {
             Title = title,
             Content = message,
-            PrimaryButtonText = "Yes",
-            CloseButtonText = "No"
+            PrimaryButtonText = LocalizationService.GetString("Confirm", "Confirm"),
+            CloseButtonText = LocalizationService.GetString("Cancel", "Cancel")
         };
         var result = await messageBox.ShowDialogAsync();
         return result == MessageBoxResult.Primary;

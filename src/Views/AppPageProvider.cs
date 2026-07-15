@@ -16,7 +16,8 @@ internal sealed class AppPageProvider : INavigationViewPageProvider
             [typeof(OverviewPage)] = () => new OverviewPage(viewModel.OverviewPage),
             [typeof(ContainersPage)] = () => new ContainersPage(viewModel.Containers),
             [typeof(ImagesPage)] = () => new ImagesPage(viewModel.ImagesPage),
-            [typeof(ResourcesPage)] = () => new ResourcesPage(viewModel.ResourcesPage),
+            [typeof(NetworksPage)] = () => new NetworksPage(viewModel.NetworksPage),
+            [typeof(VolumesPage)] = () => new VolumesPage(viewModel.VolumesPage),
             [typeof(TasksPage)] = () => new TasksPage(viewModel.TasksPage),
             [typeof(SettingsPage)] = () => new SettingsPage(viewModel.SettingsPage),
         };

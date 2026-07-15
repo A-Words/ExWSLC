@@ -2,7 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="NavOverview">Get started</sys:String><sys:String x:Key="NavContainers">Containers</sys:String>
-    <sys:String x:Key="NavImages">Images</sys:String><sys:String x:Key="NavResources">Networks &amp; volumes</sys:String>
+    <sys:String x:Key="NavImages">Images</sys:String><sys:String x:Key="NavNetworks">Networks</sys:String><sys:String x:Key="NavVolumes">Volumes</sys:String>
     <sys:String x:Key="NavTasks">Tasks</sys:String><sys:String x:Key="NavSettings">Settings</sys:String>
     <sys:String x:Key="PreviewNotice">WSL Container Preview · APIs may change</sys:String><sys:String x:Key="Refresh">Refresh</sys:String>
     <sys:String x:Key="OverviewSubtitle">Runtime health and shortcuts for native WSL Container</sys:String>
@@ -52,10 +52,11 @@
     <sys:String x:Key="ImageFiles">Image files</sys:String><sys:String x:Key="ImageFilesHint">Import a rootfs, load an archive, or save the selected image</sys:String><sys:String x:Key="TagHint">Apply a tag or push the selected image to a registry</sys:String>
     <sys:String x:Key="Import">Import</sys:String><sys:String x:Key="Load">Load</sys:String><sys:String x:Key="Save">Save</sys:String><sys:String x:Key="Tag">Tag</sys:String>
     <sys:String x:Key="Push">Push</sys:String><sys:String x:Key="Prune">Prune unused</sys:String>
-    <sys:String x:Key="ResourceTitle">Networks &amp; volumes</sys:String><sys:String x:Key="Create">Create</sys:String>
-    <sys:String x:Key="ResourcesSubtitle">Configure container connectivity and persistent storage</sys:String><sys:String x:Key="CreateResource">Create resource</sys:String>
-    <sys:String x:Key="CreateResourceHint">Enter a name to create a default bridge network or guest volume</sys:String><sys:String x:Key="NetworksHint">Isolated connectivity and port communication between containers</sys:String><sys:String x:Key="VolumesHint">Preserve application data across container lifecycles</sys:String>
-    <sys:String x:Key="CreateNetwork">Create network</sys:String><sys:String x:Key="CreateVolume">Create volume</sys:String>
+    <sys:String x:Key="Create">Create</sys:String>
+    <sys:String x:Key="NetworksTitle">Networks</sys:String><sys:String x:Key="NetworksSubtitle">Manage isolated connectivity between containers</sys:String>
+    <sys:String x:Key="VolumesTitle">Volumes</sys:String><sys:String x:Key="VolumesSubtitle">Manage persistent container storage</sys:String>
+    <sys:String x:Key="CreateNetwork">Create network</sys:String><sys:String x:Key="CreateNetworkHint">Configure the driver, driver options, and metadata labels</sys:String>
+    <sys:String x:Key="CreateVolume">Create volume</sys:String><sys:String x:Key="CreateVolumeHint">Configure the driver, driver options, and metadata labels</sys:String>
     <sys:String x:Key="TasksTitle">Background tasks</sys:String><sys:String x:Key="ClearCompleted">Clear completed</sys:String><sys:String x:Key="CancelCurrent">Cancel current task</sys:String>
     <sys:String x:Key="TasksSubtitle">Track image transfers, builds, exports, and other long-running work</sys:String>
     <sys:String x:Key="SettingsTitle">Settings</sys:String><sys:String x:Key="Appearance">Appearance &amp; refresh</sys:String>
@@ -114,4 +115,37 @@
     <sys:String x:Key="VolumeName">Volume name</sys:String>
     <sys:String x:Key="NetworkInspectOutput">Network inspect output</sys:String>
     <sys:String x:Key="VolumeInspectOutput">Volume inspect output</sys:String>
+    <sys:String x:Key="Subnet">Subnet</sys:String>
+    <sys:String x:Key="Scope">Scope</sys:String>
+    <sys:String x:Key="Driver">Driver</sys:String>
+    <sys:String x:Key="Size">Size</sys:String>
+    <sys:String x:Key="Mountpoint">Mount point</sys:String>
+    <sys:String x:Key="NoNetworks">No networks found</sys:String>
+    <sys:String x:Key="NoVolumes">No volumes found</sys:String>
+    <sys:String x:Key="RemoveNetworkTitle">Remove network</sys:String>
+    <sys:String x:Key="RemoveNetworkConfirmation">Remove network {0}?</sys:String>
+    <sys:String x:Key="RemoveVolumeTitle">Remove volume</sys:String>
+    <sys:String x:Key="RemoveVolumeConfirmation">Remove volume {0}?</sys:String>
+    <sys:String x:Key="PruneNetworksTitle">Prune networks</sys:String>
+    <sys:String x:Key="PruneNetworksConfirmation">Remove every unused network?</sys:String>
+    <sys:String x:Key="PruneVolumesTitle">Prune volumes</sys:String>
+    <sys:String x:Key="PruneVolumesConfirmation">Remove every unused volume?</sys:String>
+    <sys:String x:Key="NetworkDriver">Network driver</sys:String>
+    <sys:String x:Key="DriverOptions">Driver options</sys:String>
+    <sys:String x:Key="DriverOptionsHint">Enter one --opt key=value per line</sys:String>
+    <sys:String x:Key="Labels">Labels</sys:String>
+    <sys:String x:Key="NetworkLabelsHint">Enter one --label key=value per line</sys:String>
+    <sys:String x:Key="Confirm">Confirm</sys:String>
+    <sys:String x:Key="OperationFailed">WSLC operation failed</sys:String>
+    <sys:String x:Key="RuntimeRefreshFailed">Unable to refresh runtime state</sys:String>
+    <sys:String x:Key="NetworkNameRequired">Network name (required)</sys:String>
+    <sys:String x:Key="VolumeNameOptional">Volume name (optional)</sys:String>
+    <sys:String x:Key="VolumeDriver">Volume driver</sys:String>
+    <sys:String x:Key="VolumeOptionsHint">Enter one --opt key=value per line</sys:String>
+    <sys:String x:Key="VolumeLabelsHint">Enter one --label key=value per line</sys:String>
+    <sys:String x:Key="VolumeCleanupOptions">Delete and prune options</sys:String>
+    <sys:String x:Key="ForceVolumeRemoval">Ignore an error if the volume no longer exists (--force)</sys:String>
+    <sys:String x:Key="PruneAllVolumes">Include unused named volumes (--all)</sys:String>
+    <sys:String x:Key="VolumePruneFilters">Prune filters</sys:String>
+    <sys:String x:Key="VolumePruneFiltersHint">Enter one --filter expression per line</sys:String>
 </ResourceDictionary>

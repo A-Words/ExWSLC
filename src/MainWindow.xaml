@@ -39,8 +39,11 @@
                 <ui:NavigationViewItem Content="{DynamicResource NavImages}" NavigationCacheMode="Enabled" TargetPageType="{x:Type pages:ImagesPage}">
                     <ui:NavigationViewItem.Icon><ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xE7B8;" /></ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
-                <ui:NavigationViewItem Content="{DynamicResource NavResources}" NavigationCacheMode="Enabled" TargetPageType="{x:Type pages:ResourcesPage}">
+                <ui:NavigationViewItem Content="{DynamicResource NavNetworks}" NavigationCacheMode="Enabled" TargetPageType="{x:Type pages:NetworksPage}">
                     <ui:NavigationViewItem.Icon><ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xE774;" /></ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="{DynamicResource NavVolumes}" NavigationCacheMode="Enabled" TargetPageType="{x:Type pages:VolumesPage}">
+                    <ui:NavigationViewItem.Icon><ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xEDA2;" /></ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="{DynamicResource NavTasks}" NavigationCacheMode="Enabled" TargetPageType="{x:Type pages:TasksPage}">
                     <ui:NavigationViewItem.Icon><ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xE9D9;" /></ui:NavigationViewItem.Icon>

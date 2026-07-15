@@ -1,0 +1,178 @@
+using ExWSLC.Models;
+using ExWSLC.Services;
+using ExWSLC.ViewModels;
+using Moq;
+
+namespace ExWSLC.Tests;
+
+public class NetworksAndVolumesViewModelTests
+{
+    [Fact]
+    public async Task InspectOutputsAndCreateNamesRemainIndependentAcrossPages()
+    {
+        var runtime = CreateRuntime();
+        runtime.Setup(value => value.InspectResourceAsync("network", "frontend", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new OperationResult(true, 0, "{\"Name\":\"frontend\"}", string.Empty, "wslc network inspect"));
+        runtime.Setup(value => value.InspectResourceAsync("volume", "app-data", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new OperationResult(true, 0, "{\"Name\":\"app-data\"}", string.Empty, "wslc volume inspect"));
+        using var workspace = CreateWorkspace(runtime.Object);
+        var network = new NetworkSummary("network-id", "frontend", "bridge", "local", "172.20.0.0/16", "172.20.0.1");
+        var volume = new VolumeSummary("app-data", "guest", "/var/lib/data", "4096");
+        var networksViewModel = new NetworksViewModel(workspace) { NetworkName = "new-network", OperationOutput = "network operation" };
+        var volumesViewModel = new VolumesViewModel(workspace) { VolumeName = "new-volume", OperationOutput = "volume operation" };
+
+        await networksViewModel.InspectNetworkCommand.ExecuteAsync(network);
+        await volumesViewModel.InspectVolumeCommand.ExecuteAsync(volume);
+
+        Assert.Equal("new-network", networksViewModel.NetworkName);
+        Assert.Equal("new-volume", volumesViewModel.VolumeName);
+        Assert.Equal("network operation", networksViewModel.OperationOutput);
+        Assert.Equal("volume operation", volumesViewModel.OperationOutput);
+        Assert.Contains("\"Name\": \"frontend\"", networksViewModel.InspectOutput);
+        Assert.Contains("\"Name\": \"app-data\"", volumesViewModel.InspectOutput);
+    }
+
+    [Fact]
+    public async Task CreateCommandsTrimNamesAndUseTheCorrectRuntimeOperation()
+    {
+        var runtime = CreateRuntime();
+        runtime.Setup(value => value.CreateNetworkAsync(It.IsAny<NetworkCreateSpec>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new OperationResult(true, 0, "created network", string.Empty, "wslc network create"));
+        runtime.Setup(value => value.CreateVolumeAsync(It.IsAny<VolumeCreateSpec>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new OperationResult(true, 0, "created volume", string.Empty, "wslc volume create"));
+        using var workspace = CreateWorkspace(runtime.Object);
+        var networksViewModel = new NetworksViewModel(workspace)
+        {
+            NetworkName = "  frontend  ",
+            NetworkDriver = " custom-driver ",
+            NetworkOptions = "mtu=1500\r\nisolation=strict",
+            NetworkLabels = "environment=development\nowner=platform team"
+        };
+        var volumesViewModel = new VolumesViewModel(workspace)
+        {
+            VolumeName = "  app-data  ",
+            VolumeDriver = " vhd ",
+            VolumeOptions = "size=2GB\r\ndynamic=true",
+            VolumeLabels = "environment=development\nowner=platform team"
+        };
+
+        await networksViewModel.CreateNetworkCommand.ExecuteAsync(null);
+        await volumesViewModel.CreateVolumeCommand.ExecuteAsync(null);
+
+        runtime.Verify(value => value.CreateNetworkAsync(
+            It.Is<NetworkCreateSpec>(spec =>
+                spec.Name == "frontend" &&
+                spec.Driver == "custom-driver" &&
+                spec.DriverOptions.SequenceEqual(new[] { "mtu=1500", "isolation=strict" }) &&
+                spec.Labels.SequenceEqual(new[] { "environment=development", "owner=platform team" })),
+            It.IsAny<CancellationToken>()), Times.Once);
+        runtime.Verify(value => value.CreateVolumeAsync(
+            It.Is<VolumeCreateSpec>(spec =>
+                spec.Name == "app-data" &&
+                spec.Driver == "vhd" &&
+                spec.DriverOptions.SequenceEqual(new[] { "size=2GB", "dynamic=true" }) &&
+                spec.Labels.SequenceEqual(new[] { "environment=development", "owner=platform team" })),
+            It.IsAny<CancellationToken>()), Times.Once);
+        Assert.Contains("created network", networksViewModel.OperationOutput);
+        Assert.Contains("created volume", volumesViewModel.OperationOutput);
+        Assert.Empty(networksViewModel.NetworkName);
+        Assert.Empty(volumesViewModel.VolumeName);
+    }
+
+    [Fact]
+    public void CreateNetworkCommand_IsDisabledUntilANameIsProvided()
+    {
+        var runtime = CreateRuntime();
+        using var workspace = CreateWorkspace(runtime.Object);
+        var viewModel = new NetworksViewModel(workspace);
+
+        Assert.False(viewModel.CreateNetworkCommand.CanExecute(null));
+
+        viewModel.NetworkName = "frontend";
+
+        Assert.True(viewModel.CreateNetworkCommand.CanExecute(null));
+    }
+
+    [Fact]
+    public async Task RefreshFailure_IsExposedWithoutReplacingExistingNetworks()
+    {
+        var runtime = CreateRuntime();
+        runtime.Setup(value => value.GetNetworksAsync(It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("network inventory unavailable"));
+        using var workspace = CreateWorkspace(runtime.Object);
+        workspace.Networks.Add(new NetworkSummary("network-id", "frontend", "bridge", "local", string.Empty, string.Empty));
+        var viewModel = new NetworksViewModel(workspace);
+
+        await workspace.RefreshAllAsync();
+
+        Assert.True(viewModel.HasRefreshError);
+        Assert.Equal("network inventory unavailable", viewModel.RefreshError);
+        Assert.Single(viewModel.Networks);
+    }
+
+    [Fact]
+    public async Task RemoveCommandsStopWhenConfirmationIsDeclined()
+    {
+        var runtime = CreateRuntime();
+        using var workspace = CreateWorkspace(runtime.Object, confirm: false);
+        var network = new NetworkSummary("network-id", "frontend", "bridge", "local", string.Empty, string.Empty);
+        var volume = new VolumeSummary("app-data", "guest", "/var/lib/data", "4096");
+        var networksViewModel = new NetworksViewModel(workspace);
+        var volumesViewModel = new VolumesViewModel(workspace);
+
+        await networksViewModel.RemoveNetworkCommand.ExecuteAsync(network);
+        await volumesViewModel.RemoveVolumeCommand.ExecuteAsync(volume);
+
+        runtime.Verify(value => value.RemoveNetworkAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        runtime.Verify(value => value.RemoveVolumeAsync(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task VolumeDeleteAndPruneOptions_ArePassedToTheRuntime()
+    {
+        var runtime = CreateRuntime();
+        runtime.Setup(value => value.RemoveVolumeAsync("app-data", true, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new OperationResult(true, 0, "removed", string.Empty, "wslc volume remove"));
+        runtime.Setup(value => value.PruneVolumesAsync(It.IsAny<VolumePruneSpec>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new OperationResult(true, 0, "pruned", string.Empty, "wslc volume prune"));
+        using var workspace = CreateWorkspace(runtime.Object);
+        var volume = new VolumeSummary("app-data", "guest", "/var/lib/data", "4096");
+        var viewModel = new VolumesViewModel(workspace)
+        {
+            ForceVolumeRemoval = true,
+            PruneAllVolumes = true,
+            VolumePruneFilters = "label=environment=development\nlabel!=keep"
+        };
+
+        await viewModel.RemoveVolumeCommand.ExecuteAsync(volume);
+        await viewModel.PruneVolumesCommand.ExecuteAsync(null);
+
+        runtime.Verify(value => value.RemoveVolumeAsync("app-data", true, It.IsAny<CancellationToken>()), Times.Once);
+        runtime.Verify(value => value.PruneVolumesAsync(
+            It.Is<VolumePruneSpec>(spec =>
+                spec.All && spec.Filters.SequenceEqual(new[] { "label=environment=development", "label!=keep" })),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    private static Mock<IContainerRuntime> CreateRuntime()
+    {
+        var runtime = new Mock<IContainerRuntime>();
+        runtime.Setup(value => value.GetContainersAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        runtime.Setup(value => value.GetImagesAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        runtime.Setup(value => value.GetNetworksAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        runtime.Setup(value => value.GetVolumesAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        runtime.Setup(value => value.GetStatsAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        return runtime;
+    }
+
+    private static RuntimeWorkspace CreateWorkspace(IContainerRuntime runtime, bool confirm = true)
+    {
+        var capabilities = new Mock<IRuntimeCapabilityService>();
+        var settings = new Mock<ISettingsService>();
+        settings.SetupGet(value => value.Current).Returns(new AppSettings());
+        var interaction = new Mock<IUserInteractionService>();
+        interaction.Setup(value => value.ConfirmAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(confirm);
+        interaction.Setup(value => value.ShowErrorAsync(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.CompletedTask);
+        return new RuntimeWorkspace(runtime, capabilities.Object, settings.Object, new TaskService(), interaction.Object);
+    }
+}

@@ -37,21 +37,13 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner) : IContai
     public async Task<IReadOnlyList<NetworkSummary>> GetNetworksAsync(CancellationToken cancellationToken = default)
     {
         var result = await RunAsync(["network", "list", "--format", "json"], cancellationToken: cancellationToken);
-        return ParseArray(result, element => new NetworkSummary(
-            element.ReadString("Id", "ID", "NetworkId"),
-            element.ReadString("Name"),
-            element.ReadString("Driver"),
-            element.ReadString("Scope")));
+        return ParseArrayOrThrow(result, ParseNetworkSummary, "network list");
     }
 
     public async Task<IReadOnlyList<VolumeSummary>> GetVolumesAsync(CancellationToken cancellationToken = default)
     {
         var result = await RunAsync(["volume", "list", "--format", "json"], cancellationToken: cancellationToken);
-        return ParseArray(result, element => new VolumeSummary(
-            element.ReadString("Name"),
-            element.ReadString("Driver"),
-            element.ReadString("Mountpoint", "MountPoint"),
-            element.ReadString("Size")));
+        return ParseArray(result, ParseVolumeSummary);
     }
 
     public async Task<IReadOnlyList<ContainerStats>> GetStatsAsync(CancellationToken cancellationToken = default)
@@ -143,19 +135,22 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner) : IContai
         RunAsync(["image", "inspect", image], cancellationToken: cancellationToken);
 
     public Task<OperationResult> PruneAsync(string resource, CancellationToken cancellationToken = default) =>
-        RunAsync([resource, "prune", "--force"], cancellationToken: cancellationToken);
+        RunAsync(BuildPruneArguments(resource), cancellationToken: cancellationToken);
 
-    public Task<OperationResult> CreateNetworkAsync(string name, CancellationToken cancellationToken = default) =>
-        RunAsync(["network", "create", name], cancellationToken: cancellationToken);
+    public Task<OperationResult> CreateNetworkAsync(NetworkCreateSpec spec, CancellationToken cancellationToken = default) =>
+        RunAsync(BuildCreateNetworkArguments(spec), cancellationToken: cancellationToken);
 
     public Task<OperationResult> RemoveNetworkAsync(string name, CancellationToken cancellationToken = default) =>
         RunAsync(["network", "remove", name], cancellationToken: cancellationToken);
 
-    public Task<OperationResult> CreateVolumeAsync(string name, CancellationToken cancellationToken = default) =>
-        RunAsync(["volume", "create", name], cancellationToken: cancellationToken);
+    public Task<OperationResult> CreateVolumeAsync(VolumeCreateSpec spec, CancellationToken cancellationToken = default) =>
+        RunAsync(BuildCreateVolumeArguments(spec), cancellationToken: cancellationToken);
 
-    public Task<OperationResult> RemoveVolumeAsync(string name, CancellationToken cancellationToken = default) =>
-        RunAsync(["volume", "remove", name], cancellationToken: cancellationToken);
+    public Task<OperationResult> RemoveVolumeAsync(string name, bool force, CancellationToken cancellationToken = default) =>
+        RunAsync(BuildRemoveVolumeArguments(name, force), cancellationToken: cancellationToken);
+
+    public Task<OperationResult> PruneVolumesAsync(VolumePruneSpec spec, CancellationToken cancellationToken = default) =>
+        RunAsync(BuildPruneVolumeArguments(spec), cancellationToken: cancellationToken);
 
     public Task<OperationResult> InspectResourceAsync(string resource, string name, CancellationToken cancellationToken = default) =>
         RunAsync([resource, "inspect", name], cancellationToken: cancellationToken);
@@ -196,23 +191,124 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner) : IContai
         return arguments;
     }
 
+    internal static IReadOnlyList<string> BuildCreateNetworkArguments(NetworkCreateSpec spec)
+    {
+        if (string.IsNullOrWhiteSpace(spec.Name)) throw new ArgumentException("Network name is required.", nameof(spec));
+
+        var arguments = new List<string> { "network", "create" };
+        AddOption(arguments, "--driver", spec.Driver);
+        foreach (var option in spec.DriverOptions.Where(value => !string.IsNullOrWhiteSpace(value)))
+        {
+            arguments.AddRange(["--opt", option.Trim()]);
+        }
+
+        foreach (var label in spec.Labels.Where(value => !string.IsNullOrWhiteSpace(value)))
+        {
+            arguments.AddRange(["--label", label.Trim()]);
+        }
+
+        arguments.Add(spec.Name.Trim());
+        return arguments;
+    }
+
+    internal static IReadOnlyList<string> BuildCreateVolumeArguments(VolumeCreateSpec spec)
+    {
+        var arguments = new List<string> { "volume", "create" };
+        AddOption(arguments, "--driver", spec.Driver);
+        foreach (var option in spec.DriverOptions.Where(value => !string.IsNullOrWhiteSpace(value)))
+        {
+            arguments.AddRange(["--opt", option.Trim()]);
+        }
+
+        foreach (var label in spec.Labels.Where(value => !string.IsNullOrWhiteSpace(value)))
+        {
+            arguments.AddRange(["--label", label.Trim()]);
+        }
+
+        if (!string.IsNullOrWhiteSpace(spec.Name)) arguments.Add(spec.Name.Trim());
+        return arguments;
+    }
+
+    internal static IReadOnlyList<string> BuildRemoveVolumeArguments(string name, bool force)
+    {
+        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Volume name is required.", nameof(name));
+        var arguments = new List<string> { "volume", "remove" };
+        if (force) arguments.Add("--force");
+        arguments.Add(name.Trim());
+        return arguments;
+    }
+
+    internal static IReadOnlyList<string> BuildPruneVolumeArguments(VolumePruneSpec spec)
+    {
+        var arguments = new List<string> { "volume", "prune" };
+        if (spec.All) arguments.Add("--all");
+        foreach (var filter in spec.Filters.Where(value => !string.IsNullOrWhiteSpace(value)))
+        {
+            arguments.AddRange(["--filter", filter.Trim()]);
+        }
+
+        return arguments;
+    }
+
+    internal static IReadOnlyList<string> BuildPruneArguments(string resource)
+    {
+        if (string.IsNullOrWhiteSpace(resource)) throw new ArgumentException("Resource is required.", nameof(resource));
+        return [resource.Trim(), "prune"];
+    }
+
     internal static IReadOnlyList<T> ParseArray<T>(OperationResult result, Func<JsonElement, T> selector)
     {
         if (!result.Success || string.IsNullOrWhiteSpace(result.Output)) return [];
         try
         {
-            using var document = JsonDocument.Parse(result.Output);
-            var root = document.RootElement;
-            var array = root.ValueKind == JsonValueKind.Array
-                ? root
-                : root.EnumerateObject().FirstOrDefault(property => property.Value.ValueKind == JsonValueKind.Array).Value;
-            if (array.ValueKind != JsonValueKind.Array) return [];
-            return array.EnumerateArray().Where(item => item.ValueKind == JsonValueKind.Object).Select(selector).ToArray();
+            return ParseArrayPayload(result.Output, selector) ?? [];
         }
         catch (JsonException)
         {
             return [];
         }
+    }
+
+    internal static IReadOnlyList<T> ParseArrayOrThrow<T>(
+        OperationResult result,
+        Func<JsonElement, T> selector,
+        string operation)
+    {
+        if (!result.Success)
+        {
+            var detail = string.IsNullOrWhiteSpace(result.Error)
+                ? $"WSLC {operation} failed with exit code {result.ExitCode}."
+                : result.Error.Trim();
+            throw new InvalidOperationException(detail);
+        }
+
+        if (string.IsNullOrWhiteSpace(result.Output))
+        {
+            throw new InvalidOperationException($"WSLC {operation} returned no JSON output.");
+        }
+
+        try
+        {
+            return ParseArrayPayload(result.Output, selector)
+                ?? throw new InvalidOperationException($"WSLC {operation} returned an unsupported JSON payload.");
+        }
+        catch (JsonException exception)
+        {
+            throw new InvalidOperationException($"WSLC {operation} returned invalid JSON.", exception);
+        }
+    }
+
+    private static IReadOnlyList<T>? ParseArrayPayload<T>(string output, Func<JsonElement, T> selector)
+    {
+        using var document = JsonDocument.Parse(output);
+        var root = document.RootElement;
+        var array = root.ValueKind == JsonValueKind.Array
+            ? root
+            : root.ValueKind == JsonValueKind.Object
+                ? root.EnumerateObject().FirstOrDefault(property => property.Value.ValueKind == JsonValueKind.Array).Value
+                : default;
+        if (array.ValueKind != JsonValueKind.Array) return null;
+        return array.EnumerateArray().Where(item => item.ValueKind == JsonValueKind.Object).Select(selector).ToArray();
     }
 
     internal static string NormalizeContainerState(string state) => state switch
@@ -224,6 +320,40 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner) : IContai
         ContainerState.CodeDeleted => ContainerState.Deleted,
         _ => state
     };
+
+    internal static NetworkSummary ParseNetworkSummary(JsonElement element)
+    {
+        var subnet = element.ReadString("Subnet");
+        var gateway = element.ReadString("Gateway");
+
+        if (element.TryGetPropertyIgnoreCase("IPAM", out var ipam))
+        {
+            subnet = FirstNonEmpty(subnet, ipam.ReadString("Subnet"));
+            gateway = FirstNonEmpty(gateway, ipam.ReadString("Gateway"));
+
+            if (ipam.TryGetPropertyIgnoreCase("Config", out var config) && config.ValueKind == JsonValueKind.Array)
+            {
+                var firstConfiguration = config.EnumerateArray()
+                    .FirstOrDefault(item => item.ValueKind == JsonValueKind.Object);
+                subnet = FirstNonEmpty(subnet, firstConfiguration.ReadString("Subnet"));
+                gateway = FirstNonEmpty(gateway, firstConfiguration.ReadString("Gateway"));
+            }
+        }
+
+        return new NetworkSummary(
+            element.ReadString("Id", "ID", "NetworkId"),
+            element.ReadString("Name"),
+            element.ReadString("Driver"),
+            element.ReadString("Scope"),
+            subnet,
+            gateway);
+    }
+
+    internal static VolumeSummary ParseVolumeSummary(JsonElement element) => new(
+        element.ReadString("Name"),
+        element.ReadString("Driver"),
+        element.ReadString("Mountpoint", "MountPoint"),
+        element.ReadString("Size"));
 
     internal static ProcessStartInfo BuildInteractiveTerminalStartInfo(string containerId, string? executablePath = null)
     {
@@ -248,6 +378,9 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner) : IContai
     {
         if (!string.IsNullOrWhiteSpace(value)) arguments.AddRange([option, value]);
     }
+
+    private static string FirstNonEmpty(string current, string fallback) =>
+        string.IsNullOrWhiteSpace(current) ? fallback : current;
 
     private static string ResolveExecutablePath(string fileName)
     {

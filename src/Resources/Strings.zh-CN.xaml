@@ -4,7 +4,8 @@
     <sys:String x:Key="NavOverview">开始</sys:String>
     <sys:String x:Key="NavContainers">容器</sys:String>
     <sys:String x:Key="NavImages">镜像</sys:String>
-    <sys:String x:Key="NavResources">网络与卷</sys:String>
+    <sys:String x:Key="NavNetworks">网络</sys:String>
+    <sys:String x:Key="NavVolumes">卷</sys:String>
     <sys:String x:Key="NavTasks">任务</sys:String>
     <sys:String x:Key="NavSettings">设置</sys:String>
     <sys:String x:Key="PreviewNotice">WSL Container Preview · API 可能发生变化</sys:String>
@@ -121,13 +122,12 @@
     <sys:String x:Key="Tag">标记</sys:String>
     <sys:String x:Key="Push">推送</sys:String>
     <sys:String x:Key="Prune">清理未使用项</sys:String>
-    <sys:String x:Key="ResourceTitle">网络与卷</sys:String>
-    <sys:String x:Key="ResourcesSubtitle">配置容器连接方式与持久化存储</sys:String>
-    <sys:String x:Key="CreateResource">创建资源</sys:String>
-    <sys:String x:Key="CreateResourceHint">输入名称后创建默认 bridge 网络或 guest 卷</sys:String>
-    <sys:String x:Key="CreateNetwork">创建网络</sys:String><sys:String x:Key="CreateVolume">创建卷</sys:String>
-    <sys:String x:Key="NetworksHint">容器之间的隔离连接与端口通信</sys:String>
-    <sys:String x:Key="VolumesHint">跨容器生命周期保存应用数据</sys:String>
+    <sys:String x:Key="NetworksTitle">网络</sys:String>
+    <sys:String x:Key="NetworksSubtitle">管理容器之间的隔离连接</sys:String>
+    <sys:String x:Key="VolumesTitle">卷</sys:String>
+    <sys:String x:Key="VolumesSubtitle">管理容器的持久化存储</sys:String>
+    <sys:String x:Key="CreateNetwork">创建网络</sys:String><sys:String x:Key="CreateNetworkHint">配置驱动、驱动选项和元数据标签</sys:String>
+    <sys:String x:Key="CreateVolume">创建卷</sys:String><sys:String x:Key="CreateVolumeHint">配置驱动、驱动选项和元数据标签</sys:String>
     <sys:String x:Key="Create">创建</sys:String>
     <sys:String x:Key="TasksTitle">后台任务</sys:String>
     <sys:String x:Key="TasksSubtitle">跟踪镜像传输、构建、导出和其他长任务</sys:String>
@@ -198,4 +198,37 @@
     <sys:String x:Key="VolumeName">卷名称</sys:String>
     <sys:String x:Key="NetworkInspectOutput">网络 Inspect 输出</sys:String>
     <sys:String x:Key="VolumeInspectOutput">卷 Inspect 输出</sys:String>
+    <sys:String x:Key="Subnet">子网</sys:String>
+    <sys:String x:Key="Scope">作用域</sys:String>
+    <sys:String x:Key="Driver">驱动</sys:String>
+    <sys:String x:Key="Size">大小</sys:String>
+    <sys:String x:Key="Mountpoint">挂载点</sys:String>
+    <sys:String x:Key="NoNetworks">未找到网络</sys:String>
+    <sys:String x:Key="NoVolumes">未找到卷</sys:String>
+    <sys:String x:Key="RemoveNetworkTitle">删除网络</sys:String>
+    <sys:String x:Key="RemoveNetworkConfirmation">确定删除网络 {0}？</sys:String>
+    <sys:String x:Key="RemoveVolumeTitle">删除卷</sys:String>
+    <sys:String x:Key="RemoveVolumeConfirmation">确定删除卷 {0}？</sys:String>
+    <sys:String x:Key="PruneNetworksTitle">清理网络</sys:String>
+    <sys:String x:Key="PruneNetworksConfirmation">删除所有未使用的网络？</sys:String>
+    <sys:String x:Key="PruneVolumesTitle">清理卷</sys:String>
+    <sys:String x:Key="PruneVolumesConfirmation">删除所有未使用的卷？</sys:String>
+    <sys:String x:Key="NetworkDriver">网络驱动</sys:String>
+    <sys:String x:Key="DriverOptions">驱动选项</sys:String>
+    <sys:String x:Key="DriverOptionsHint">每行输入一个 --opt key=value</sys:String>
+    <sys:String x:Key="Labels">标签</sys:String>
+    <sys:String x:Key="NetworkLabelsHint">每行输入一个 --label key=value</sys:String>
+    <sys:String x:Key="Confirm">确认</sys:String>
+    <sys:String x:Key="OperationFailed">WSLC 操作失败</sys:String>
+    <sys:String x:Key="RuntimeRefreshFailed">刷新运行时状态失败</sys:String>
+    <sys:String x:Key="NetworkNameRequired">网络名称（必填）</sys:String>
+    <sys:String x:Key="VolumeNameOptional">卷名称（可选）</sys:String>
+    <sys:String x:Key="VolumeDriver">卷驱动</sys:String>
+    <sys:String x:Key="VolumeOptionsHint">每行输入一个 --opt key=value</sys:String>
+    <sys:String x:Key="VolumeLabelsHint">每行输入一个 --label key=value</sys:String>
+    <sys:String x:Key="VolumeCleanupOptions">删除与清理选项</sys:String>
+    <sys:String x:Key="ForceVolumeRemoval">卷已不存在时忽略错误（--force）</sys:String>
+    <sys:String x:Key="PruneAllVolumes">包括未使用的命名卷（--all）</sys:String>
+    <sys:String x:Key="VolumePruneFilters">清理筛选条件</sys:String>
+    <sys:String x:Key="VolumePruneFiltersHint">每行输入一个 --filter 表达式</sys:String>
 </ResourceDictionary>

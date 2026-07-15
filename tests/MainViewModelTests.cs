@@ -48,6 +48,8 @@ public class MainViewModelTests
 
         Assert.Equal("web", viewModel.Containers.SearchText);
         Assert.Equal("alpine", viewModel.ImagesPage.ImageSearchText);
+        Assert.Same(viewModel.Workspace.Networks, viewModel.NetworksPage.Networks);
+        Assert.Same(viewModel.Workspace.Volumes, viewModel.VolumesPage.Volumes);
         Assert.Same(viewModel.Workspace.Tasks, viewModel.TasksPage.Tasks);
         Assert.Contains(nameof(ContainersViewModel.SearchText), changes);
         viewModel.Dispose();

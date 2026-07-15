@@ -5,6 +5,9 @@ namespace ExWSLC.Services;
 
 public static class LocalizationService
 {
+    public static string GetString(string key, string fallback) =>
+        Application.Current?.TryFindResource(key) as string ?? fallback;
+
     public static void ApplyLanguage(string language)
     {
         var dictionaries = Application.Current.Resources.MergedDictionaries;

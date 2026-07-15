@@ -21,7 +21,7 @@ public partial class OverviewPage : Page
 
     private void OpenContainers_Click(object sender, RoutedEventArgs e) => ((MainWindow)App.Current.MainWindow).Navigate(typeof(ContainersPage));
     private void OpenImages_Click(object sender, RoutedEventArgs e) => ((MainWindow)App.Current.MainWindow).Navigate(typeof(ImagesPage));
-    private void OpenResources_Click(object sender, RoutedEventArgs e) => ((MainWindow)App.Current.MainWindow).Navigate(typeof(ResourcesPage));
+    private void OpenResources_Click(object sender, RoutedEventArgs e) => ((MainWindow)App.Current.MainWindow).Navigate(typeof(NetworksPage));
     private void OpenTasks_Click(object sender, RoutedEventArgs e) => ((MainWindow)App.Current.MainWindow).Navigate(typeof(TasksPage));
 
     private void ConfigureContainer_Click(object sender, RoutedEventArgs e)

@@ -57,8 +57,8 @@ internal static class DesignWorkspaceFactory
 
     private static readonly NetworkSummary[] SampleNetworks =
     [
-        new("net-bridge", "bridge", "nat", "local"),
-        new("net-dev", "dev-network", "bridge", "local")
+        new("net-bridge", "bridge", "bridge", "local", "172.18.0.0/16", "172.18.0.1"),
+        new("net-dev", "dev-network", "bridge", "local", "172.19.0.0/16", "172.19.0.1")
     ];
 
     private static readonly VolumeSummary[] SampleVolumes =

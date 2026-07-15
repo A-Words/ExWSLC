@@ -45,6 +45,7 @@ public partial class RuntimeWorkspace : ObservableObject, IDisposable
 
     [ObservableProperty] public partial bool IsBusy { get; set; }
     [ObservableProperty] public partial string StatusMessage { get; set; } = "Initializing...";
+    [ObservableProperty] public partial string RefreshError { get; set; } = string.Empty;
     [ObservableProperty] public partial string DetailOutput { get; set; } = string.Empty;
     [ObservableProperty] public partial RuntimeCapabilities Capabilities { get; set; } = RuntimeCapabilities.Unavailable("Not checked");
     [ObservableProperty] public partial RuntimeTaskItem? ActiveTask { get; set; }
@@ -89,6 +90,7 @@ public partial class RuntimeWorkspace : ObservableObject, IDisposable
     {
         if (IsBusy) return;
         IsBusy = true;
+        RefreshError = string.Empty;
         StatusMessage = "Refreshing WSLC state...";
         try
         {
@@ -110,6 +112,7 @@ public partial class RuntimeWorkspace : ObservableObject, IDisposable
         }
         catch (Exception exception)
         {
+            RefreshError = exception.Message;
             StatusMessage = exception.Message;
         }
         finally
@@ -117,6 +120,10 @@ public partial class RuntimeWorkspace : ObservableObject, IDisposable
             IsBusy = false;
         }
     }
+
+    public bool HasRefreshError => !string.IsNullOrWhiteSpace(RefreshError);
+
+    partial void OnRefreshErrorChanged(string value) => OnPropertyChanged(nameof(HasRefreshError));
 
     public async Task<OperationResult> RunTrackedAsync(
         string title,
