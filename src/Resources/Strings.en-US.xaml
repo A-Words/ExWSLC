@@ -114,7 +114,6 @@
     <sys:String x:Key="NetworkName">Network name</sys:String>
     <sys:String x:Key="VolumeName">Volume name</sys:String>
     <sys:String x:Key="NetworkInspectOutput">Network inspect output</sys:String>
-    <sys:String x:Key="VolumeInspectOutput">Volume inspect output</sys:String>
     <sys:String x:Key="Subnet">Subnet</sys:String>
     <sys:String x:Key="Scope">Scope</sys:String>
     <sys:String x:Key="Driver">Driver</sys:String>
@@ -143,9 +142,4 @@
     <sys:String x:Key="VolumeDriver">Volume driver</sys:String>
     <sys:String x:Key="VolumeOptionsHint">Enter one --opt key=value per line</sys:String>
     <sys:String x:Key="VolumeLabelsHint">Enter one --label key=value per line</sys:String>
-    <sys:String x:Key="VolumeCleanupOptions">Delete and prune options</sys:String>
-    <sys:String x:Key="ForceVolumeRemoval">Ignore an error if the volume no longer exists (--force)</sys:String>
-    <sys:String x:Key="PruneAllVolumes">Include unused named volumes (--all)</sys:String>
-    <sys:String x:Key="VolumePruneFilters">Prune filters</sys:String>
-    <sys:String x:Key="VolumePruneFiltersHint">Enter one --filter expression per line</sys:String>
 </ResourceDictionary>

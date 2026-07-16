@@ -44,10 +44,13 @@ public class ResourcePagesXamlTests
         Assert.Contains("VolumeDriver", volumesPage);
         Assert.Contains("VolumeOptions", volumesPage);
         Assert.Contains("VolumeLabels", volumesPage);
-        Assert.Contains("ForceVolumeRemoval", volumesPage);
-        Assert.Contains("PruneAllVolumes", volumesPage);
-        Assert.Contains("VolumePruneFilters", volumesPage);
         Assert.Contains("RemoveVolumeCommand", volumesPage);
+        Assert.DoesNotContain("InspectVolumeCommand", volumesPage);
+        Assert.DoesNotContain("InspectOutput", volumesPage);
+        Assert.DoesNotContain("OperationOutput", volumesPage);
+        Assert.DoesNotContain("VolumeCleanupOptions", volumesPage);
+        Assert.True(volumesPage.IndexOf("DynamicResource Refresh", StringComparison.Ordinal) <
+                    volumesPage.IndexOf("DynamicResource Prune", StringComparison.Ordinal));
     }
 
     private static string GetSourceDirectory() => Path.GetFullPath(Path.Combine(

@@ -8,28 +8,22 @@ namespace ExWSLC.Tests;
 public class NetworksAndVolumesViewModelTests
 {
     [Fact]
-    public async Task InspectOutputsAndCreateNamesRemainIndependentAcrossPages()
+    public async Task NetworkInspectOutput_DoesNotChangeVolumeCreateName()
     {
         var runtime = CreateRuntime();
         runtime.Setup(value => value.InspectResourceAsync("network", "frontend", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new OperationResult(true, 0, "{\"Name\":\"frontend\"}", string.Empty, "wslc network inspect"));
-        runtime.Setup(value => value.InspectResourceAsync("volume", "app-data", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new OperationResult(true, 0, "{\"Name\":\"app-data\"}", string.Empty, "wslc volume inspect"));
         using var workspace = CreateWorkspace(runtime.Object);
         var network = new NetworkSummary("network-id", "frontend", "bridge", "local", "172.20.0.0/16", "172.20.0.1");
-        var volume = new VolumeSummary("app-data", "guest", "/var/lib/data", "4096");
         var networksViewModel = new NetworksViewModel(workspace) { NetworkName = "new-network", OperationOutput = "network operation" };
-        var volumesViewModel = new VolumesViewModel(workspace) { VolumeName = "new-volume", OperationOutput = "volume operation" };
+        var volumesViewModel = new VolumesViewModel(workspace) { VolumeName = "new-volume" };
 
         await networksViewModel.InspectNetworkCommand.ExecuteAsync(network);
-        await volumesViewModel.InspectVolumeCommand.ExecuteAsync(volume);
 
         Assert.Equal("new-network", networksViewModel.NetworkName);
         Assert.Equal("new-volume", volumesViewModel.VolumeName);
         Assert.Equal("network operation", networksViewModel.OperationOutput);
-        Assert.Equal("volume operation", volumesViewModel.OperationOutput);
         Assert.Contains("\"Name\": \"frontend\"", networksViewModel.InspectOutput);
-        Assert.Contains("\"Name\": \"app-data\"", volumesViewModel.InspectOutput);
     }
 
     [Fact]
@@ -74,7 +68,6 @@ public class NetworksAndVolumesViewModelTests
                 spec.Labels.SequenceEqual(new[] { "environment=development", "owner=platform team" })),
             It.IsAny<CancellationToken>()), Times.Once);
         Assert.Contains("created network", networksViewModel.OperationOutput);
-        Assert.Contains("created volume", volumesViewModel.OperationOutput);
         Assert.Empty(networksViewModel.NetworkName);
         Assert.Empty(volumesViewModel.VolumeName);
     }
@@ -128,29 +121,24 @@ public class NetworksAndVolumesViewModelTests
     }
 
     [Fact]
-    public async Task VolumeDeleteAndPruneOptions_ArePassedToTheRuntime()
+    public async Task VolumeDeleteAndPrune_UseDefaultRuntimeOptions()
     {
         var runtime = CreateRuntime();
-        runtime.Setup(value => value.RemoveVolumeAsync("app-data", true, It.IsAny<CancellationToken>()))
+        runtime.Setup(value => value.RemoveVolumeAsync("app-data", false, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new OperationResult(true, 0, "removed", string.Empty, "wslc volume remove"));
         runtime.Setup(value => value.PruneVolumesAsync(It.IsAny<VolumePruneSpec>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new OperationResult(true, 0, "pruned", string.Empty, "wslc volume prune"));
         using var workspace = CreateWorkspace(runtime.Object);
         var volume = new VolumeSummary("app-data", "guest", "/var/lib/data", "4096");
-        var viewModel = new VolumesViewModel(workspace)
-        {
-            ForceVolumeRemoval = true,
-            PruneAllVolumes = true,
-            VolumePruneFilters = "label=environment=development\nlabel!=keep"
-        };
+        var viewModel = new VolumesViewModel(workspace);
 
         await viewModel.RemoveVolumeCommand.ExecuteAsync(volume);
         await viewModel.PruneVolumesCommand.ExecuteAsync(null);
 
-        runtime.Verify(value => value.RemoveVolumeAsync("app-data", true, It.IsAny<CancellationToken>()), Times.Once);
+        runtime.Verify(value => value.RemoveVolumeAsync("app-data", false, It.IsAny<CancellationToken>()), Times.Once);
         runtime.Verify(value => value.PruneVolumesAsync(
             It.Is<VolumePruneSpec>(spec =>
-                spec.All && spec.Filters.SequenceEqual(new[] { "label=environment=development", "label!=keep" })),
+                !spec.All && spec.Filters.Count == 0),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 

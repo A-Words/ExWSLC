@@ -197,7 +197,6 @@
     <sys:String x:Key="NetworkName">网络名称</sys:String>
     <sys:String x:Key="VolumeName">卷名称</sys:String>
     <sys:String x:Key="NetworkInspectOutput">网络 Inspect 输出</sys:String>
-    <sys:String x:Key="VolumeInspectOutput">卷 Inspect 输出</sys:String>
     <sys:String x:Key="Subnet">子网</sys:String>
     <sys:String x:Key="Scope">作用域</sys:String>
     <sys:String x:Key="Driver">驱动</sys:String>
@@ -226,9 +225,4 @@
     <sys:String x:Key="VolumeDriver">卷驱动</sys:String>
     <sys:String x:Key="VolumeOptionsHint">每行输入一个 --opt key=value</sys:String>
     <sys:String x:Key="VolumeLabelsHint">每行输入一个 --label key=value</sys:String>
-    <sys:String x:Key="VolumeCleanupOptions">删除与清理选项</sys:String>
-    <sys:String x:Key="ForceVolumeRemoval">卷已不存在时忽略错误（--force）</sys:String>
-    <sys:String x:Key="PruneAllVolumes">包括未使用的命名卷（--all）</sys:String>
-    <sys:String x:Key="VolumePruneFilters">清理筛选条件</sys:String>
-    <sys:String x:Key="VolumePruneFiltersHint">每行输入一个 --filter 表达式</sys:String>
 </ResourceDictionary>

@@ -21,15 +21,15 @@
                     <TextBlock Text="{DynamicResource VolumesSubtitle}" Style="{StaticResource PageSubtitleStyle}" />
                 </StackPanel>
                 <WrapPanel Grid.Column="1" VerticalAlignment="Top">
-                    <ui:Button Content="{DynamicResource Prune}"
-                               Icon="{ui:SymbolIcon Symbol=Delete24}"
-                               Appearance="Secondary"
-                               Command="{Binding PruneVolumesCommand}"
-                               Margin="0,0,8,0" />
                     <ui:Button Content="{DynamicResource Refresh}"
                                Icon="{ui:SymbolIcon Symbol=ArrowSync24}"
                                Appearance="Secondary"
-                               Command="{Binding RefreshAllCommand}" />
+                               Command="{Binding RefreshAllCommand}"
+                               Margin="0,0,8,0" />
+                    <ui:Button Content="{DynamicResource Prune}"
+                               Icon="{ui:SymbolIcon Symbol=Delete24}"
+                               Appearance="Secondary"
+                               Command="{Binding PruneVolumesCommand}" />
                 </WrapPanel>
             </Grid>
 
@@ -112,31 +112,6 @@
                 </StackPanel>
             </Border>
 
-            <Border Style="{StaticResource CompactCardStyle}" Margin="0,0,0,14">
-                <Expander Header="{DynamicResource VolumeCleanupOptions}">
-                    <StackPanel Margin="0,10,0,0">
-                        <CheckBox Content="{DynamicResource ForceVolumeRemoval}"
-                                  IsChecked="{Binding ForceVolumeRemoval}" />
-                        <CheckBox Content="{DynamicResource PruneAllVolumes}"
-                                  IsChecked="{Binding PruneAllVolumes}"
-                                  Margin="0,8,0,0" />
-                        <TextBlock x:Name="VolumePruneFiltersLabel"
-                                   Text="{DynamicResource VolumePruneFilters}"
-                                   Margin="0,12,0,0" />
-                        <TextBlock Text="{DynamicResource VolumePruneFiltersHint}"
-                                   Style="{StaticResource MutedTextStyle}"
-                                   Margin="0,2,0,5" />
-                        <ui:TextBox Text="{Binding VolumePruneFilters}"
-                                    AcceptsReturn="True"
-                                    Height="62"
-                                    PlaceholderText="label=environment=development"
-                                    AutomationProperties.LabeledBy="{Binding ElementName=VolumePruneFiltersLabel}"
-                                    AutomationProperties.HelpText="{DynamicResource VolumePruneFiltersHint}"
-                                    VerticalScrollBarVisibility="Auto" />
-                    </StackPanel>
-                </Expander>
-            </Border>
-
             <Border Style="{StaticResource LayerCardStyle}" Margin="0" Padding="0">
                 <Grid MinHeight="260">
                     <DataGrid ItemsSource="{Binding Volumes}"
@@ -183,11 +158,6 @@
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal" Margin="4">
-                                            <ui:Button Content="{DynamicResource Inspect}"
-                                                       Appearance="Secondary"
-                                                       Command="{Binding DataContext.InspectVolumeCommand, RelativeSource={RelativeSource AncestorType=Page}}"
-                                                       CommandParameter="{Binding}"
-                                                       Margin="0,0,6,0" />
                                             <ui:Button Content="{DynamicResource Remove}"
                                                        Appearance="Danger"
                                                        Command="{Binding DataContext.RemoveVolumeCommand, RelativeSource={RelativeSource AncestorType=Page}}"
@@ -215,28 +185,6 @@
                 </Grid>
             </Border>
 
-            <StackPanel Visibility="{Binding HasInspectOutput, Converter={StaticResource BoolToVisibility}}">
-                <TextBlock Text="{DynamicResource VolumeInspectOutput}" Style="{StaticResource SectionTitleStyle}" Margin="0,20,0,10" />
-                <ui:TextBox Text="{Binding InspectOutput, Mode=OneWay}"
-                            IsReadOnly="True"
-                            AcceptsReturn="True"
-                            FontFamily="Consolas"
-                            MinHeight="120"
-                            AutomationProperties.Name="{DynamicResource VolumeInspectOutput}"
-                            VerticalScrollBarVisibility="Auto"
-                            HorizontalScrollBarVisibility="Auto" />
-            </StackPanel>
-            <StackPanel Visibility="{Binding HasOperationOutput, Converter={StaticResource BoolToVisibility}}">
-                <TextBlock Text="{DynamicResource OperationOutput}" Style="{StaticResource SectionTitleStyle}" Margin="0,16,0,10" />
-                <ui:TextBox Text="{Binding OperationOutput, Mode=OneWay}"
-                            IsReadOnly="True"
-                            AcceptsReturn="True"
-                            FontFamily="Consolas"
-                            MinHeight="120"
-                            AutomationProperties.Name="{DynamicResource OperationOutput}"
-                            VerticalScrollBarVisibility="Auto"
-                            HorizontalScrollBarVisibility="Auto" />
-            </StackPanel>
         </StackPanel>
     </ScrollViewer>
 </Page>

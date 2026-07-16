@@ -20,14 +20,6 @@ public partial class VolumesViewModel : WorkspaceViewModel
     [ObservableProperty] public partial string VolumeDriver { get; set; } = "guest";
     [ObservableProperty] public partial string VolumeOptions { get; set; } = string.Empty;
     [ObservableProperty] public partial string VolumeLabels { get; set; } = string.Empty;
-    [ObservableProperty] public partial bool ForceVolumeRemoval { get; set; }
-    [ObservableProperty] public partial bool PruneAllVolumes { get; set; }
-    [ObservableProperty] public partial string VolumePruneFilters { get; set; } = string.Empty;
-    [ObservableProperty] public partial string OperationOutput { get; set; } = string.Empty;
-    [ObservableProperty] public partial string InspectOutput { get; set; } = string.Empty;
-
-    public bool HasOperationOutput => !string.IsNullOrWhiteSpace(OperationOutput);
-    public bool HasInspectOutput => !string.IsNullOrWhiteSpace(InspectOutput);
 
     [RelayCommand]
     private async Task CreateVolumeAsync()
@@ -41,7 +33,7 @@ public partial class VolumesViewModel : WorkspaceViewModel
         spec.Labels.AddRange(StringSplitter.SplitLines(VolumeLabels));
 
         var result = await Workspace.Runtime.CreateVolumeAsync(spec, Workspace.Lifetime.Token);
-        await ShowOperationResultAsync(result);
+        await ShowOperationErrorAsync(result);
         if (!result.Success) return;
 
         VolumeName = string.Empty;
@@ -58,23 +50,9 @@ public partial class VolumesViewModel : WorkspaceViewModel
         var template = LocalizationService.GetString("RemoveVolumeConfirmation", "Remove volume {0}?");
         if (!await Workspace.Interaction.ConfirmAsync(title, string.Format(template, volume.Name))) return;
 
-        var result = await Workspace.Runtime.RemoveVolumeAsync(volume.Name, ForceVolumeRemoval, Workspace.Lifetime.Token);
-        await ShowOperationResultAsync(result);
+        var result = await Workspace.Runtime.RemoveVolumeAsync(volume.Name, false, Workspace.Lifetime.Token);
+        await ShowOperationErrorAsync(result);
         if (result.Success) await Workspace.RefreshAllAsync();
-    }
-
-    [RelayCommand]
-    private async Task InspectVolumeAsync(VolumeSummary? volume)
-    {
-        volume ??= SelectedVolume;
-        if (volume is null) return;
-
-        var result = await Workspace.Runtime.InspectResourceAsync("volume", volume.Name, Workspace.Lifetime.Token);
-        InspectOutput = result.Success ? JsonOutputFormatter.Format(result.Output) : result.CombinedOutput;
-        if (!result.Success && !string.IsNullOrWhiteSpace(result.Error))
-        {
-            await Workspace.Interaction.ShowErrorAsync(OperationFailedTitle, result.Error);
-        }
     }
 
     [RelayCommand]
@@ -84,16 +62,13 @@ public partial class VolumesViewModel : WorkspaceViewModel
         var message = LocalizationService.GetString("PruneVolumesConfirmation", "Remove every unused volume?");
         if (!await Workspace.Interaction.ConfirmAsync(title, message)) return;
 
-        var spec = new VolumePruneSpec { All = PruneAllVolumes };
-        spec.Filters.AddRange(StringSplitter.SplitLines(VolumePruneFilters));
-        var result = await Workspace.Runtime.PruneVolumesAsync(spec, Workspace.Lifetime.Token);
-        await ShowOperationResultAsync(result);
+        var result = await Workspace.Runtime.PruneVolumesAsync(new VolumePruneSpec(), Workspace.Lifetime.Token);
+        await ShowOperationErrorAsync(result);
         if (result.Success) await Workspace.RefreshAllAsync();
     }
 
-    private async Task ShowOperationResultAsync(OperationResult result)
+    private async Task ShowOperationErrorAsync(OperationResult result)
     {
-        OperationOutput = result.CombinedOutput;
         if (!result.Success && !string.IsNullOrWhiteSpace(result.Error))
         {
             await Workspace.Interaction.ShowErrorAsync(OperationFailedTitle, result.Error);
@@ -102,7 +77,4 @@ public partial class VolumesViewModel : WorkspaceViewModel
 
     private static string OperationFailedTitle =>
         LocalizationService.GetString("OperationFailed", "WSLC operation failed");
-
-    partial void OnOperationOutputChanged(string value) => OnPropertyChanged(nameof(HasOperationOutput));
-    partial void OnInspectOutputChanged(string value) => OnPropertyChanged(nameof(HasInspectOutput));
 }
