@@ -49,12 +49,55 @@ public class ImagesViewModelTests
             SelectedImage = new ImageSummary("sha256:abc", "nginx", "latest", "1024", "0"),
             OperationOutput = "pull completed"
         };
+        Assert.False(viewModel.HasImageInspectOutput);
 
         await viewModel.InspectImageCommand.ExecuteAsync(null);
 
         Assert.Equal("pull completed", viewModel.OperationOutput);
+        Assert.True(viewModel.HasImageInspectOutput);
         Assert.Contains(Environment.NewLine, viewModel.ImageInspectOutput);
         Assert.Contains("\"Id\": \"sha256:abc\"", viewModel.ImageInspectOutput);
+
+        viewModel.SelectedImage = new ImageSummary("sha256:def", "alpine", "latest", "512", "0");
+        Assert.False(viewModel.HasImageInspectOutput);
+    }
+
+    [Fact]
+    public async Task Refresh_PreservesSelectedImageByIdentity()
+    {
+        var original = new ImageSummary("sha256:abc", "nginx", "latest", "1024", "0");
+        var refreshed = new ImageSummary("sha256:abc", "nginx", "latest", "2048", "1");
+        var runtime = CreateRefreshRuntime([refreshed]);
+        using var workspace = CreateWorkspace(runtime.Object);
+        workspace.Images.Add(original);
+        var viewModel = new ImagesViewModel(workspace) { ImageSearchText = "nginx", SelectedImage = original };
+
+        await workspace.RefreshAllAsync();
+
+        Assert.Same(refreshed, viewModel.SelectedImage);
+        Assert.Equal("2048", viewModel.SelectedImage.Size);
+    }
+
+    [Fact]
+    public async Task PushImage_UsesSelectedImageInsteadOfPullReference()
+    {
+        var runtime = new Mock<IContainerRuntime>();
+        runtime.Setup(value => value.PushImageAsync(
+                "nginx:latest",
+                It.IsAny<IProgress<string>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new OperationResult(true, 0, "pushed", string.Empty, "wslc image push"));
+        using var workspace = CreateWorkspace(runtime.Object);
+        var viewModel = new ImagesViewModel(workspace)
+        {
+            SelectedImage = new ImageSummary("sha256:abc", "nginx", "latest", "1024", "0"),
+            ImageReference = "ubuntu:latest"
+        };
+
+        await viewModel.PushImageCommand.ExecuteAsync(null);
+
+        runtime.VerifyAll();
+        Assert.Equal("pushed", viewModel.OperationOutput);
     }
 
     private static RuntimeWorkspace CreateWorkspace(IContainerRuntime runtime)
@@ -65,6 +108,17 @@ public class ImagesViewModelTests
         var interaction = new Mock<IUserInteractionService>();
         interaction.Setup(value => value.ShowErrorAsync(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.CompletedTask);
         return new RuntimeWorkspace(runtime, capabilities.Object, settings.Object, new ImmediateTaskService(), interaction.Object);
+    }
+
+    private static Mock<IContainerRuntime> CreateRefreshRuntime(IReadOnlyList<ImageSummary> images)
+    {
+        var runtime = new Mock<IContainerRuntime>();
+        runtime.Setup(value => value.GetContainersAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        runtime.Setup(value => value.GetImagesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(images);
+        runtime.Setup(value => value.GetNetworksAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        runtime.Setup(value => value.GetVolumesAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        runtime.Setup(value => value.GetStatsAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        return runtime;
     }
 
     private sealed class ImmediateTaskService : ITaskService

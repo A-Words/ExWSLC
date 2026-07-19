@@ -47,11 +47,11 @@
     <sys:String x:Key="Logs">Logs</sys:String><sys:String x:Key="FollowLogs">Follow logs</sys:String><sys:String x:Key="StopFollowing">Stop following</sys:String><sys:String x:Key="CopyLogs">Copy logs</sys:String><sys:String x:Key="ClearLogs">Clear</sys:String><sys:String x:Key="Inspect">Inspect</sys:String><sys:String x:Key="Exec">Exec</sys:String>
     <sys:String x:Key="Terminal">Interactive terminal</sys:String><sys:String x:Key="Output">Output &amp; diagnostics</sys:String>
     <sys:String x:Key="ImagesTitle">Images</sys:String><sys:String x:Key="Pull">Pull</sys:String><sys:String x:Key="Build">Build</sys:String>
-    <sys:String x:Key="ImagesSubtitle">Manage local images, builds, and container registries</sys:String><sys:String x:Key="SearchImages">Search image name, tag, or ID</sys:String>
+    <sys:String x:Key="ImagesSubtitle">Manage local images, builds, and container registries</sys:String><sys:String x:Key="GeneralImageOperations">Get and create images</sys:String><sys:String x:Key="SelectedImageActions">Selected image</sys:String><sys:String x:Key="SearchImages">Search image name, tag, or ID</sys:String>
     <sys:String x:Key="PullHint">Download an image from a container registry</sys:String><sys:String x:Key="BuildHint">Build an image from a Dockerfile and context</sys:String>
-    <sys:String x:Key="ImageFiles">Image files</sys:String><sys:String x:Key="ImageFilesHint">Import a rootfs, load an archive, or save the selected image</sys:String><sys:String x:Key="TagHint">Apply a tag or push the selected image to a registry</sys:String>
+    <sys:String x:Key="ImageFiles">Image files</sys:String><sys:String x:Key="ImageFilesHint">Import a rootfs or load an image archive</sys:String><sys:String x:Key="TagHint">Apply a new tag to the selected image</sys:String>
     <sys:String x:Key="Import">Import</sys:String><sys:String x:Key="Load">Load</sys:String><sys:String x:Key="Save">Save</sys:String><sys:String x:Key="Tag">Tag</sys:String>
-    <sys:String x:Key="Push">Push</sys:String><sys:String x:Key="Prune">Prune unused</sys:String>
+    <sys:String x:Key="Push">Push</sys:String><sys:String x:Key="Prune">Prune unused</sys:String><sys:String x:Key="PruneDanglingImages">Prune dangling images</sys:String><sys:String x:Key="PruneDanglingImagesTitle">Prune dangling images</sys:String><sys:String x:Key="PruneDanglingImagesConfirmation">Remove every dangling image?</sys:String>
     <sys:String x:Key="Create">Create</sys:String>
     <sys:String x:Key="NetworksTitle">Networks</sys:String><sys:String x:Key="NetworksSubtitle">Manage isolated connectivity between containers</sys:String>
     <sys:String x:Key="VolumesTitle">Volumes</sys:String><sys:String x:Key="VolumesSubtitle">Manage persistent container storage</sys:String>

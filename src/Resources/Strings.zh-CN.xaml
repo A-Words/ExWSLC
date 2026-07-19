@@ -108,12 +108,14 @@
     <sys:String x:Key="Output">输出与诊断</sys:String>
     <sys:String x:Key="ImagesTitle">镜像</sys:String>
     <sys:String x:Key="ImagesSubtitle">管理本地镜像、构建产物与容器注册表</sys:String>
+    <sys:String x:Key="GeneralImageOperations">获取与创建镜像</sys:String>
+    <sys:String x:Key="SelectedImageActions">所选镜像</sys:String>
     <sys:String x:Key="SearchImages">搜索镜像名称、标签或 ID</sys:String>
     <sys:String x:Key="PullHint">从容器注册表下载镜像</sys:String>
     <sys:String x:Key="BuildHint">从 Dockerfile 和构建上下文生成镜像</sys:String>
     <sys:String x:Key="ImageFiles">镜像文件</sys:String>
-    <sys:String x:Key="ImageFilesHint">导入 rootfs、加载归档或保存所选镜像</sys:String>
-    <sys:String x:Key="TagHint">为所选镜像添加标签或推送到注册表</sys:String>
+    <sys:String x:Key="ImageFilesHint">导入 rootfs 或加载镜像归档</sys:String>
+    <sys:String x:Key="TagHint">为所选镜像添加新标签</sys:String>
     <sys:String x:Key="Pull">拉取</sys:String>
     <sys:String x:Key="Build">构建</sys:String>
     <sys:String x:Key="Import">导入</sys:String>
@@ -122,6 +124,9 @@
     <sys:String x:Key="Tag">标记</sys:String>
     <sys:String x:Key="Push">推送</sys:String>
     <sys:String x:Key="Prune">清理未使用项</sys:String>
+    <sys:String x:Key="PruneDanglingImages">清理悬空镜像</sys:String>
+    <sys:String x:Key="PruneDanglingImagesTitle">清理悬空镜像</sys:String>
+    <sys:String x:Key="PruneDanglingImagesConfirmation">删除所有悬空镜像？</sys:String>
     <sys:String x:Key="NetworksTitle">网络</sys:String>
     <sys:String x:Key="NetworksSubtitle">管理容器之间的隔离连接</sys:String>
     <sys:String x:Key="VolumesTitle">卷</sys:String>

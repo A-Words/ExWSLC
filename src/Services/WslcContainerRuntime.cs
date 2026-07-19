@@ -112,7 +112,7 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner) : IContai
         RunAsync(["image", "import", path, name], progress: progress, cancellationToken: cancellationToken);
 
     public Task<OperationResult> LoadImageAsync(string path, IProgress<string>? progress = null, CancellationToken cancellationToken = default) =>
-        RunAsync(["image", "load", path], progress: progress, cancellationToken: cancellationToken);
+        RunAsync(["image", "load", "--input", path], progress: progress, cancellationToken: cancellationToken);
 
     public Task<OperationResult> SaveImageAsync(string image, string path, IProgress<string>? progress = null, CancellationToken cancellationToken = default) =>
         RunAsync(["image", "save", image, "--output", path], progress: progress, cancellationToken: cancellationToken);

@@ -1,6 +1,7 @@
 using ExWSLC.Helpers;
 using ExWSLC.Models;
 using ExWSLC.Services;
+using Moq;
 using System.Text.Json;
 
 namespace ExWSLC.Tests;
@@ -34,6 +35,25 @@ public class WslcContainerRuntimeTests
     public void BuildRunArguments_RequiresImage()
     {
         Assert.Throws<ArgumentException>(() => WslcContainerRuntime.BuildRunArguments(new ContainerCreateSpec()));
+    }
+
+    [Fact]
+    public async Task LoadImage_UsesInputOptionForArchivePath()
+    {
+        var runner = new Mock<IProcessRunner>();
+        runner.Setup(value => value.ExecuteAsync(
+                "wslc.exe",
+                It.Is<IReadOnlyList<string>>(arguments => arguments.SequenceEqual(
+                    new[] { "image", "load", "--input", "C:\\images\\app.tar" })),
+                null,
+                It.IsAny<IProgress<string>?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new OperationResult(true, 0, string.Empty, string.Empty, "wslc image load"));
+        var runtime = new WslcContainerRuntime(runner.Object);
+
+        await runtime.LoadImageAsync("C:\\images\\app.tar", cancellationToken: TestContext.Current.CancellationToken);
+
+        runner.VerifyAll();
     }
 
     [Fact]
