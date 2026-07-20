@@ -23,6 +23,21 @@ public class MainViewModelTests
     }
 
     [Theory]
+    [InlineData(1, "web")]
+    [InlineData(2, "worker")]
+    public void ContainerFilterIndex_FiltersByRuntimeState(int filterIndex, string expectedName)
+    {
+        var viewModel = CreateViewModel();
+        viewModel.Workspace.Containers.Add(new ContainerSummary("abc", "web", "nginx", "running", "Up", "80", "now"));
+        viewModel.Workspace.Containers.Add(new ContainerSummary("def", "worker", "alpine", "stopped", "Exited", "", "now"));
+
+        viewModel.Containers.ContainerFilterIndex = filterIndex;
+
+        Assert.Equal(expectedName, Assert.Single(viewModel.Containers.VisibleContainerItems).Container.Name);
+        viewModel.Dispose();
+    }
+
+    [Theory]
     [InlineData("")]
     [InlineData("[]")]
     [InlineData("{}")]

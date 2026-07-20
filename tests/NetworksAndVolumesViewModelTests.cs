@@ -87,6 +87,25 @@ public class NetworksAndVolumesViewModelTests
     }
 
     [Fact]
+    public void SearchText_FiltersNetworkAndVolumeCollections()
+    {
+        var runtime = CreateRuntime();
+        using var workspace = CreateWorkspace(runtime.Object);
+        workspace.Networks.Add(new NetworkSummary("frontend-id", "frontend", "bridge", "local", string.Empty, string.Empty));
+        workspace.Networks.Add(new NetworkSummary("backend-id", "backend", "bridge", "local", string.Empty, string.Empty));
+        workspace.Volumes.Add(new VolumeSummary("frontend-data", "guest", "/data/frontend", "4096"));
+        workspace.Volumes.Add(new VolumeSummary("backend-data", "guest", "/data/backend", "4096"));
+        var networksViewModel = new NetworksViewModel(workspace);
+        var volumesViewModel = new VolumesViewModel(workspace);
+
+        networksViewModel.SearchText = "front";
+        volumesViewModel.SearchText = "front";
+
+        Assert.Equal("frontend", Assert.Single(networksViewModel.VisibleNetworks).Name);
+        Assert.Equal("frontend-data", Assert.Single(volumesViewModel.VisibleVolumes).Name);
+    }
+
+    [Fact]
     public async Task RefreshFailure_IsExposedWithoutReplacingExistingNetworks()
     {
         var runtime = CreateRuntime();
