@@ -11,11 +11,15 @@ public partial class VolumesViewModel : WorkspaceViewModel
 {
     public VolumesViewModel(RuntimeWorkspace workspace) : base(workspace)
     {
+        Workspace.Refreshed += (_, _) => ApplyFilter();
+        ApplyFilter();
     }
 
     public ObservableCollection<VolumeSummary> Volumes => Workspace.Volumes;
+    public ObservableCollection<VolumeSummary> VisibleVolumes { get; } = [];
 
     [ObservableProperty] public partial VolumeSummary? SelectedVolume { get; set; }
+    [ObservableProperty] public partial string SearchText { get; set; } = string.Empty;
     [ObservableProperty] public partial string VolumeName { get; set; } = string.Empty;
     [ObservableProperty] public partial string VolumeDriver { get; set; } = "guest";
     [ObservableProperty] public partial string VolumeOptions { get; set; } = string.Empty;
@@ -77,4 +81,15 @@ public partial class VolumesViewModel : WorkspaceViewModel
 
     private static string OperationFailedTitle =>
         LocalizationService.GetString("OperationFailed", "WSLC operation failed");
+
+    partial void OnSearchTextChanged(string value) => ApplyFilter();
+
+    private void ApplyFilter()
+    {
+        var query = SearchText.Trim();
+        VisibleVolumes.ReplaceAll(Volumes.Where(volume => string.IsNullOrEmpty(query) ||
+            volume.Name.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+            volume.DisplayDriver.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+            volume.DisplayMountpoint.Contains(query, StringComparison.OrdinalIgnoreCase)));
+    }
 }

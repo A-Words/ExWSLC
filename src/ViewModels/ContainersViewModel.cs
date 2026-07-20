@@ -48,6 +48,7 @@ public partial class ContainersViewModel : WorkspaceViewModel
     protected bool IsDesignMode { get; set; }
 
     [ObservableProperty] public partial string SearchText { get; set; } = string.Empty;
+    [ObservableProperty] public partial int ContainerFilterIndex { get; set; }
     [ObservableProperty] public partial bool IsCreatingContainer { get; set; }
     [ObservableProperty] public partial ContainerSummary? SelectedContainer { get; set; }
     [ObservableProperty] public partial string NewImage { get; set; } = DefaultImage;
@@ -373,6 +374,7 @@ public partial class ContainersViewModel : WorkspaceViewModel
     [RelayCommand] private void CancelCreateContainer() => IsCreatingContainer = false;
 
     partial void OnSearchTextChanged(string value) => ApplyContainerFilter();
+    partial void OnContainerFilterIndexChanged(int value) => ApplyContainerFilter();
 
     partial void OnSelectedContainerChanged(ContainerSummary? value)
     {
@@ -757,10 +759,14 @@ public partial class ContainersViewModel : WorkspaceViewModel
     private void ApplyContainerFilter()
     {
         var query = SearchText.Trim();
-        var visible = Workspace.Containers.Where(container => string.IsNullOrEmpty(query) ||
-            container.Name.Contains(query, StringComparison.OrdinalIgnoreCase) ||
-            container.Image.Contains(query, StringComparison.OrdinalIgnoreCase) ||
-            container.Id.Contains(query, StringComparison.OrdinalIgnoreCase)).ToArray();
+        var visible = Workspace.Containers.Where(container =>
+            (ContainerFilterIndex == 0 ||
+             ContainerFilterIndex == 1 && container.IsRunning ||
+             ContainerFilterIndex == 2 && !container.IsRunning) &&
+            (string.IsNullOrEmpty(query) ||
+             container.Name.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+             container.Image.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+             container.Id.Contains(query, StringComparison.OrdinalIgnoreCase))).ToArray();
 
         VisibleContainerItems.ReplaceAll(visible.Select(container => new ContainerListItem
         {

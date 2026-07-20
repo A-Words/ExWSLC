@@ -56,5 +56,9 @@
             </ui:NavigationView.FooterMenuItems>
         </ui:NavigationView>
 
+        <ui:ContentDialogHost x:Name="RootContentDialogHost"
+                              Grid.RowSpan="2"
+                              IsDisableSiblingsEnabled="True" />
+
     </Grid>
 </ui:FluentWindow>

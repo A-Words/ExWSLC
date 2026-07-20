@@ -12,176 +12,52 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="24,18,24,28">
             <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
+                <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                 <StackPanel>
-                    <TextBlock Text="{DynamicResource NetworksTitle}" Style="{StaticResource PageTitleStyle}" />
-                    <TextBlock Text="{DynamicResource NetworksSubtitle}" Style="{StaticResource PageSubtitleStyle}" />
+                    <TextBlock Text="{DynamicResource NetworksTitle}" Style="{StaticResource ResourcePageTitleStyle}" />
+                    <TextBlock Text="{DynamicResource NetworksSubtitle}" Style="{StaticResource ResourcePageSubtitleStyle}" />
                 </StackPanel>
-                <WrapPanel Grid.Column="1" VerticalAlignment="Top">
-                    <ui:Button Content="{DynamicResource Refresh}"
-                               Icon="{ui:SymbolIcon Symbol=ArrowSync24}"
-                               Appearance="Secondary"
-                               Command="{Binding RefreshAllCommand}"
-                               Margin="0,0,8,0" />
-                    <ui:Button Content="{DynamicResource Prune}"
-                               Icon="{ui:SymbolIcon Symbol=Delete24}"
-                               Appearance="Secondary"
-                               Command="{Binding PruneNetworksCommand}" />
-                </WrapPanel>
+                <ui:Button Grid.Column="1" Content="{DynamicResource CreateNetwork}" Icon="{ui:SymbolIcon Symbol=Add24}" Style="{StaticResource ResourcePrimaryButtonStyle}" Click="CreateNetworkButton_Click" VerticalAlignment="Top" />
             </Grid>
 
-            <ui:InfoBar IsOpen="{Binding HasRefreshError}"
-                        IsClosable="False"
-                        Severity="Error"
-                        Title="{DynamicResource RuntimeRefreshFailed}"
-                        Message="{Binding RefreshError}"
-                        Margin="0,0,0,14" />
-
-            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,14">
-                <StackPanel>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}"
-                                     Glyph="&#xE774;"
-                                     FontSize="23"
-                                     Margin="0,0,14,0" />
-                        <StackPanel Grid.Column="1">
-                            <TextBlock Text="{DynamicResource CreateNetwork}" FontSize="16" />
-                            <TextBlock Text="{DynamicResource CreateNetworkHint}" Style="{StaticResource MutedTextStyle}" />
-                        </StackPanel>
-                        <ui:Button Grid.Column="2"
-                                   Content="{DynamicResource Create}"
-                                   Appearance="Primary"
-                                   Command="{Binding CreateNetworkCommand}"
-                                   VerticalAlignment="Top" />
-                    </Grid>
-
-                    <Grid Margin="0,16,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
-                            <ColumnDefinition Width="14" />
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
-                        <StackPanel>
-                            <TextBlock x:Name="NetworkNameLabel" Text="{DynamicResource NetworkNameRequired}" />
-                            <ui:TextBox Text="{Binding NetworkName, UpdateSourceTrigger=PropertyChanged}"
-                                         PlaceholderText="{DynamicResource NetworkName}"
-                                         AutomationProperties.LabeledBy="{Binding ElementName=NetworkNameLabel}"
-                                         Margin="0,5,0,0" />
-                        </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock x:Name="NetworkDriverLabel" Text="{DynamicResource NetworkDriver}" />
-                            <ui:TextBox Text="{Binding NetworkDriver}"
-                                         PlaceholderText="bridge"
-                                         AutomationProperties.LabeledBy="{Binding ElementName=NetworkDriverLabel}"
-                                         Margin="0,5,0,0" />
-                        </StackPanel>
-                    </Grid>
-
-                    <Expander Header="{DynamicResource Advanced}" Margin="0,14,0,0">
-                        <Grid Margin="0,10,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition />
-                                <ColumnDefinition Width="14" />
-                                <ColumnDefinition />
-                            </Grid.ColumnDefinitions>
-                            <StackPanel>
-                                <TextBlock x:Name="DriverOptionsLabel" Text="{DynamicResource DriverOptions}" />
-                                <TextBlock Text="{DynamicResource DriverOptionsHint}" Style="{StaticResource MutedTextStyle}" Margin="0,2,0,5" />
-                                <ui:TextBox Text="{Binding NetworkOptions}"
-                                            AcceptsReturn="True"
-                                            Height="72"
-                                            PlaceholderText="key=value"
-                                            AutomationProperties.LabeledBy="{Binding ElementName=DriverOptionsLabel}"
-                                            AutomationProperties.HelpText="{DynamicResource DriverOptionsHint}"
-                                            VerticalScrollBarVisibility="Auto" />
-                            </StackPanel>
-                            <StackPanel Grid.Column="2">
-                                <TextBlock x:Name="NetworkLabelsLabel" Text="{DynamicResource Labels}" />
-                                <TextBlock Text="{DynamicResource NetworkLabelsHint}" Style="{StaticResource MutedTextStyle}" Margin="0,2,0,5" />
-                                <ui:TextBox Text="{Binding NetworkLabels}"
-                                            AcceptsReturn="True"
-                                            Height="72"
-                                            PlaceholderText="key=value"
-                                            AutomationProperties.LabeledBy="{Binding ElementName=NetworkLabelsLabel}"
-                                            AutomationProperties.HelpText="{DynamicResource NetworkLabelsHint}"
-                                            VerticalScrollBarVisibility="Auto" />
-                            </StackPanel>
-                        </Grid>
-                    </Expander>
-                </StackPanel>
+            <Border Style="{StaticResource ResourceToolbarStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                    <ui:TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="{DynamicResource SearchNetworks}" ClearButtonEnabled="True" MinHeight="34" AutomationProperties.Name="{DynamicResource SearchNetworks}" />
+                    <ui:Button Grid.Column="1" Icon="{ui:SymbolIcon Symbol=ArrowSync24}" Style="{StaticResource ResourceIconButtonStyle}" Command="{Binding RefreshAllCommand}" ToolTip="{DynamicResource Refresh}" AutomationProperties.Name="{DynamicResource Refresh}" Margin="8,0,0,0" />
+                    <ui:Button Grid.Column="2" Icon="{ui:SymbolIcon Symbol=MoreVertical24}" Style="{StaticResource ResourceIconButtonStyle}" ToolTip="{DynamicResource Actions}" AutomationProperties.Name="{DynamicResource Actions}" Margin="8,0,0,0" Tag="{Binding}" Click="OpenContextMenuButton_Click">
+                        <ui:Button.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="{DynamicResource Prune}" Command="{Binding PlacementTarget.Tag.PruneNetworksCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                            </ContextMenu>
+                        </ui:Button.ContextMenu>
+                    </ui:Button>
+                </Grid>
             </Border>
 
-            <Border Style="{StaticResource LayerCardStyle}" Margin="0" Padding="0">
-                <Grid MinHeight="260" MaxHeight="380">
-                    <DataGrid ItemsSource="{Binding Networks}"
-                              SelectedItem="{Binding SelectedNetwork}"
-                              AutoGenerateColumns="False"
-                              IsReadOnly="True"
-                              CanUserAddRows="False"
-                              HeadersVisibility="Column"
-                              GridLinesVisibility="Horizontal"
-                              BorderThickness="0">
+            <ui:InfoBar IsOpen="{Binding HasRefreshError}" IsClosable="False" Severity="Error" Title="{DynamicResource RuntimeRefreshFailed}" Message="{Binding RefreshError}" Margin="0,0,0,12" />
+
+            <Border Style="{StaticResource ResourceSurfaceStyle}">
+                <Grid MinHeight="300" MaxHeight="380">
+                    <DataGrid ItemsSource="{Binding VisibleNetworks}" SelectedItem="{Binding SelectedNetwork}" Style="{StaticResource ResourceDataGridStyle}">
                         <DataGrid.Columns>
                             <DataGridTemplateColumn Header="name" Width="1.25*">
-                                <DataGridTemplateColumn.HeaderTemplate>
-                                    <DataTemplate><TextBlock Text="{DynamicResource NetworkName}" /></DataTemplate>
-                                </DataGridTemplateColumn.HeaderTemplate>
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Margin="4,5">
-                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
-                                            <TextBlock Text="{Binding DisplayId}"
-                                                       Style="{StaticResource MutedTextStyle}"
-                                                       TextTrimming="CharacterEllipsis"
-                                                       ToolTip="{Binding DisplayId}" />
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.HeaderTemplate><DataTemplate><TextBlock Text="{DynamicResource NetworkName}" /></DataTemplate></DataGridTemplateColumn.HeaderTemplate>
+                                <DataGridTemplateColumn.CellTemplate><DataTemplate><StackPanel Margin="6,4"><TextBlock Text="{Binding Name}" FontWeight="SemiBold" /><TextBlock Text="{Binding DisplayId}" Style="{StaticResource MutedTextStyle}" TextTrimming="CharacterEllipsis" ToolTip="{Binding DisplayId}" /></StackPanel></DataTemplate></DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="mode" Binding="{Binding DisplayDriver}" Width=".7*">
-                                <DataGridTextColumn.HeaderTemplate>
-                                    <DataTemplate><TextBlock Text="{DynamicResource NetworkDriver}" /></DataTemplate>
-                                </DataGridTextColumn.HeaderTemplate>
-                            </DataGridTextColumn>
-                            <DataGridTextColumn Header="subnet" Binding="{Binding DisplaySubnet}" Width="1.05*">
-                                <DataGridTextColumn.HeaderTemplate>
-                                    <DataTemplate><TextBlock Text="{DynamicResource Subnet}" /></DataTemplate>
-                                </DataGridTextColumn.HeaderTemplate>
-                            </DataGridTextColumn>
-                            <DataGridTextColumn Header="gateway" Binding="{Binding DisplayGateway}" Width=".9*">
-                                <DataGridTextColumn.HeaderTemplate>
-                                    <DataTemplate><TextBlock Text="{DynamicResource Gateway}" /></DataTemplate>
-                                </DataGridTextColumn.HeaderTemplate>
-                            </DataGridTextColumn>
-                            <DataGridTextColumn Header="scope" Binding="{Binding DisplayScope}" Width=".65*">
-                                <DataGridTextColumn.HeaderTemplate>
-                                    <DataTemplate><TextBlock Text="{DynamicResource Scope}" /></DataTemplate>
-                                </DataGridTextColumn.HeaderTemplate>
-                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="mode" Binding="{Binding DisplayDriver}" Width=".7*"><DataGridTextColumn.HeaderTemplate><DataTemplate><TextBlock Text="{DynamicResource NetworkDriver}" /></DataTemplate></DataGridTextColumn.HeaderTemplate></DataGridTextColumn>
+                            <DataGridTextColumn Header="subnet" Binding="{Binding DisplaySubnet}" Width="1.05*"><DataGridTextColumn.HeaderTemplate><DataTemplate><TextBlock Text="{DynamicResource Subnet}" /></DataTemplate></DataGridTextColumn.HeaderTemplate></DataGridTextColumn>
+                            <DataGridTextColumn Header="gateway" Binding="{Binding DisplayGateway}" Width=".9*"><DataGridTextColumn.HeaderTemplate><DataTemplate><TextBlock Text="{DynamicResource Gateway}" /></DataTemplate></DataGridTextColumn.HeaderTemplate></DataGridTextColumn>
+                            <DataGridTextColumn Header="scope" Binding="{Binding DisplayScope}" Width=".65*"><DataGridTextColumn.HeaderTemplate><DataTemplate><TextBlock Text="{DynamicResource Scope}" /></DataTemplate></DataGridTextColumn.HeaderTemplate></DataGridTextColumn>
                             <DataGridTemplateColumn Header="actions" Width="Auto">
-                                <DataGridTemplateColumn.HeaderTemplate>
-                                    <DataTemplate><TextBlock Text="{DynamicResource Actions}" /></DataTemplate>
-                                </DataGridTemplateColumn.HeaderTemplate>
+                                <DataGridTemplateColumn.HeaderTemplate><DataTemplate><TextBlock Text="{DynamicResource Actions}" /></DataTemplate></DataGridTemplateColumn.HeaderTemplate>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <StackPanel Orientation="Horizontal" Margin="4">
-                                            <ui:Button Content="{DynamicResource Inspect}"
-                                                       Appearance="Secondary"
-                                                       Command="{Binding DataContext.InspectNetworkCommand, RelativeSource={RelativeSource AncestorType=Page}}"
-                                                       CommandParameter="{Binding}"
-                                                       Margin="0,0,6,0" />
-                                            <ui:Button Content="{DynamicResource Remove}"
-                                                       Appearance="Danger"
-                                                       Command="{Binding DataContext.RemoveNetworkCommand, RelativeSource={RelativeSource AncestorType=Page}}"
-                                                       CommandParameter="{Binding}" />
+                                        <StackPanel Orientation="Horizontal" Margin="6,0">
+                                            <ui:Button Content="{DynamicResource Inspect}" Appearance="Secondary" Command="{Binding DataContext.InspectNetworkCommand, RelativeSource={RelativeSource AncestorType=Page}}" CommandParameter="{Binding}" Margin="0,0,6,0" />
+                                            <ui:Button Icon="{ui:SymbolIcon Symbol=MoreVertical24}" Style="{StaticResource ResourceIconButtonStyle}" ToolTip="{DynamicResource Actions}" AutomationProperties.Name="{DynamicResource Actions}" Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Page}}" Click="OpenContextMenuButton_Click">
+                                                <ui:Button.ContextMenu><ContextMenu><MenuItem Header="{DynamicResource Remove}" Command="{Binding PlacementTarget.Tag.RemoveNetworkCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" /></ContextMenu></ui:Button.ContextMenu>
+                                            </ui:Button>
                                         </StackPanel>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
@@ -189,43 +65,21 @@
                         </DataGrid.Columns>
                     </DataGrid>
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
-                        <ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xE774;" FontSize="30" Opacity=".55" />
-                        <TextBlock Text="{DynamicResource NoNetworks}" Margin="0,10,0,0" Style="{StaticResource MutedTextStyle}" />
-                        <StackPanel.Style>
-                            <Style TargetType="StackPanel">
-                                <Setter Property="Visibility" Value="Collapsed" />
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Networks.Count}" Value="0">
-                                        <Setter Property="Visibility" Value="Visible" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </StackPanel.Style>
+                        <StackPanel.Style><Style TargetType="StackPanel"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding VisibleNetworks.Count}" Value="0"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></StackPanel.Style>
+                        <ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xE774;" FontSize="30" Opacity=".55" HorizontalAlignment="Center" />
+                        <TextBlock Text="{DynamicResource NoNetworks}" Style="{StaticResource ResourceEmptyTitleStyle}" />
+                        <ui:Button Content="{DynamicResource CreateNetwork}" Icon="{ui:SymbolIcon Symbol=Add24}" Style="{StaticResource ResourcePrimaryButtonStyle}" HorizontalAlignment="Center" Margin="0,12,0,0" Click="CreateNetworkButton_Click" IsHitTestVisible="True" />
                     </StackPanel>
                 </Grid>
             </Border>
 
             <StackPanel Visibility="{Binding HasInspectOutput, Converter={StaticResource BoolToVisibility}}">
                 <TextBlock Text="{DynamicResource NetworkInspectOutput}" Style="{StaticResource SectionTitleStyle}" Margin="0,20,0,10" />
-                <ui:TextBox Text="{Binding InspectOutput, Mode=OneWay}"
-                            IsReadOnly="True"
-                            AcceptsReturn="True"
-                            FontFamily="Consolas"
-                            MinHeight="120"
-                            AutomationProperties.Name="{DynamicResource NetworkInspectOutput}"
-                            VerticalScrollBarVisibility="Auto"
-                            HorizontalScrollBarVisibility="Auto" />
+                <ui:TextBox Text="{Binding InspectOutput, Mode=OneWay}" IsReadOnly="True" AcceptsReturn="True" FontFamily="Consolas" MinHeight="120" AutomationProperties.Name="{DynamicResource NetworkInspectOutput}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" />
             </StackPanel>
             <StackPanel Visibility="{Binding HasOperationOutput, Converter={StaticResource BoolToVisibility}}">
                 <TextBlock Text="{DynamicResource OperationOutput}" Style="{StaticResource SectionTitleStyle}" Margin="0,16,0,10" />
-                <ui:TextBox Text="{Binding OperationOutput, Mode=OneWay}"
-                            IsReadOnly="True"
-                            AcceptsReturn="True"
-                            FontFamily="Consolas"
-                            MinHeight="120"
-                            AutomationProperties.Name="{DynamicResource OperationOutput}"
-                            VerticalScrollBarVisibility="Auto"
-                            HorizontalScrollBarVisibility="Auto" />
+                <ui:TextBox Text="{Binding OperationOutput, Mode=OneWay}" IsReadOnly="True" AcceptsReturn="True" FontFamily="Consolas" MinHeight="120" AutomationProperties.Name="{DynamicResource OperationOutput}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" />
             </StackPanel>
         </StackPanel>
     </ScrollViewer>

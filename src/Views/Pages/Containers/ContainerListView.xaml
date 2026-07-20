@@ -4,6 +4,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:controls="clr-namespace:ExWSLC.Controls"
              xmlns:designViewModels="clr-namespace:ExWSLC.ViewModels.Design"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=designViewModels:DesignContainersViewModel, IsDesignTimeCreatable=True}"
@@ -13,24 +14,10 @@
         <SolidColorBrush x:Key="ContainerDangerHoverBrush" Color="#18C42B1C" />
         <SolidColorBrush x:Key="ContainerDangerPressedBrush" Color="#28C42B1C" />
 
-        <Style x:Key="ContainerCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="{ui:ThemeResource ControlFillColorSecondaryBrush}" />
-            <Setter Property="BorderBrush" Value="{ui:ThemeResource CardStrokeColorDefaultBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="CornerRadius" Value="8" />
-            <Setter Property="Padding" Value="18,14" />
-            <Setter Property="Margin" Value="0,4,0,8" />
-        </Style>
-
-        <Style x:Key="ContainerActionButtonStyle" TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
-            <Setter Property="Width" Value="34" />
-            <Setter Property="Height" Value="34" />
-            <Setter Property="Padding" Value="0" />
+        <Style x:Key="ContainerRowActionStyle" TargetType="ui:Button" BasedOn="{StaticResource ResourceIconButtonStyle}">
             <Setter Property="Margin" Value="6,0,0,0" />
-            <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
-
-        <Style x:Key="ContainerDeleteActionButtonStyle" TargetType="ui:Button" BasedOn="{StaticResource ContainerActionButtonStyle}">
+        <Style x:Key="ContainerDeleteActionStyle" TargetType="ui:Button" BasedOn="{StaticResource ContainerRowActionStyle}">
             <Setter Property="MouseOverBackground" Value="{StaticResource ContainerDangerHoverBrush}" />
             <Setter Property="MouseOverBorderBrush" Value="{StaticResource ContainerDangerHoverBrush}" />
             <Setter Property="PressedBackground" Value="{StaticResource ContainerDangerPressedBrush}" />
@@ -38,25 +25,35 @@
         </Style>
 
         <DataTemplate x:Key="ContainerListItemTemplate">
-            <Border Style="{StaticResource ContainerCardStyle}" Cursor="Hand">
+            <Border MinHeight="62"
+                    Padding="14,8"
+                    BorderBrush="{ui:ThemeResource DividerStrokeColorDefaultBrush}"
+                    BorderThickness="0,0,0,1"
+                    Background="Transparent"
+                    Cursor="Hand">
                 <Border.InputBindings>
                     <MouseBinding MouseAction="LeftClick"
                                   Command="{Binding DataContext.ShowContainerDetailsFromListCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                   CommandParameter="{Binding Container}" />
                 </Border.InputBindings>
-                <Grid MinHeight="60">
+                <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition />
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="1.5*" />
+                        <ColumnDefinition Width="110" />
+                        <ColumnDefinition Width="1.2*" />
+                        <ColumnDefinition Width="90" />
+                        <ColumnDefinition Width="100" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <Grid VerticalAlignment="Center">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="16" />
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
-
-                        <Border Width="8" Height="8" CornerRadius="4" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,8,0">
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Text="{Binding Container.ShortId}" Style="{StaticResource MutedTextStyle}" FontFamily="Consolas" Margin="0,3,0,0" />
+                    </StackPanel>
+                    <TextBlock Grid.Column="1" Text="{Binding Image}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="12,0" ToolTip="{Binding Image}" />
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0">
+                        <Border Width="8" Height="8" CornerRadius="4" Margin="0,0,7,0">
                             <Border.Style>
                                 <Style TargetType="Border">
                                     <Setter Property="Background" Value="{ui:ThemeResource TextFillColorTertiaryBrush}" />
@@ -68,60 +65,44 @@
                                 </Style>
                             </Border.Style>
                         </Border>
+                        <TextBlock Text="{Binding Container.State}" />
+                    </StackPanel>
+                    <TextBlock Grid.Column="3" Text="{Binding Ports}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="12,0" ToolTip="{Binding Ports}" />
+                    <TextBlock Grid.Column="4" Text="{Binding Cpu}" VerticalAlignment="Center" Margin="12,0" />
+                    <TextBlock Grid.Column="5" Text="{Binding Memory}" VerticalAlignment="Center" Margin="12,0" />
 
-                        <StackPanel Grid.Column="1" MinWidth="0" Margin="0,0,14,0">
-                            <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                            <TextBlock Text="{Binding Image}" Style="{StaticResource MutedTextStyle}" FontSize="13" TextTrimming="CharacterEllipsis" Margin="0,4,0,0" />
-
-                            <WrapPanel Margin="0,8,0,0">
-                                <StackPanel Orientation="Horizontal" Margin="0,0,18,0">
-                                    <TextBlock Text="{DynamicResource Ports}" Style="{StaticResource MutedTextStyle}" Margin="0,0,6,0" />
-                                    <TextBlock Text="{Binding Ports}" FontSize="12" TextTrimming="CharacterEllipsis" MaxWidth="180" />
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="0,0,18,0">
-                                    <TextBlock Text="{DynamicResource Cpu}" Style="{StaticResource MutedTextStyle}" Margin="0,0,6,0" />
-                                    <TextBlock Text="{Binding Cpu}" FontSize="12" />
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{DynamicResource Memory}" Style="{StaticResource MutedTextStyle}" Margin="0,0,6,0" />
-                                    <TextBlock Text="{Binding Memory}" FontSize="12" />
-                                </StackPanel>
-                            </WrapPanel>
-                        </StackPanel>
-                    </Grid>
-
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="18,0,0,0">
-                        <ui:Button Icon="{ui:SymbolIcon Symbol=Play24}" Appearance="Secondary" Command="{Binding DataContext.StartContainerFromListCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding Container}" ToolTip="{DynamicResource Start}">
+                    <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
+                        <ui:Button Icon="{ui:SymbolIcon Symbol=Play24}"
+                                   Command="{Binding DataContext.StartContainerFromListCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                   CommandParameter="{Binding Container}"
+                                   ToolTip="{DynamicResource Start}"
+                                   AutomationProperties.Name="{DynamicResource Start}">
                             <ui:Button.Style>
-                                <Style TargetType="ui:Button" BasedOn="{StaticResource ContainerActionButtonStyle}">
-                                    <Setter Property="Visibility" Value="Visible" />
+                                <Style TargetType="ui:Button" BasedOn="{StaticResource ContainerRowActionStyle}">
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsRunning}" Value="True">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsRunning}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </ui:Button.Style>
                         </ui:Button>
-                        <ui:Button Appearance="Secondary" Command="{Binding DataContext.StopContainerFromListCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding Container}" ToolTip="{DynamicResource Stop}">
-                            <ui:Button.Icon>
-                                <ui:SymbolIcon Symbol="Stop24" Filled="True" />
-                            </ui:Button.Icon>
+                        <ui:Button Command="{Binding DataContext.StopContainerFromListCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                   CommandParameter="{Binding Container}"
+                                   ToolTip="{DynamicResource Stop}"
+                                   AutomationProperties.Name="{DynamicResource Stop}">
+                            <ui:Button.Icon><ui:SymbolIcon Symbol="Stop24" Filled="True" /></ui:Button.Icon>
                             <ui:Button.Style>
-                                <Style TargetType="ui:Button" BasedOn="{StaticResource ContainerActionButtonStyle}">
+                                <Style TargetType="ui:Button" BasedOn="{StaticResource ContainerRowActionStyle}">
                                     <Setter Property="Visibility" Value="Collapsed" />
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsRunning}" Value="True">
-                                            <Setter Property="Visibility" Value="Visible" />
-                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsRunning}" Value="True"><Setter Property="Visibility" Value="Visible" /></DataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </ui:Button.Style>
                         </ui:Button>
                         <ui:Button Icon="{ui:SymbolIcon Symbol=MoreVertical24}"
-                                   Appearance="Secondary"
+                                   Style="{StaticResource ContainerRowActionStyle}"
                                    ToolTip="{DynamicResource Actions}"
-                                   Style="{StaticResource ContainerActionButtonStyle}"
+                                   AutomationProperties.Name="{DynamicResource Actions}"
                                    Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                    Click="MoreActionsButton_Click">
                             <ui:Button.ContextMenu>
@@ -135,13 +116,12 @@
                                     <MenuItem Header="{DynamicResource Terminal}"
                                               Command="{Binding PlacementTarget.Tag.OpenTerminalFromListCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                               CommandParameter="{Binding PlacementTarget.DataContext.Container, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                    <Separator />
+                                    <MenuItem Header="{DynamicResource Remove}"
+                                              Command="{Binding PlacementTarget.Tag.RemoveContainerFromListCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                              CommandParameter="{Binding PlacementTarget.DataContext.Container, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
                                 </ContextMenu>
                             </ui:Button.ContextMenu>
-                        </ui:Button>
-                        <ui:Button Appearance="Secondary" Command="{Binding DataContext.RemoveContainerFromListCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding Container}" ToolTip="{DynamicResource Remove}" Style="{StaticResource ContainerDeleteActionButtonStyle}">
-                            <ui:Button.Icon>
-                                <ui:SymbolIcon Symbol="Delete24" Foreground="{StaticResource ContainerDangerIconBrush}" />
-                            </ui:Button.Icon>
                         </ui:Button>
                     </StackPanel>
                 </Grid>
@@ -149,73 +129,85 @@
         </DataTemplate>
     </UserControl.Resources>
 
-    <Grid>
+    <Grid Margin="24,18,24,24">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <ui:TextBox PlaceholderText="{DynamicResource Search}" ClearButtonEnabled="True" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" MinHeight="28" VerticalContentAlignment="Center" />
-            <ui:Button Grid.Column="1" Icon="{ui:SymbolIcon Symbol=ArrowSync24}" Appearance="Secondary" Command="{Binding RefreshAllCommand}" Width="28" Height="28" Padding="0" Margin="8,0,0,0" ToolTip="{DynamicResource Refresh}" />
-            <ui:Button Grid.Column="2" Icon="{ui:SymbolIcon Symbol=Add24}" Appearance="Secondary" Command="{Binding ShowCreateContainerCommand}" Width="28" Height="28" Padding="0" Margin="8,0,0,0" ToolTip="{DynamicResource CreateContainer}" />
+        <Grid>
+            <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Text="{DynamicResource ContainersTitle}" Style="{StaticResource ResourcePageTitleStyle}" />
+                <TextBlock Text="{DynamicResource ContainersSubtitle}" Style="{StaticResource ResourcePageSubtitleStyle}" />
+            </StackPanel>
+            <ui:Button Grid.Column="1"
+                       Content="{DynamicResource CreateContainer}"
+                       Icon="{ui:SymbolIcon Symbol=Add24}"
+                       Style="{StaticResource ResourcePrimaryButtonStyle}"
+                       Command="{Binding ShowCreateContainerCommand}"
+                       VerticalAlignment="Top" />
         </Grid>
 
-        <ScrollViewer Grid.Row="1"
-                      Margin="0,14,0,0"
-                      HorizontalScrollBarVisibility="Disabled"
-                      VerticalScrollBarVisibility="Auto">
-            <ItemsControl ItemsSource="{Binding VisibleContainerItems}"
-                          ItemTemplate="{StaticResource ContainerListItemTemplate}" />
-        </ScrollViewer>
+        <Border Grid.Row="1" Style="{StaticResource ResourceToolbarStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition MinWidth="220" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <ui:TextBox PlaceholderText="{DynamicResource Search}"
+                            ClearButtonEnabled="True"
+                            Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                            MinHeight="34"
+                            AutomationProperties.Name="{DynamicResource Search}" />
+                <controls:SelectorBar Grid.Column="1" SelectedIndex="{Binding ContainerFilterIndex, Mode=TwoWay}" Margin="14,0,8,0">
+                    <controls:SelectorBarItem Text="{DynamicResource AllResources}" />
+                    <controls:SelectorBarItem Text="{DynamicResource Running}" />
+                    <controls:SelectorBarItem Text="{DynamicResource Stopped}" />
+                </controls:SelectorBar>
+                <ui:Button Grid.Column="2"
+                           Icon="{ui:SymbolIcon Symbol=ArrowSync24}"
+                           Style="{StaticResource ResourceIconButtonStyle}"
+                           Command="{Binding RefreshAllCommand}"
+                           ToolTip="{DynamicResource Refresh}"
+                           AutomationProperties.Name="{DynamicResource Refresh}" />
+            </Grid>
+        </Border>
 
-        <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="360">
-            <StackPanel.Style>
-                <Style TargetType="StackPanel">
-                    <Setter Property="Visibility" Value="Collapsed" />
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding VisibleContainerItems.Count}" Value="0">
-                            <Setter Property="Visibility" Value="Visible" />
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </StackPanel.Style>
-
-            <StackPanel>
-                <StackPanel.Style>
-                    <Style TargetType="StackPanel">
-                        <Setter Property="Visibility" Value="Collapsed" />
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding SearchText}" Value="">
-                                <Setter Property="Visibility" Value="Visible" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </StackPanel.Style>
-                <TextBlock Text="{DynamicResource NoContainersTitle}" FontSize="22" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,0,0,7" />
-                <TextBlock Text="{DynamicResource NoContainersHint}" TextWrapping="Wrap" TextAlignment="Center" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
-                <ui:Button Content="{DynamicResource CreateContainer}" Icon="{ui:SymbolIcon Symbol=Add24}" Appearance="Primary" Command="{Binding ShowCreateContainerCommand}" HorizontalAlignment="Center" Margin="0,18,0,0" />
-            </StackPanel>
-
-            <StackPanel>
-                <StackPanel.Style>
-                    <Style TargetType="StackPanel">
-                        <Setter Property="Visibility" Value="Visible" />
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding SearchText}" Value="">
-                                <Setter Property="Visibility" Value="Collapsed" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </StackPanel.Style>
-                <TextBlock Text="{DynamicResource NoContainerResultsTitle}" FontSize="22" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,0,0,7" />
-                <TextBlock Text="{DynamicResource NoContainerResultsHint}" TextWrapping="Wrap" TextAlignment="Center" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
-            </StackPanel>
-        </StackPanel>
+        <Border Grid.Row="2" Style="{StaticResource ResourceSurfaceStyle}">
+            <Grid>
+                <Grid.RowDefinitions><RowDefinition Height="40" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                <Grid Background="{ui:ThemeResource ControlFillColorSecondaryBrush}" Margin="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*" /><ColumnDefinition Width="1.5*" />
+                        <ColumnDefinition Width="110" /><ColumnDefinition Width="1.2*" />
+                        <ColumnDefinition Width="90" /><ColumnDefinition Width="100" /><ColumnDefinition Width="112" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="{DynamicResource Name}" Margin="14,0" VerticalAlignment="Center" FontWeight="SemiBold" />
+                    <TextBlock Grid.Column="1" Text="{DynamicResource Image}" Margin="12,0" VerticalAlignment="Center" FontWeight="SemiBold" />
+                    <TextBlock Grid.Column="2" Text="{DynamicResource State}" Margin="12,0" VerticalAlignment="Center" FontWeight="SemiBold" />
+                    <TextBlock Grid.Column="3" Text="{DynamicResource Ports}" Margin="12,0" VerticalAlignment="Center" FontWeight="SemiBold" />
+                    <TextBlock Grid.Column="4" Text="{DynamicResource Cpu}" Margin="12,0" VerticalAlignment="Center" FontWeight="SemiBold" />
+                    <TextBlock Grid.Column="5" Text="{DynamicResource Memory}" Margin="12,0" VerticalAlignment="Center" FontWeight="SemiBold" />
+                    <TextBlock Grid.Column="6" Text="{DynamicResource Actions}" Margin="12,0" VerticalAlignment="Center" FontWeight="SemiBold" />
+                </Grid>
+                <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding VisibleContainerItems}" ItemTemplate="{StaticResource ContainerListItemTemplate}" />
+                </ScrollViewer>
+                <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="360">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel"><Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers><DataTrigger Binding="{Binding VisibleContainerItems.Count}" Value="0"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+                    <ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xF5ED;" FontSize="30" Opacity=".55" HorizontalAlignment="Center" />
+                    <TextBlock Text="{DynamicResource NoContainersTitle}" Style="{StaticResource ResourceEmptyTitleStyle}" />
+                    <TextBlock Text="{DynamicResource NoContainersHint}" TextWrapping="Wrap" TextAlignment="Center" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                    <ui:Button Content="{DynamicResource CreateContainer}" Icon="{ui:SymbolIcon Symbol=Add24}" Style="{StaticResource ResourcePrimaryButtonStyle}" Command="{Binding ShowCreateContainerCommand}" HorizontalAlignment="Center" Margin="0,16,0,0" />
+                </StackPanel>
+            </Grid>
+        </Border>
     </Grid>
 </UserControl>

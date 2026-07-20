@@ -25,7 +25,7 @@
         </DataTemplate>
     </Page.Resources>
 
-    <Grid Margin="12">
+    <Grid>
         <ContentControl Content="{Binding SelectedContainer}">
             <ContentControl.Style>
                 <Style TargetType="ContentControl">

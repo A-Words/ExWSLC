@@ -73,6 +73,8 @@
     <sys:String x:Key="OptionalCommand">可选命令</sys:String>
     <sys:String x:Key="LiveStats">实时资源快照</sys:String>
     <sys:String x:Key="ContainersTitle">容器</sys:String>
+    <sys:String x:Key="ContainersSubtitle">创建、运行并检查 Linux 工作负载</sys:String>
+    <sys:String x:Key="AllResources">全部</sys:String>
     <sys:String x:Key="Search">搜索名称、镜像或 ID</sys:String>
     <sys:String x:Key="CreateContainer">创建并运行容器</sys:String>
     <sys:String x:Key="CreateContainerHint">配置镜像、资源限制、网络与挂载后启动容器</sys:String>
@@ -108,9 +110,15 @@
     <sys:String x:Key="Output">输出与诊断</sys:String>
     <sys:String x:Key="ImagesTitle">镜像</sys:String>
     <sys:String x:Key="ImagesSubtitle">管理本地镜像、构建产物与容器注册表</sys:String>
-    <sys:String x:Key="GeneralImageOperations">获取与创建镜像</sys:String>
-    <sys:String x:Key="SelectedImageActions">所选镜像</sys:String>
+    <sys:String x:Key="GeneralImageOperations">更多镜像操作</sys:String>
+    <sys:String x:Key="SelectedImageActions">镜像详情</sys:String>
+    <sys:String x:Key="ImageReference">镜像引用</sys:String>
+    <sys:String x:Key="BuildContext">构建上下文</sys:String>
+    <sys:String x:Key="DockerfilePath">Dockerfile 路径</sys:String>
+    <sys:String x:Key="ImageTag">镜像标签</sys:String>
+    <sys:String x:Key="OptionalCustomPath">可选的自定义路径</sys:String>
     <sys:String x:Key="SearchImages">搜索镜像名称、标签或 ID</sys:String>
+    <sys:String x:Key="NoImages">没有找到镜像</sys:String>
     <sys:String x:Key="PullHint">从容器注册表下载镜像</sys:String>
     <sys:String x:Key="BuildHint">从 Dockerfile 和构建上下文生成镜像</sys:String>
     <sys:String x:Key="ImageFiles">镜像文件</sys:String>
@@ -131,8 +139,8 @@
     <sys:String x:Key="NetworksSubtitle">管理容器之间的隔离连接</sys:String>
     <sys:String x:Key="VolumesTitle">卷</sys:String>
     <sys:String x:Key="VolumesSubtitle">管理容器的持久化存储</sys:String>
-    <sys:String x:Key="CreateNetwork">创建网络</sys:String><sys:String x:Key="CreateNetworkHint">配置驱动、驱动选项和元数据标签</sys:String>
-    <sys:String x:Key="CreateVolume">创建卷</sys:String><sys:String x:Key="CreateVolumeHint">配置驱动、驱动选项和元数据标签</sys:String>
+    <sys:String x:Key="CreateNetwork">创建网络</sys:String><sys:String x:Key="CreateNetworkHint">配置驱动、驱动选项和元数据标签</sys:String><sys:String x:Key="SearchNetworks">搜索网络</sys:String>
+    <sys:String x:Key="CreateVolume">创建卷</sys:String><sys:String x:Key="CreateVolumeHint">配置驱动、驱动选项和元数据标签</sys:String><sys:String x:Key="SearchVolumes">搜索卷</sys:String>
     <sys:String x:Key="Create">创建</sys:String>
     <sys:String x:Key="TasksTitle">后台任务</sys:String>
     <sys:String x:Key="TasksSubtitle">跟踪镜像传输、构建、导出和其他长任务</sys:String>

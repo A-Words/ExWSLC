@@ -11,11 +11,15 @@ public partial class NetworksViewModel : WorkspaceViewModel
 {
     public NetworksViewModel(RuntimeWorkspace workspace) : base(workspace)
     {
+        Workspace.Refreshed += (_, _) => ApplyFilter();
+        ApplyFilter();
     }
 
     public ObservableCollection<NetworkSummary> Networks => Workspace.Networks;
+    public ObservableCollection<NetworkSummary> VisibleNetworks { get; } = [];
 
     [ObservableProperty] public partial NetworkSummary? SelectedNetwork { get; set; }
+    [ObservableProperty] public partial string SearchText { get; set; } = string.Empty;
     [ObservableProperty] public partial string NetworkName { get; set; } = string.Empty;
     [ObservableProperty] public partial string NetworkDriver { get; set; } = "bridge";
     [ObservableProperty] public partial string NetworkOptions { get; set; } = string.Empty;
@@ -104,6 +108,16 @@ public partial class NetworksViewModel : WorkspaceViewModel
         LocalizationService.GetString("OperationFailed", "WSLC operation failed");
 
     partial void OnNetworkNameChanged(string value) => CreateNetworkCommand.NotifyCanExecuteChanged();
+    partial void OnSearchTextChanged(string value) => ApplyFilter();
     partial void OnOperationOutputChanged(string value) => OnPropertyChanged(nameof(HasOperationOutput));
     partial void OnInspectOutputChanged(string value) => OnPropertyChanged(nameof(HasInspectOutput));
+
+    private void ApplyFilter()
+    {
+        var query = SearchText.Trim();
+        VisibleNetworks.ReplaceAll(Networks.Where(network => string.IsNullOrEmpty(query) ||
+            network.Name.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+            network.DisplayId.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+            network.DisplayDriver.Contains(query, StringComparison.OrdinalIgnoreCase)));
+    }
 }

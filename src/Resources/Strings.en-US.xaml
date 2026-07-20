@@ -31,7 +31,7 @@
     <sys:String x:Key="EnvironmentVariables">Environment</sys:String><sys:String x:Key="User">User</sys:String><sys:String x:Key="Workdir">Workdir</sys:String>
     <sys:String x:Key="AllGpus">All GPUs</sys:String><sys:String x:Key="RemoveWhenStopped">Remove when stopped</sys:String><sys:String x:Key="OptionalCommand">Optional command</sys:String>
     <sys:String x:Key="LiveStats">Live resource snapshot</sys:String>
-    <sys:String x:Key="ContainersTitle">Containers</sys:String><sys:String x:Key="Search">Search name, image, or ID</sys:String>
+    <sys:String x:Key="ContainersTitle">Containers</sys:String><sys:String x:Key="ContainersSubtitle">Create, run, and inspect Linux workloads</sys:String><sys:String x:Key="AllResources">All</sys:String><sys:String x:Key="Search">Search name, image, or ID</sys:String>
     <sys:String x:Key="CreateContainer">Create and run a container</sys:String><sys:String x:Key="Image">Image</sys:String>
     <sys:String x:Key="CreateContainerHint">Configure image, resource limits, networking, and mounts before launch</sys:String>
     <sys:String x:Key="NoContainerSelected">Select a container</sys:String><sys:String x:Key="SelectContainerHint">Choose a container to inspect and manage it, or use the plus button to create one.</sys:String>
@@ -47,7 +47,7 @@
     <sys:String x:Key="Logs">Logs</sys:String><sys:String x:Key="FollowLogs">Follow logs</sys:String><sys:String x:Key="StopFollowing">Stop following</sys:String><sys:String x:Key="CopyLogs">Copy logs</sys:String><sys:String x:Key="ClearLogs">Clear</sys:String><sys:String x:Key="Inspect">Inspect</sys:String><sys:String x:Key="Exec">Exec</sys:String>
     <sys:String x:Key="Terminal">Interactive terminal</sys:String><sys:String x:Key="Output">Output &amp; diagnostics</sys:String>
     <sys:String x:Key="ImagesTitle">Images</sys:String><sys:String x:Key="Pull">Pull</sys:String><sys:String x:Key="Build">Build</sys:String>
-    <sys:String x:Key="ImagesSubtitle">Manage local images, builds, and container registries</sys:String><sys:String x:Key="GeneralImageOperations">Get and create images</sys:String><sys:String x:Key="SelectedImageActions">Selected image</sys:String><sys:String x:Key="SearchImages">Search image name, tag, or ID</sys:String>
+    <sys:String x:Key="ImagesSubtitle">Manage local images, builds, and container registries</sys:String><sys:String x:Key="GeneralImageOperations">More image operations</sys:String><sys:String x:Key="SelectedImageActions">Image details</sys:String><sys:String x:Key="SearchImages">Search image name, tag, or ID</sys:String><sys:String x:Key="NoImages">No images found</sys:String><sys:String x:Key="ImageReference">Image reference</sys:String><sys:String x:Key="BuildContext">Build context</sys:String><sys:String x:Key="DockerfilePath">Dockerfile path</sys:String><sys:String x:Key="ImageTag">Image tag</sys:String><sys:String x:Key="OptionalCustomPath">Optional custom path</sys:String>
     <sys:String x:Key="PullHint">Download an image from a container registry</sys:String><sys:String x:Key="BuildHint">Build an image from a Dockerfile and context</sys:String>
     <sys:String x:Key="ImageFiles">Image files</sys:String><sys:String x:Key="ImageFilesHint">Import a rootfs or load an image archive</sys:String><sys:String x:Key="TagHint">Apply a new tag to the selected image</sys:String>
     <sys:String x:Key="Import">Import</sys:String><sys:String x:Key="Load">Load</sys:String><sys:String x:Key="Save">Save</sys:String><sys:String x:Key="Tag">Tag</sys:String>
@@ -55,8 +55,8 @@
     <sys:String x:Key="Create">Create</sys:String>
     <sys:String x:Key="NetworksTitle">Networks</sys:String><sys:String x:Key="NetworksSubtitle">Manage isolated connectivity between containers</sys:String>
     <sys:String x:Key="VolumesTitle">Volumes</sys:String><sys:String x:Key="VolumesSubtitle">Manage persistent container storage</sys:String>
-    <sys:String x:Key="CreateNetwork">Create network</sys:String><sys:String x:Key="CreateNetworkHint">Configure the driver, driver options, and metadata labels</sys:String>
-    <sys:String x:Key="CreateVolume">Create volume</sys:String><sys:String x:Key="CreateVolumeHint">Configure the driver, driver options, and metadata labels</sys:String>
+    <sys:String x:Key="CreateNetwork">Create network</sys:String><sys:String x:Key="CreateNetworkHint">Configure the driver, driver options, and metadata labels</sys:String><sys:String x:Key="SearchNetworks">Search networks</sys:String>
+    <sys:String x:Key="CreateVolume">Create volume</sys:String><sys:String x:Key="CreateVolumeHint">Configure the driver, driver options, and metadata labels</sys:String><sys:String x:Key="SearchVolumes">Search volumes</sys:String>
     <sys:String x:Key="TasksTitle">Background tasks</sys:String><sys:String x:Key="ClearCompleted">Clear completed</sys:String><sys:String x:Key="CancelCurrent">Cancel current task</sys:String>
     <sys:String x:Key="TasksSubtitle">Track image transfers, builds, exports, and other long-running work</sys:String>
     <sys:String x:Key="SettingsTitle">Settings</sys:String><sys:String x:Key="Appearance">Appearance &amp; refresh</sys:String>

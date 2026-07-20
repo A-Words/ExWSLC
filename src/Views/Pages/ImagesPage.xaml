@@ -5,95 +5,122 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:designViewModels="clr-namespace:ExWSLC.ViewModels.Design"
-      x:Name="RootPage"
-      mc:Ignorable="d"
+      x:Name="RootPage" mc:Ignorable="d"
       d:DataContext="{d:DesignInstance Type=designViewModels:DesignImagesViewModel, IsDesignTimeCreatable=True}"
       Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}">
     <Page.Resources>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <DataTemplate x:Key="ImageListTemplate">
-            <Grid Margin="2,6"><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/></Grid.ColumnDefinitions><ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xE7B8;" FontSize="17" Margin="0,0,10,0"/><StackPanel Grid.Column="1"><TextBlock Text="{Binding DisplayName}" FontSize="13" TextTrimming="CharacterEllipsis"/><TextBlock Text="{Binding DisplaySize}" Style="{StaticResource MutedTextStyle}"/></StackPanel></Grid>
+            <Grid MinHeight="54" Margin="4,2">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                <Border Width="34" Height="34" CornerRadius="6" Background="{ui:ThemeResource ControlFillColorTertiaryBrush}" VerticalAlignment="Center" Margin="0,0,10,0">
+                    <ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xE7B8;" FontSize="17" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding DisplayName}" FontSize="13" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip="{Binding DisplayName}" />
+                    <TextBlock Text="{Binding DisplaySize}" Style="{StaticResource MutedTextStyle}" Margin="0,3,0,0" />
+                </StackPanel>
+            </Grid>
         </DataTemplate>
     </Page.Resources>
-    <Grid Margin="12">
+
+    <Grid Margin="24,18,24,24">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="14"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <Grid>
-            <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+            <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
             <StackPanel>
-                <TextBlock Text="{DynamicResource ImagesTitle}" Style="{StaticResource PageTitleStyle}"/>
-                <TextBlock Text="{DynamicResource ImagesSubtitle}" Style="{StaticResource PageSubtitleStyle}"/>
+                <TextBlock Text="{DynamicResource ImagesTitle}" Style="{StaticResource ResourcePageTitleStyle}" />
+                <TextBlock Text="{DynamicResource ImagesSubtitle}" Style="{StaticResource ResourcePageSubtitleStyle}" />
             </StackPanel>
-            <ui:Button Grid.Column="1" Content="{DynamicResource Refresh}" Icon="{ui:SymbolIcon Symbol=ArrowSync24}" Command="{Binding RefreshAllCommand}" Appearance="Secondary" VerticalAlignment="Top"/>
+            <ui:Button Grid.Column="1" Content="{DynamicResource Pull}" Icon="{ui:SymbolIcon Symbol=ArrowDownload24}" Style="{StaticResource ResourcePrimaryButtonStyle}" Click="PullImageButton_Click" VerticalAlignment="Top" />
         </Grid>
 
-        <Expander Grid.Row="1" Header="{DynamicResource GeneralImageOperations}" Margin="0,14,0,0">
-            <StackPanel Margin="0,8,0,0">
-                    <Border Style="{StaticResource CompactCardStyle}" Margin="0,0,0,10">
-                        <Grid>
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/><ColumnDefinition Width="260"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                            <ui:SymbolIcon Symbol="ArrowDownload24" FontSize="23" Margin="0,0,14,0"/>
-                            <StackPanel Grid.Column="1"><TextBlock Text="{DynamicResource Pull}" FontSize="16"/><TextBlock Text="{DynamicResource PullHint}" Style="{StaticResource MutedTextStyle}"/></StackPanel>
-                            <ui:TextBox Grid.Column="2" Text="{Binding ImageReference}" PlaceholderText="ubuntu:latest" VerticalAlignment="Center" Margin="12,0"/>
-                            <ui:Button Grid.Column="3" Content="{DynamicResource Pull}" Appearance="Primary" Command="{Binding PullImageCommand}" VerticalAlignment="Center"/>
-                        </Grid>
-                    </Border>
+        <Border Grid.Row="1" Style="{StaticResource ResourceToolbarStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                <ui:TextBox Text="{Binding ImageSearchText, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="{DynamicResource SearchImages}" ClearButtonEnabled="True" MinHeight="34" AutomationProperties.Name="{DynamicResource SearchImages}" />
+                <ui:Button Grid.Column="1" Icon="{ui:SymbolIcon Symbol=ArrowSync24}" Style="{StaticResource ResourceIconButtonStyle}" Command="{Binding RefreshAllCommand}" ToolTip="{DynamicResource Refresh}" AutomationProperties.Name="{DynamicResource Refresh}" Margin="8,0,0,0" />
+                <ui:Button Grid.Column="2" Icon="{ui:SymbolIcon Symbol=MoreVertical24}" Style="{StaticResource ResourceIconButtonStyle}" ToolTip="{DynamicResource Actions}" AutomationProperties.Name="{DynamicResource Actions}" Margin="8,0,0,0" Tag="{Binding}" Click="OpenContextMenuButton_Click">
+                    <ui:Button.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="{DynamicResource GeneralImageOperations}" Click="ShowImageOperationsMenuItem_Click" />
+                            <Separator />
+                            <MenuItem Header="{DynamicResource PruneDanglingImages}" Command="{Binding PlacementTarget.Tag.PruneCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="image" />
+                        </ContextMenu>
+                    </ui:Button.ContextMenu>
+                </ui:Button>
+            </Grid>
+        </Border>
 
-                    <Grid>
-                        <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="12"/><ColumnDefinition/></Grid.ColumnDefinitions>
-                        <Expander>
-                            <Expander.Header><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/></Grid.ColumnDefinitions><ui:SymbolIcon Symbol="Code24" FontSize="23" Margin="0,0,14,0"/><StackPanel Grid.Column="1"><TextBlock Text="{DynamicResource Build}" FontSize="16"/><TextBlock Text="{DynamicResource BuildHint}" Style="{StaticResource MutedTextStyle}"/></StackPanel></Grid></Expander.Header>
-                            <Border Style="{StaticResource CardStyle}" Margin="0,8,0,0"><Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions><StackPanel Margin="0,0,12,0"><TextBlock Text="Build context"/><ui:TextBox Text="{Binding BuildContextPath}" PlaceholderText="C:\src\app" Margin="0,5,0,10"/><TextBlock Text="Dockerfile"/><ui:TextBox Text="{Binding DockerfilePath}" PlaceholderText="Optional custom path" Margin="0,5,0,0"/></StackPanel><StackPanel Grid.Column="1"><TextBlock Text="Image tag"/><ui:TextBox Text="{Binding BuildImageTag}" PlaceholderText="my-app:latest" Margin="0,5,0,12"/><ui:Button Content="{DynamicResource Build}" Icon="{ui:SymbolIcon Symbol=Play24}" Appearance="Primary" Command="{Binding BuildImageCommand}" HorizontalAlignment="Right"/></StackPanel></Grid></Border>
-                        </Expander>
-                        <Expander Grid.Column="2">
-                            <Expander.Header><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/></Grid.ColumnDefinitions><ui:SymbolIcon Symbol="Archive24" FontSize="23" Margin="0,0,14,0"/><StackPanel Grid.Column="1"><TextBlock Text="{DynamicResource ImageFiles}" FontSize="16"/><TextBlock Text="{DynamicResource ImageFilesHint}" Style="{StaticResource MutedTextStyle}"/></StackPanel></Grid></Expander.Header>
-                            <Border Style="{StaticResource CardStyle}" Margin="0,8,0,0"><Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions><StackPanel Margin="0,0,12,0"><TextBlock Text="{DynamicResource ArchivePath}"/><ui:TextBox Text="{Binding ArchivePath}" PlaceholderText="C:\images\image.tar" Margin="0,5,0,0"/></StackPanel><StackPanel Grid.Column="1"><TextBlock Text="{DynamicResource ImportImageName}"/><ui:TextBox Text="{Binding ImportImageName}" PlaceholderText="imported:latest" Margin="0,5,0,0"/></StackPanel><WrapPanel Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Right" Margin="0,12,0,0"><ui:Button Content="{DynamicResource Import}" Command="{Binding ImportImageCommand}"/><ui:Button Content="{DynamicResource Load}" Command="{Binding LoadImageCommand}"/></WrapPanel></Grid></Border>
-                        </Expander>
-                    </Grid>
-            </StackPanel>
+        <Expander x:Name="ImageOperationsExpander" Grid.Row="2" Header="{DynamicResource GeneralImageOperations}" Margin="0,0,0,12">
+            <Border Style="{StaticResource ResourceSurfaceStyle}" Padding="16" Margin="0,8,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="16" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Build}" FontSize="16" FontWeight="SemiBold" />
+                        <TextBlock Text="{DynamicResource BuildHint}" Style="{StaticResource MutedTextStyle}" Margin="0,3,0,12" />
+                        <TextBlock x:Name="BuildContextLabel" Text="{DynamicResource BuildContext}" />
+                        <ui:TextBox Text="{Binding BuildContextPath}" PlaceholderText="C:\src\app" AutomationProperties.LabeledBy="{Binding ElementName=BuildContextLabel}" Margin="0,5,0,10" />
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="12" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                            <StackPanel><TextBlock x:Name="DockerfileLabel" Text="{DynamicResource DockerfilePath}" /><ui:TextBox Text="{Binding DockerfilePath}" PlaceholderText="{DynamicResource OptionalCustomPath}" AutomationProperties.LabeledBy="{Binding ElementName=DockerfileLabel}" Margin="0,5,0,0" /></StackPanel>
+                            <StackPanel Grid.Column="2"><TextBlock x:Name="BuildImageTagLabel" Text="{DynamicResource ImageTag}" /><ui:TextBox Text="{Binding BuildImageTag}" PlaceholderText="my-app:latest" AutomationProperties.LabeledBy="{Binding ElementName=BuildImageTagLabel}" Margin="0,5,0,0" /></StackPanel>
+                        </Grid>
+                        <ui:Button Content="{DynamicResource Build}" Icon="{ui:SymbolIcon Symbol=Play24}" Style="{StaticResource ResourcePrimaryButtonStyle}" Command="{Binding BuildImageCommand}" HorizontalAlignment="Right" Margin="0,12,0,0" />
+                    </StackPanel>
+                    <Border Grid.Column="1" Width="1" Background="{ui:ThemeResource DividerStrokeColorDefaultBrush}" HorizontalAlignment="Center" />
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="{DynamicResource ImageFiles}" FontSize="16" FontWeight="SemiBold" />
+                        <TextBlock Text="{DynamicResource ImageFilesHint}" Style="{StaticResource MutedTextStyle}" Margin="0,3,0,12" />
+                        <TextBlock x:Name="ArchivePathLabel" Text="{DynamicResource ArchivePath}" />
+                        <ui:TextBox Text="{Binding ArchivePath}" PlaceholderText="C:\images\image.tar" AutomationProperties.LabeledBy="{Binding ElementName=ArchivePathLabel}" Margin="0,5,0,10" />
+                        <TextBlock x:Name="ImportImageNameLabel" Text="{DynamicResource ImportImageName}" />
+                        <ui:TextBox Text="{Binding ImportImageName}" PlaceholderText="imported:latest" AutomationProperties.LabeledBy="{Binding ElementName=ImportImageNameLabel}" Margin="0,5,0,0" />
+                        <WrapPanel HorizontalAlignment="Right" Margin="0,12,0,0"><ui:Button Content="{DynamicResource Import}" Command="{Binding ImportImageCommand}" Margin="0,0,8,0" /><ui:Button Content="{DynamicResource Load}" Command="{Binding LoadImageCommand}" /></WrapPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
         </Expander>
 
         <Grid Grid.Row="3">
-            <Grid.ColumnDefinitions><ColumnDefinition Width="260" MinWidth="210" MaxWidth="330"/><ColumnDefinition Width="12"/><ColumnDefinition/></Grid.ColumnDefinitions>
-            <Border Style="{StaticResource LayerCardStyle}" Margin="0" Padding="0">
-                <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                    <ui:TextBox Margin="8" PlaceholderText="{DynamicResource SearchImages}" ClearButtonEnabled="True" Text="{Binding ImageSearchText, UpdateSourceTrigger=PropertyChanged}"/>
-                    <ui:ListView Grid.Row="1" ItemsSource="{Binding VisibleImages}" SelectedItem="{Binding SelectedImage}" ItemTemplate="{StaticResource ImageListTemplate}" Margin="4,0"/>
-                    <ui:Button Grid.Row="2" Content="{DynamicResource PruneDanglingImages}" Icon="{ui:SymbolIcon Symbol=Delete24}" Appearance="Secondary" Command="{Binding PruneCommand}" CommandParameter="image" Margin="8" HorizontalAlignment="Stretch"/>
+            <Grid.ColumnDefinitions><ColumnDefinition Width="300" MinWidth="230" MaxWidth="360" /><ColumnDefinition Width="12" /><ColumnDefinition /></Grid.ColumnDefinitions>
+            <Border Style="{StaticResource ResourceSurfaceStyle}">
+                <Grid>
+                    <ui:ListView ItemsSource="{Binding VisibleImages}" SelectedItem="{Binding SelectedImage}" ItemTemplate="{StaticResource ImageListTemplate}" Margin="4" />
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
+                        <StackPanel.Style><Style TargetType="StackPanel"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding VisibleImages.Count}" Value="0"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></StackPanel.Style>
+                        <ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xE7B8;" FontSize="30" Opacity=".55" HorizontalAlignment="Center" />
+                        <TextBlock Text="{DynamicResource NoImages}" Style="{StaticResource ResourceEmptyTitleStyle}" />
+                    </StackPanel>
                 </Grid>
             </Border>
-            <GridSplitter Grid.Column="1" Width="12" Background="Transparent"/>
-            <Border Grid.Column="2" Style="{StaticResource LayerCardStyle}" Margin="0" Padding="0" ClipToBounds="True">
-                <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="24">
-                    <TextBlock Text="{DynamicResource SelectedImageActions}" Style="{StaticResource SectionTitleStyle}" Margin="0,0,0,10"/>
-                    <Border Style="{StaticResource CardStyle}" Padding="24" Margin="0,0,0,14">
-                        <StackPanel>
-                            <Grid>
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/></Grid.ColumnDefinitions>
-                                <Border Width="76" Height="76" CornerRadius="14" Background="{ui:ThemeResource ControlFillColorTertiaryBrush}" Margin="0,0,18,0"><ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xE7B8;" FontSize="34" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center"><TextBlock Text="{Binding SelectedImageDisplayName}" FontSize="24" FontWeight="SemiBold"/><TextBlock Text="{Binding SelectedImage.Id}" FontFamily="Consolas" Style="{StaticResource MutedTextStyle}" TextTrimming="CharacterEllipsis" Margin="0,6,0,0"/><WrapPanel Margin="0,8,0,0"><TextBlock Text="{DynamicResource Size}" Style="{StaticResource MutedTextStyle}"/><TextBlock Text=": " Style="{StaticResource MutedTextStyle}"/><TextBlock Text="{Binding SelectedImage.DisplaySize}" Style="{StaticResource MutedTextStyle}" Margin="0,0,18,0"/><TextBlock Text="{DynamicResource Created}" Style="{StaticResource MutedTextStyle}"/><TextBlock Text=": " Style="{StaticResource MutedTextStyle}"/><TextBlock Text="{Binding SelectedImage.DisplayCreated}" Style="{StaticResource MutedTextStyle}"/></WrapPanel></StackPanel>
-                            </Grid>
-                            <WrapPanel Margin="0,18,0,0" HorizontalAlignment="Right">
-                                <ui:Button Content="{DynamicResource Inspect}" Command="{Binding InspectImageCommand}" IsEnabled="{Binding HasSelectedImage}" Appearance="Secondary" Margin="0,0,8,0"/>
-                                <ui:Button Content="{DynamicResource Save}" Command="{Binding SaveImageCommand}" IsEnabled="{Binding HasSelectedImage}" Margin="0,0,8,0"/>
-                                <ui:Button Content="{DynamicResource Push}" Command="{Binding PushImageCommand}" IsEnabled="{Binding HasSelectedImage}" Margin="0,0,8,0"/>
-                                <ui:Button Content="{DynamicResource Remove}" Command="{Binding RemoveImageCommand}" IsEnabled="{Binding HasSelectedImage}"/>
-                            </WrapPanel>
-                        </StackPanel>
-                    </Border>
-
-                    <Border Style="{StaticResource CompactCardStyle}" Margin="0,0,0,14"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/><ColumnDefinition Width="220"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><ui:SymbolIcon Symbol="Tag24" FontSize="23" Margin="0,0,14,0"/><StackPanel Grid.Column="1"><TextBlock Text="{DynamicResource Tag}" FontSize="16"/><TextBlock Text="{DynamicResource TagHint}" Style="{StaticResource MutedTextStyle}"/></StackPanel><ui:TextBox Grid.Column="2" Text="{Binding ImageTag}" PlaceholderText="registry/name:tag" VerticalAlignment="Center" Margin="12,0" IsEnabled="{Binding HasSelectedImage}"/><ui:Button Grid.Column="3" Content="{DynamicResource Tag}" Command="{Binding TagImageCommand}" IsEnabled="{Binding HasSelectedImage}"/></Grid></Border>
-
-                    <StackPanel Visibility="{Binding HasImageInspectOutput, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <TextBlock Text="{DynamicResource ImageInspectOutput}" Style="{StaticResource SectionTitleStyle}" Margin="0,8,0,10"/>
-                        <ui:TextBox Text="{Binding ImageInspectOutput, Mode=OneWay}" IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap" FontFamily="Consolas" Height="220" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Auto"/>
+            <GridSplitter Grid.Column="1" Width="12" Background="Transparent" />
+            <Border Grid.Column="2" Style="{StaticResource ResourceSurfaceStyle}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="22">
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <Border Width="64" Height="64" CornerRadius="12" Background="{ui:ThemeResource ControlFillColorTertiaryBrush}" Margin="0,0,16,0"><ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xE7B8;" FontSize="28" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center"><TextBlock Text="{Binding SelectedImageDisplayName}" FontSize="22" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" /><TextBlock Text="{Binding SelectedImage.Id}" FontFamily="Consolas" Style="{StaticResource MutedTextStyle}" TextTrimming="CharacterEllipsis" Margin="0,5,0,0" /><WrapPanel Margin="0,6,0,0"><TextBlock Text="{Binding SelectedImage.DisplaySize}" Style="{StaticResource MutedTextStyle}" Margin="0,0,16,0" /><TextBlock Text="{Binding SelectedImage.DisplayCreated}" Style="{StaticResource MutedTextStyle}" /></WrapPanel></StackPanel>
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top" Margin="12,0,0,0">
+                                <ui:Button Content="{DynamicResource Inspect}" Appearance="Secondary" Command="{Binding InspectImageCommand}" IsEnabled="{Binding HasSelectedImage}" Margin="0,0,8,0" />
+                                <ui:Button Icon="{ui:SymbolIcon Symbol=MoreVertical24}" Style="{StaticResource ResourceIconButtonStyle}" ToolTip="{DynamicResource Actions}" AutomationProperties.Name="{DynamicResource Actions}" IsEnabled="{Binding HasSelectedImage}" Tag="{Binding}" Click="OpenContextMenuButton_Click">
+                                    <ui:Button.ContextMenu><ContextMenu><MenuItem Header="{DynamicResource Save}" Command="{Binding PlacementTarget.Tag.SaveImageCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" /><MenuItem Header="{DynamicResource Push}" Command="{Binding PlacementTarget.Tag.PushImageCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" /><Separator /><MenuItem Header="{DynamicResource Remove}" Command="{Binding PlacementTarget.Tag.RemoveImageCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" /></ContextMenu></ui:Button.ContextMenu>
+                                </ui:Button>
+                            </StackPanel>
+                        </Grid>
+                        <Border Style="{StaticResource ResourceToolbarStyle}" Margin="0,22,0,14">
+                            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition /><ColumnDefinition Width="220" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><ui:SymbolIcon Symbol="Tag24" FontSize="20" Margin="0,0,12,0" /><StackPanel Grid.Column="1"><TextBlock Text="{DynamicResource Tag}" FontSize="15" FontWeight="SemiBold" /><TextBlock Text="{DynamicResource TagHint}" Style="{StaticResource MutedTextStyle}" /></StackPanel><ui:TextBox Grid.Column="2" Text="{Binding ImageTag}" PlaceholderText="registry/name:tag" VerticalAlignment="Center" Margin="12,0" IsEnabled="{Binding HasSelectedImage}" /><ui:Button Grid.Column="3" Content="{DynamicResource Tag}" Command="{Binding TagImageCommand}" IsEnabled="{Binding HasSelectedImage}" /></Grid>
+                        </Border>
+                        <StackPanel Visibility="{Binding HasImageInspectOutput, Converter={StaticResource BooleanToVisibilityConverter}}"><TextBlock Text="{DynamicResource ImageInspectOutput}" Style="{StaticResource SectionTitleStyle}" Margin="0,8,0,10" /><ui:TextBox Text="{Binding ImageInspectOutput, Mode=OneWay}" IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap" FontFamily="Consolas" Height="220" AutomationProperties.Name="{DynamicResource ImageInspectOutput}" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Auto" /></StackPanel>
                     </StackPanel>
-                </StackPanel></ScrollViewer>
+                </ScrollViewer>
             </Border>
         </Grid>
     </Grid>
