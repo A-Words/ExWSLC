@@ -49,9 +49,9 @@
                 <ui:Button Grid.Column="2" Icon="{ui:SymbolIcon Symbol=MoreVertical24}" Style="{StaticResource ResourceIconButtonStyle}" ToolTip="{DynamicResource Actions}" AutomationProperties.Name="{DynamicResource Actions}" Margin="8,0,0,0" Tag="{Binding}" Click="OpenContextMenuButton_Click">
                     <ui:Button.ContextMenu>
                         <ContextMenu>
-                            <MenuItem Header="{DynamicResource GeneralImageOperations}" Click="ShowImageOperationsMenuItem_Click" />
+                            <ui:MenuItem Header="{DynamicResource GeneralImageOperations}" Click="ShowImageOperationsMenuItem_Click" />
                             <Separator />
-                            <MenuItem Header="{DynamicResource PruneDanglingImages}" Command="{Binding PlacementTarget.Tag.PruneCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="image" />
+                            <ui:MenuItem Header="{DynamicResource PruneDanglingImages}" Command="{Binding PlacementTarget.Tag.PruneCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="image" />
                         </ContextMenu>
                     </ui:Button.ContextMenu>
                 </ui:Button>
@@ -111,7 +111,7 @@
                             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top" Margin="12,0,0,0">
                                 <ui:Button Content="{DynamicResource Inspect}" Appearance="Secondary" Command="{Binding InspectImageCommand}" IsEnabled="{Binding HasSelectedImage}" Margin="0,0,8,0" />
                                 <ui:Button Icon="{ui:SymbolIcon Symbol=MoreVertical24}" Style="{StaticResource ResourceIconButtonStyle}" ToolTip="{DynamicResource Actions}" AutomationProperties.Name="{DynamicResource Actions}" IsEnabled="{Binding HasSelectedImage}" Tag="{Binding}" Click="OpenContextMenuButton_Click">
-                                    <ui:Button.ContextMenu><ContextMenu><MenuItem Header="{DynamicResource Save}" Command="{Binding PlacementTarget.Tag.SaveImageCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" /><MenuItem Header="{DynamicResource Push}" Command="{Binding PlacementTarget.Tag.PushImageCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" /><Separator /><MenuItem Header="{DynamicResource Remove}" Command="{Binding PlacementTarget.Tag.RemoveImageCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" /></ContextMenu></ui:Button.ContextMenu>
+                                    <ui:Button.ContextMenu><ContextMenu><ui:MenuItem Header="{DynamicResource Save}" Command="{Binding PlacementTarget.Tag.SaveImageCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" /><ui:MenuItem Header="{DynamicResource Push}" Command="{Binding PlacementTarget.Tag.PushImageCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" /><Separator /><ui:MenuItem Header="{DynamicResource Remove}" Command="{Binding PlacementTarget.Tag.RemoveImageCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" /></ContextMenu></ui:Button.ContextMenu>
                                 </ui:Button>
                             </StackPanel>
                         </Grid>

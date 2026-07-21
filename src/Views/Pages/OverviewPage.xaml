@@ -97,14 +97,14 @@
                     <Grid>
                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition/></Grid.RowDefinitions>
                         <Grid Margin="18,14,14,8"><TextBlock Text="{DynamicResource ActiveContainers}" FontSize="16" FontWeight="SemiBold"/><ui:Button Content="{DynamicResource ViewAll}" Appearance="Secondary" Background="Transparent" BorderThickness="0" Click="OpenContainers_Click" HorizontalAlignment="Right" Padding="4"/></Grid>
-                        <DataGrid Grid.Row="1" ItemsSource="{Binding ActiveContainers}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" HeadersVisibility="Column" GridLinesVisibility="Horizontal" BorderThickness="0" MinHeight="180">
-                            <DataGrid.Columns>
+                        <ui:DataGrid Grid.Row="1" ItemsSource="{Binding ActiveContainers}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" HeadersVisibility="Column" GridLinesVisibility="Horizontal" BorderThickness="0" MinHeight="180">
+                            <ui:DataGrid.Columns>
                                 <DataGridTemplateColumn Header="name" Width="1.1*"><DataGridTemplateColumn.HeaderTemplate><DataTemplate><TextBlock Text="{DynamicResource Name}"/></DataTemplate></DataGridTemplateColumn.HeaderTemplate><DataGridTemplateColumn.CellTemplate><DataTemplate><ui:Button Appearance="Secondary" Background="Transparent" BorderThickness="0" Click="OpenContainer_Click" HorizontalAlignment="Left" Padding="0"><StackPanel Orientation="Horizontal"><Border Width="6" Height="6" CornerRadius="3" Background="{ui:ThemeResource SystemFillColorSuccessBrush}" Margin="0,0,8,0"/><TextBlock Text="{Binding Name}" FontWeight="SemiBold"/></StackPanel></ui:Button></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
                                 <DataGridTextColumn Header="image" Binding="{Binding Image}" Width="1.6*"><DataGridTextColumn.HeaderTemplate><DataTemplate><TextBlock Text="{DynamicResource Image}"/></DataTemplate></DataGridTextColumn.HeaderTemplate></DataGridTextColumn>
                                 <DataGridTextColumn Header="state" Binding="{Binding State}" Width=".65*"><DataGridTextColumn.HeaderTemplate><DataTemplate><TextBlock Text="{DynamicResource State}"/></DataTemplate></DataGridTextColumn.HeaderTemplate></DataGridTextColumn>
                                 <DataGridTextColumn Header="status" Binding="{Binding Status}" Width=".85*"><DataGridTextColumn.HeaderTemplate><DataTemplate><TextBlock Text="{DynamicResource Status}"/></DataTemplate></DataGridTextColumn.HeaderTemplate></DataGridTextColumn>
-                            </DataGrid.Columns>
-                        </DataGrid>
+                            </ui:DataGrid.Columns>
+                        </ui:DataGrid>
                     </Grid>
                 </Border>
                 <Border Grid.Column="2" Style="{StaticResource DashboardPanelStyle}">

@@ -100,11 +100,6 @@
                 <Setter Property="Opacity" Value="0.6" />
                 <Setter Property="Foreground" Value="{ui:ThemeResource TextFillColorPrimaryBrush}" />
             </Style>
-            <Style x:Key="DetailCardButtonStyle" TargetType="Button">
-                <Setter Property="Padding" Value="10,6" />
-                <Setter Property="MinWidth" Value="76" />
-                <Setter Property="Margin" Value="4,0,0,0" />
-            </Style>
             <ResourceDictionary.MergedDictionaries>
                 <ui:ThemesDictionary Theme="Light" />
                 <ui:ControlsDictionary />

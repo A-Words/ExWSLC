@@ -1,4 +1,5 @@
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace ExWSLC.Tests;
 
@@ -82,6 +83,25 @@ public class ResourcePagesXamlTests
         var mainWindow = File.ReadAllText(Path.Combine(sourceDirectory, "MainWindow.xaml"));
         Assert.Contains("ContentDialogHost", mainWindow);
         Assert.Contains("IsDisableSiblingsEnabled=\"True\"", mainWindow);
+    }
+
+    [Fact]
+    public void FluentControls_DoNotFallBackToNativeVariantsOrDetachedStyles()
+    {
+        var sourceDirectory = GetSourceDirectory();
+        var xamlSources = Directory.GetFiles(sourceDirectory, "*.xaml", SearchOption.AllDirectories)
+            .Select(File.ReadAllText)
+            .ToArray();
+        var combinedXaml = string.Join(Environment.NewLine, xamlSources);
+
+        Assert.DoesNotMatch(new Regex(@"<MenuItem(?:\s|>)"), combinedXaml);
+        Assert.DoesNotMatch(new Regex(@"<DataGrid\s"), combinedXaml);
+        Assert.DoesNotContain("DetailCardButtonStyle", combinedXaml);
+
+        var tasksPage = File.ReadAllText(Path.Combine(sourceDirectory, "Views", "Pages", "TasksPage.xaml"));
+        var containerDetail = File.ReadAllText(Path.Combine(sourceDirectory, "Views", "Pages", "Containers", "ContainerDetailView.xaml"));
+        Assert.Contains("TargetType=\"ui:ProgressRing\" BasedOn=\"{StaticResource {x:Type ui:ProgressRing}}\"", tasksPage);
+        Assert.Contains("TargetType=\"ui:SymbolIcon\" BasedOn=\"{StaticResource {x:Type ui:SymbolIcon}}\"", containerDetail);
     }
 
     private static string GetSourceDirectory()

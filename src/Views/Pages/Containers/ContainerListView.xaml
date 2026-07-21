@@ -107,17 +107,17 @@
                                    Click="MoreActionsButton_Click">
                             <ui:Button.ContextMenu>
                                 <ContextMenu>
-                                    <MenuItem Header="{DynamicResource Restart}"
+                                    <ui:MenuItem Header="{DynamicResource Restart}"
                                               Command="{Binding PlacementTarget.Tag.RestartContainerFromListCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                               CommandParameter="{Binding PlacementTarget.DataContext.Container, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
-                                    <MenuItem Header="{DynamicResource Details}"
+                                    <ui:MenuItem Header="{DynamicResource Details}"
                                               Command="{Binding PlacementTarget.Tag.ShowContainerDetailsFromListCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                               CommandParameter="{Binding PlacementTarget.DataContext.Container, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
-                                    <MenuItem Header="{DynamicResource Terminal}"
+                                    <ui:MenuItem Header="{DynamicResource Terminal}"
                                               Command="{Binding PlacementTarget.Tag.OpenTerminalFromListCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                               CommandParameter="{Binding PlacementTarget.DataContext.Container, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
                                     <Separator />
-                                    <MenuItem Header="{DynamicResource Remove}"
+                                    <ui:MenuItem Header="{DynamicResource Remove}"
                                               Command="{Binding PlacementTarget.Tag.RemoveContainerFromListCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                               CommandParameter="{Binding PlacementTarget.DataContext.Container, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
                                 </ContextMenu>

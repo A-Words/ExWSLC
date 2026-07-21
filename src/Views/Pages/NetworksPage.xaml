@@ -28,7 +28,7 @@
                     <ui:Button Grid.Column="2" Icon="{ui:SymbolIcon Symbol=MoreVertical24}" Style="{StaticResource ResourceIconButtonStyle}" ToolTip="{DynamicResource Actions}" AutomationProperties.Name="{DynamicResource Actions}" Margin="8,0,0,0" Tag="{Binding}" Click="OpenContextMenuButton_Click">
                         <ui:Button.ContextMenu>
                             <ContextMenu>
-                                <MenuItem Header="{DynamicResource Prune}" Command="{Binding PlacementTarget.Tag.PruneNetworksCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                <ui:MenuItem Header="{DynamicResource Prune}" Command="{Binding PlacementTarget.Tag.PruneNetworksCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
                             </ContextMenu>
                         </ui:Button.ContextMenu>
                     </ui:Button>
@@ -56,7 +56,7 @@
                                         <StackPanel Orientation="Horizontal" Margin="6,0">
                                             <ui:Button Content="{DynamicResource Inspect}" Appearance="Secondary" Command="{Binding DataContext.InspectNetworkCommand, RelativeSource={RelativeSource AncestorType=Page}}" CommandParameter="{Binding}" Margin="0,0,6,0" />
                                             <ui:Button Icon="{ui:SymbolIcon Symbol=MoreVertical24}" Style="{StaticResource ResourceIconButtonStyle}" ToolTip="{DynamicResource Actions}" AutomationProperties.Name="{DynamicResource Actions}" Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Page}}" Click="OpenContextMenuButton_Click">
-                                                <ui:Button.ContextMenu><ContextMenu><MenuItem Header="{DynamicResource Remove}" Command="{Binding PlacementTarget.Tag.RemoveNetworkCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" /></ContextMenu></ui:Button.ContextMenu>
+                                                <ui:Button.ContextMenu><ContextMenu><ui:MenuItem Header="{DynamicResource Remove}" Command="{Binding PlacementTarget.Tag.RemoveNetworkCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" /></ContextMenu></ui:Button.ContextMenu>
                                             </ui:Button>
                                         </StackPanel>
                                     </DataTemplate>
