@@ -179,20 +179,22 @@
         <Border Grid.Row="2" Style="{StaticResource ResourceSurfaceStyle}">
             <Grid>
                 <Grid.RowDefinitions><RowDefinition Height="40" /><RowDefinition Height="*" /></Grid.RowDefinitions>
-                <Grid Background="{ui:ThemeResource ControlFillColorSecondaryBrush}" Margin="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*" /><ColumnDefinition Width="1.5*" />
-                        <ColumnDefinition Width="110" /><ColumnDefinition Width="1.2*" />
-                        <ColumnDefinition Width="90" /><ColumnDefinition Width="100" /><ColumnDefinition Width="112" />
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Text="{DynamicResource Name}" Margin="14,0" VerticalAlignment="Center" FontWeight="SemiBold" />
-                    <TextBlock Grid.Column="1" Text="{DynamicResource Image}" Margin="12,0" VerticalAlignment="Center" FontWeight="SemiBold" />
-                    <TextBlock Grid.Column="2" Text="{DynamicResource State}" Margin="12,0" VerticalAlignment="Center" FontWeight="SemiBold" />
-                    <TextBlock Grid.Column="3" Text="{DynamicResource Ports}" Margin="12,0" VerticalAlignment="Center" FontWeight="SemiBold" />
-                    <TextBlock Grid.Column="4" Text="{DynamicResource Cpu}" Margin="12,0" VerticalAlignment="Center" FontWeight="SemiBold" />
-                    <TextBlock Grid.Column="5" Text="{DynamicResource Memory}" Margin="12,0" VerticalAlignment="Center" FontWeight="SemiBold" />
-                    <TextBlock Grid.Column="6" Text="{DynamicResource Actions}" Margin="12,0" VerticalAlignment="Center" FontWeight="SemiBold" />
-                </Grid>
+                <Border Background="{ui:ThemeResource ControlFillColorSecondaryBrush}" CornerRadius="8,8,0,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*" /><ColumnDefinition Width="1.5*" />
+                            <ColumnDefinition Width="110" /><ColumnDefinition Width="1.2*" />
+                            <ColumnDefinition Width="90" /><ColumnDefinition Width="100" /><ColumnDefinition Width="112" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{DynamicResource Name}" Margin="14,0" VerticalAlignment="Center" FontWeight="SemiBold" />
+                        <TextBlock Grid.Column="1" Text="{DynamicResource Image}" Margin="12,0" VerticalAlignment="Center" FontWeight="SemiBold" />
+                        <TextBlock Grid.Column="2" Text="{DynamicResource State}" Margin="12,0" VerticalAlignment="Center" FontWeight="SemiBold" />
+                        <TextBlock Grid.Column="3" Text="{DynamicResource Ports}" Margin="12,0" VerticalAlignment="Center" FontWeight="SemiBold" />
+                        <TextBlock Grid.Column="4" Text="{DynamicResource Cpu}" Margin="12,0" VerticalAlignment="Center" FontWeight="SemiBold" />
+                        <TextBlock Grid.Column="5" Text="{DynamicResource Memory}" Margin="12,0" VerticalAlignment="Center" FontWeight="SemiBold" />
+                        <TextBlock Grid.Column="6" Text="{DynamicResource Actions}" Margin="12,0" VerticalAlignment="Center" FontWeight="SemiBold" />
+                    </Grid>
+                </Border>
                 <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <ItemsControl ItemsSource="{Binding VisibleContainerItems}" ItemTemplate="{StaticResource ContainerListItemTemplate}" />
                 </ScrollViewer>

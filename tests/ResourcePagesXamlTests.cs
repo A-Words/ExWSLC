@@ -104,6 +104,17 @@ public class ResourcePagesXamlTests
         Assert.Contains("TargetType=\"ui:SymbolIcon\" BasedOn=\"{StaticResource {x:Type ui:SymbolIcon}}\"", containerDetail);
     }
 
+    [Fact]
+    public void ContainerViews_PreserveRoundedHeaderAndPageSpacing()
+    {
+        var containersDirectory = Path.Combine(GetSourceDirectory(), "Views", "Pages", "Containers");
+        var containerList = File.ReadAllText(Path.Combine(containersDirectory, "ContainerListView.xaml"));
+        var containerDetail = File.ReadAllText(Path.Combine(containersDirectory, "ContainerDetailView.xaml"));
+
+        Assert.Contains("CornerRadius=\"8,8,0,0\"", containerList);
+        Assert.Contains("<Grid Margin=\"24,18,24,24\">", containerDetail);
+    }
+
     private static string GetSourceDirectory()
     {
         for (var directory = new DirectoryInfo(AppContext.BaseDirectory); directory is not null; directory = directory.Parent)
