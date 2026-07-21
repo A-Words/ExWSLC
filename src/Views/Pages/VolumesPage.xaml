@@ -27,8 +27,8 @@
             </Border>
             <Border Style="{StaticResource ResourceSurfaceStyle}">
                 <Grid MinHeight="300">
-                    <DataGrid ItemsSource="{Binding VisibleVolumes}" SelectedItem="{Binding SelectedVolume}" Style="{StaticResource ResourceDataGridStyle}">
-                        <DataGrid.Columns>
+                    <ui:DataGrid ItemsSource="{Binding VisibleVolumes}" SelectedItem="{Binding SelectedVolume}" Style="{StaticResource ResourceDataGridStyle}">
+                        <ui:DataGrid.Columns>
                             <DataGridTextColumn Header="name" Binding="{Binding Name}" Width="1.1*"><DataGridTextColumn.HeaderTemplate><DataTemplate><TextBlock Text="{DynamicResource VolumeName}" /></DataTemplate></DataGridTextColumn.HeaderTemplate></DataGridTextColumn>
                             <DataGridTextColumn Header="driver" Binding="{Binding DisplayDriver}" Width=".75*"><DataGridTextColumn.HeaderTemplate><DataTemplate><TextBlock Text="{DynamicResource Driver}" /></DataTemplate></DataGridTextColumn.HeaderTemplate></DataGridTextColumn>
                             <DataGridTextColumn Header="size" Binding="{Binding DisplaySize}" Width=".75*"><DataGridTextColumn.HeaderTemplate><DataTemplate><TextBlock Text="{DynamicResource Size}" /></DataTemplate></DataGridTextColumn.HeaderTemplate></DataGridTextColumn>
@@ -37,8 +37,8 @@
                                 <DataGridTemplateColumn.HeaderTemplate><DataTemplate><TextBlock Text="{DynamicResource Actions}" /></DataTemplate></DataGridTemplateColumn.HeaderTemplate>
                                 <DataGridTemplateColumn.CellTemplate><DataTemplate><ui:Button Icon="{ui:SymbolIcon Symbol=MoreVertical24}" Style="{StaticResource ResourceIconButtonStyle}" ToolTip="{DynamicResource Actions}" AutomationProperties.Name="{DynamicResource Actions}" Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Page}}" Click="OpenContextMenuButton_Click" Margin="6,0"><ui:Button.ContextMenu><ContextMenu><MenuItem Header="{DynamicResource Remove}" Command="{Binding PlacementTarget.Tag.RemoveVolumeCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" /></ContextMenu></ui:Button.ContextMenu></ui:Button></DataTemplate></DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                        </DataGrid.Columns>
-                    </DataGrid>
+                        </ui:DataGrid.Columns>
+                    </ui:DataGrid>
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                         <StackPanel.Style><Style TargetType="StackPanel"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding VisibleVolumes.Count}" Value="0"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></StackPanel.Style>
                         <ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xEDA2;" FontSize="30" Opacity=".55" HorizontalAlignment="Center" />

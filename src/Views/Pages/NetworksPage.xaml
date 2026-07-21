@@ -39,8 +39,8 @@
 
             <Border Style="{StaticResource ResourceSurfaceStyle}">
                 <Grid MinHeight="300" MaxHeight="380">
-                    <DataGrid ItemsSource="{Binding VisibleNetworks}" SelectedItem="{Binding SelectedNetwork}" Style="{StaticResource ResourceDataGridStyle}">
-                        <DataGrid.Columns>
+                    <ui:DataGrid ItemsSource="{Binding VisibleNetworks}" SelectedItem="{Binding SelectedNetwork}" Style="{StaticResource ResourceDataGridStyle}">
+                        <ui:DataGrid.Columns>
                             <DataGridTemplateColumn Header="name" Width="1.25*">
                                 <DataGridTemplateColumn.HeaderTemplate><DataTemplate><TextBlock Text="{DynamicResource NetworkName}" /></DataTemplate></DataGridTemplateColumn.HeaderTemplate>
                                 <DataGridTemplateColumn.CellTemplate><DataTemplate><StackPanel Margin="6,4"><TextBlock Text="{Binding Name}" FontWeight="SemiBold" /><TextBlock Text="{Binding DisplayId}" Style="{StaticResource MutedTextStyle}" TextTrimming="CharacterEllipsis" ToolTip="{Binding DisplayId}" /></StackPanel></DataTemplate></DataGridTemplateColumn.CellTemplate>
@@ -62,8 +62,8 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                        </DataGrid.Columns>
-                    </DataGrid>
+                        </ui:DataGrid.Columns>
+                    </ui:DataGrid>
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
                         <StackPanel.Style><Style TargetType="StackPanel"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding VisibleNetworks.Count}" Value="0"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></StackPanel.Style>
                         <ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xE774;" FontSize="30" Opacity=".55" HorizontalAlignment="Center" />

@@ -50,7 +50,9 @@
                 <Setter Property="CornerRadius" Value="8" />
                 <Setter Property="ClipToBounds" Value="True" />
             </Style>
-            <Style x:Key="ResourceDataGridStyle" TargetType="DataGrid">
+            <Style x:Key="ResourceDataGridStyle"
+                   TargetType="ui:DataGrid"
+                   BasedOn="{StaticResource {x:Type ui:DataGrid}}">
                 <Setter Property="AutoGenerateColumns" Value="False" />
                 <Setter Property="IsReadOnly" Value="True" />
                 <Setter Property="CanUserAddRows" Value="False" />

@@ -28,6 +28,7 @@ public class ResourcePagesXamlTests
         var volumeCreateDialog = File.ReadAllText(Path.Combine(dialogsDirectory, "VolumeCreateDialogContent.xaml"));
 
         Assert.Contains("DisplayDriver", networksPage);
+        Assert.Contains("<ui:DataGrid", networksPage);
         Assert.Contains("DisplaySubnet", networksPage);
         Assert.Contains("DisplayGateway", networksPage);
         Assert.Contains("NetworkDriver", networkCreateDialog);
@@ -43,6 +44,7 @@ public class ResourcePagesXamlTests
         Assert.DoesNotContain("DynamicResource NetworkMode", networksPage);
         Assert.Contains("RemoveNetworkCommand", networksPage);
         Assert.Contains("DisplaySize", volumesPage);
+        Assert.Contains("<ui:DataGrid", volumesPage);
         Assert.Contains("DisplayMountpoint", volumesPage);
         Assert.Contains("VolumeDriver", volumeCreateDialog);
         Assert.Contains("VolumeOptions", volumeCreateDialog);
