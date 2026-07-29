@@ -5,6 +5,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:designViewModels="clr-namespace:ExWSLC.ViewModels.Design"
+      x:Name="RootPage"
       mc:Ignorable="d"
       d:DataContext="{d:DesignInstance Type=designViewModels:DesignSettingsViewModel, IsDesignTimeCreatable=True}"
       Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}">
@@ -57,7 +58,11 @@
         </Style>
     </Page.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <ScrollViewer x:Name="SettingsScrollViewer"
+                  Height="{Binding ActualHeight, ElementName=RootPage}"
+                  VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  PreviewMouseWheel="SettingsScrollViewer_OnPreviewMouseWheel">
         <StackPanel Margin="24,18,24,28" MaxWidth="1180">
             <TextBlock Text="{DynamicResource SettingsTitle}" Style="{StaticResource PageTitleStyle}" />
             <TextBlock Text="{DynamicResource SettingsSubtitle}" Style="{StaticResource PageSubtitleStyle}" />

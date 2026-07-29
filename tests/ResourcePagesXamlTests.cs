@@ -127,6 +127,10 @@ public class ResourcePagesXamlTests
         Assert.Contains("<ui:CardAction ", settingsPage);
         Assert.Contains("Appearance=\"Danger\"", settingsPage);
         Assert.Contains("<WrapPanel>", settingsPage);
+        Assert.Contains("x:Name=\"SettingsScrollViewer\"", settingsPage);
+        Assert.Contains("Height=\"{Binding ActualHeight, ElementName=RootPage}\"", settingsPage);
+        Assert.Contains("PreviewMouseWheel=\"SettingsScrollViewer_OnPreviewMouseWheel\"", settingsPage);
+        Assert.Contains("HorizontalScrollBarVisibility=\"Disabled\"", settingsPage);
         Assert.Equal(6, Regex.Matches(settingsPage, "AutomationProperties.LabeledBy").Count);
         Assert.Contains("RegistryServer, UpdateSourceTrigger=PropertyChanged", settingsPage);
         Assert.Contains("RegistryUsername, UpdateSourceTrigger=PropertyChanged", settingsPage);
