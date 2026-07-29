@@ -30,9 +30,6 @@
                            OpenPaneLength="220"
                            IsBackButtonVisible="Collapsed">
             <ui:NavigationView.MenuItems>
-                <ui:NavigationViewItem Content="{DynamicResource NavOverview}" NavigationCacheMode="Enabled" TargetPageType="{x:Type pages:OverviewPage}">
-                    <ui:NavigationViewItem.Icon><ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xE80F;" /></ui:NavigationViewItem.Icon>
-                </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="{DynamicResource NavContainers}" NavigationCacheMode="Enabled" TargetPageType="{x:Type containerPages:ContainersPage}">
                     <ui:NavigationViewItem.Icon><ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xF5ED;" /></ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
@@ -44,9 +41,6 @@
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="{DynamicResource NavVolumes}" NavigationCacheMode="Enabled" TargetPageType="{x:Type pages:VolumesPage}">
                     <ui:NavigationViewItem.Icon><ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xEDA2;" /></ui:NavigationViewItem.Icon>
-                </ui:NavigationViewItem>
-                <ui:NavigationViewItem Content="{DynamicResource NavTasks}" NavigationCacheMode="Enabled" TargetPageType="{x:Type pages:TasksPage}">
-                    <ui:NavigationViewItem.Icon><ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xE9D9;" /></ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
             </ui:NavigationView.MenuItems>
             <ui:NavigationView.FooterMenuItems>

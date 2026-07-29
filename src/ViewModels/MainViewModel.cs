@@ -12,18 +12,14 @@ public partial class MainViewModel : ObservableObject, IDisposable
         ImagesPage = new ImagesViewModel(Workspace);
         NetworksPage = new NetworksViewModel(Workspace);
         VolumesPage = new VolumesViewModel(Workspace);
-        TasksPage = new TasksViewModel(Workspace);
         SettingsPage = new SettingsViewModel(Workspace);
-        OverviewPage = new OverviewViewModel(Workspace, Containers);
     }
 
     public RuntimeWorkspace Workspace { get; }
-    public OverviewViewModel OverviewPage { get; }
     public ContainersViewModel Containers { get; }
     public ImagesViewModel ImagesPage { get; }
     public NetworksViewModel NetworksPage { get; }
     public VolumesViewModel VolumesPage { get; }
-    public TasksViewModel TasksPage { get; }
     public SettingsViewModel SettingsPage { get; }
 
     public Task InitializeAsync() => Workspace.InitializeAsync();

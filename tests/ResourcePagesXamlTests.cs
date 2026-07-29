@@ -6,16 +6,21 @@ namespace ExWSLC.Tests;
 public class ResourcePagesXamlTests
 {
     [Fact]
-    public void Navigation_UsesSeparateNetworkAndVolumePages()
+    public void Navigation_UsesResourcePagesWithoutOverviewOrTasks()
     {
         var sourceDirectory = GetSourceDirectory();
         var mainWindow = File.ReadAllText(Path.Combine(sourceDirectory, "MainWindow.xaml"));
+        var mainWindowCodeBehind = File.ReadAllText(Path.Combine(sourceDirectory, "MainWindow.xaml.cs"));
 
         Assert.Contains("NavNetworks", mainWindow);
         Assert.Contains("TargetPageType=\"{x:Type pages:NetworksPage}\"", mainWindow);
         Assert.Contains("NavVolumes", mainWindow);
         Assert.Contains("TargetPageType=\"{x:Type pages:VolumesPage}\"", mainWindow);
+        Assert.DoesNotContain("NavOverview", mainWindow);
+        Assert.DoesNotContain("NavTasks", mainWindow);
         Assert.DoesNotContain("ResourcesPage", mainWindow);
+        Assert.Contains("Navigate(typeof(ContainersPage))", mainWindowCodeBehind);
+        Assert.DoesNotContain("Navigate(typeof(OverviewPage))", mainWindowCodeBehind);
     }
 
     [Fact]
@@ -98,9 +103,7 @@ public class ResourcePagesXamlTests
         Assert.DoesNotMatch(new Regex(@"<DataGrid\s"), combinedXaml);
         Assert.DoesNotContain("DetailCardButtonStyle", combinedXaml);
 
-        var tasksPage = File.ReadAllText(Path.Combine(sourceDirectory, "Views", "Pages", "TasksPage.xaml"));
         var containerDetail = File.ReadAllText(Path.Combine(sourceDirectory, "Views", "Pages", "Containers", "ContainerDetailView.xaml"));
-        Assert.Contains("TargetType=\"ui:ProgressRing\" BasedOn=\"{StaticResource {x:Type ui:ProgressRing}}\"", tasksPage);
         Assert.Contains("TargetType=\"ui:SymbolIcon\" BasedOn=\"{StaticResource {x:Type ui:SymbolIcon}}\"", containerDetail);
     }
 

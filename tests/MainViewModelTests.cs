@@ -65,7 +65,6 @@ public class MainViewModelTests
         Assert.Equal("alpine", viewModel.ImagesPage.ImageSearchText);
         Assert.Same(viewModel.Workspace.Networks, viewModel.NetworksPage.Networks);
         Assert.Same(viewModel.Workspace.Volumes, viewModel.VolumesPage.Volumes);
-        Assert.Same(viewModel.Workspace.Tasks, viewModel.TasksPage.Tasks);
         Assert.Contains(nameof(ContainersViewModel.SearchText), changes);
         viewModel.Dispose();
     }
@@ -74,14 +73,11 @@ public class MainViewModelTests
     public void DesignViewModels_ExposeSampleDataWithoutRuntimeServices()
     {
         var containers = new DesignContainersViewModel();
-        var overview = new DesignOverviewViewModel();
         var images = new DesignImagesViewModel();
 
         Assert.NotEmpty(containers.VisibleContainerItems);
         Assert.NotNull(containers.SelectedContainer);
-        Assert.NotEmpty(overview.ActiveContainers);
         Assert.NotEmpty(images.VisibleImages);
-        Assert.True(overview.Capabilities.IsAvailable);
     }
 
     [Fact]
@@ -169,32 +165,6 @@ public class MainViewModelTests
 
         Assert.False(viewModel.Workspace.IsBusy);
         Assert.Contains("runtime failed", viewModel.Workspace.StatusMessage);
-        viewModel.Dispose();
-    }
-
-    [Fact]
-    public async Task InitializeAsync_PopulatesGuidedDashboardWithRunningContainers()
-    {
-        var runtime = new Mock<IContainerRuntime>();
-        var containers = Enumerable.Range(1, 5)
-            .Select(index => new ContainerSummary($"id-{index}", $"running-{index}", "alpine", "running", "Up", string.Empty, "now"))
-            .Append(new ContainerSummary("id-stopped", "stopped", "alpine", "stopped", "Exited", string.Empty, "now"))
-            .ToArray();
-        runtime.Setup(value => value.GetContainersAsync(It.IsAny<CancellationToken>())).ReturnsAsync(containers);
-        runtime.Setup(value => value.GetImagesAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
-        runtime.Setup(value => value.GetNetworksAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
-        runtime.Setup(value => value.GetVolumesAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
-        runtime.Setup(value => value.GetStatsAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
-        var capabilities = new Mock<IRuntimeCapabilityService>();
-        capabilities.Setup(value => value.DetectAsync(It.IsAny<CancellationToken>())).ReturnsAsync(
-            new RuntimeCapabilities(true, "2.9.3", "2.9.3", [], "ready"));
-        var viewModel = CreateViewModel(runtime, capabilities);
-
-        await viewModel.InitializeAsync();
-
-        Assert.Equal(5, viewModel.Workspace.RunningContainerCount);
-        Assert.Equal(4, viewModel.OverviewPage.ActiveContainers.Count);
-        Assert.All(viewModel.OverviewPage.ActiveContainers, container => Assert.True(container.IsRunning));
         viewModel.Dispose();
     }
 

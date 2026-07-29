@@ -1,15 +1,11 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=System.Runtime">
-    <sys:String x:Key="NavOverview">Get started</sys:String><sys:String x:Key="NavContainers">Containers</sys:String>
+    <sys:String x:Key="NavContainers">Containers</sys:String>
     <sys:String x:Key="NavImages">Images</sys:String><sys:String x:Key="NavNetworks">Networks</sys:String><sys:String x:Key="NavVolumes">Volumes</sys:String>
-    <sys:String x:Key="NavTasks">Tasks</sys:String><sys:String x:Key="NavSettings">Settings</sys:String>
+    <sys:String x:Key="NavSettings">Settings</sys:String>
     <sys:String x:Key="PreviewNotice">WSL Container Preview · APIs may change</sys:String><sys:String x:Key="Refresh">Refresh</sys:String>
-    <sys:String x:Key="OverviewSubtitle">Runtime health and shortcuts for native WSL Container</sys:String>
-    <sys:String x:Key="HeroDescription">Build, run, and manage lightweight Linux containers on Windows</sys:String>
-    <sys:String x:Key="QuickAccess">Quick access</sys:String><sys:String x:Key="ContainersQuickHint">Create containers, control lifecycle, and inspect logs</sys:String>
-    <sys:String x:Key="ImagesQuickHint">Pull, build, tag, and publish container images</sys:String><sys:String x:Key="ResourcesQuickHint">Manage connectivity and persistent volumes</sys:String>
-    <sys:String x:Key="OverviewTitle">WSL Container overview</sys:String><sys:String x:Key="Running">Running</sys:String>
+    <sys:String x:Key="Running">Running</sys:String>
     <sys:String x:Key="Stopped">Stopped</sys:String><sys:String x:Key="Images">Images</sys:String>
     <sys:String x:Key="Networks">Networks</sys:String><sys:String x:Key="Volumes">Volumes</sys:String>
     <sys:String x:Key="Environment">Runtime environment</sys:String><sys:String x:Key="Cpu">CPU</sys:String><sys:String x:Key="Memory">Memory</sys:String>
@@ -57,8 +53,6 @@
     <sys:String x:Key="VolumesTitle">Volumes</sys:String><sys:String x:Key="VolumesSubtitle">Manage persistent container storage</sys:String>
     <sys:String x:Key="CreateNetwork">Create network</sys:String><sys:String x:Key="CreateNetworkHint">Configure the driver, driver options, and metadata labels</sys:String><sys:String x:Key="SearchNetworks">Search networks</sys:String>
     <sys:String x:Key="CreateVolume">Create volume</sys:String><sys:String x:Key="CreateVolumeHint">Configure the driver, driver options, and metadata labels</sys:String><sys:String x:Key="SearchVolumes">Search volumes</sys:String>
-    <sys:String x:Key="TasksTitle">Background tasks</sys:String><sys:String x:Key="ClearCompleted">Clear completed</sys:String><sys:String x:Key="CancelCurrent">Cancel current task</sys:String>
-    <sys:String x:Key="TasksSubtitle">Track image transfers, builds, exports, and other long-running work</sys:String>
     <sys:String x:Key="SettingsTitle">Settings</sys:String><sys:String x:Key="Appearance">Appearance &amp; refresh</sys:String>
     <sys:String x:Key="SettingsSubtitle">Check runtime health and customize ExWSLC behavior</sys:String><sys:String x:Key="RuntimeEnvironment">Runtime environment</sys:String>
     <sys:String x:Key="NativeSettingsHint">Use the native WSLC YAML file for session resources and runtime options</sys:String><sys:String x:Key="Open">Open</sys:String>
@@ -67,32 +61,6 @@
     <sys:String x:Key="NativeSettings">Open native WSLC settings</sys:String><sys:String x:Key="ResetNativeSettings">Reset WSLC settings</sys:String><sys:String x:Key="InstallComponents">Install missing components</sys:String><sys:String x:Key="RegistryLogin">Container registry login</sys:String>
     <sys:String x:Key="Server">Server</sys:String><sys:String x:Key="Username">Username</sys:String>
     <sys:String x:Key="Password">Password or PAT</sys:String><sys:String x:Key="Login">Login</sys:String>
-    <sys:String x:Key="GetStartedTitle">Get started</sys:String>
-    <sys:String x:Key="GetStartedSubtitle">Choose an image, configure it, and run your Linux workload</sys:String>
-    <sys:String x:Key="RuntimeReadyTitle">WSL Container is ready</sys:String>
-    <sys:String x:Key="RuntimeReadyHint">You can pull images, create containers, and start workloads.</sys:String>
-    <sys:String x:Key="ViewPrerequisites">View prerequisites</sys:String>
-    <sys:String x:Key="CheckAgain">Check again</sys:String>
-    <sys:String x:Key="ChooseImage">Choose an image</sys:String>
-    <sys:String x:Key="ChooseImageHint">Search or pull an image from a registry</sys:String>
-    <sys:String x:Key="Configure">Configure</sys:String>
-    <sys:String x:Key="ConfigureHint">Set environment, ports, volumes, and resources</sys:String>
-    <sys:String x:Key="RunContainer">Run container</sys:String>
-    <sys:String x:Key="RunContainerHint">Start the container and follow its state</sys:String>
-    <sys:String x:Key="ActiveContainers">Active containers</sys:String>
-    <sys:String x:Key="ViewAll">View all</sys:String>
-    <sys:String x:Key="CurrentTask">Current task</sys:String>
-    <sys:String x:Key="NoCurrentTask">No task is running</sys:String>
-    <sys:String x:Key="NoCurrentTaskHint">Image pulls, builds, and exports will appear here.</sys:String>
-    <sys:String x:Key="RecentTasks">Recent tasks</sys:String>
-    <sys:String x:Key="Prerequisites">Prerequisites</sys:String>
-    <sys:String x:Key="WslInstalled">Windows Subsystem for Linux</sys:String>
-    <sys:String x:Key="WslInstalledHint">Host environment required by WSLC</sys:String>
-    <sys:String x:Key="ContainerRuntime">WSL Container runtime</sys:String>
-    <sys:String x:Key="ContainerRuntimeHint">Built-in CLI and container service</sys:String>
-    <sys:String x:Key="SdkIntegration">Application integration</sys:String>
-    <sys:String x:Key="SdkIntegrationHint">Microsoft.WSL.Containers SDK</sys:String>
-    <sys:String x:Key="Ready">Ready</sys:String>
     <sys:String x:Key="Unavailable">Unavailable</sys:String>
     <sys:String x:Key="Cancel">Cancel</sys:String>
     <sys:String x:Key="State">State</sys:String>

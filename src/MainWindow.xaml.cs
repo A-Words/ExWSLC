@@ -2,7 +2,7 @@ using System.Windows;
 using ExWSLC.Services;
 using ExWSLC.ViewModels;
 using ExWSLC.Views;
-using ExWSLC.Views.Pages;
+using ExWSLC.Views.Pages.Containers;
 using Wpf.Ui.Controls;
 
 namespace ExWSLC;
@@ -32,7 +32,7 @@ public partial class MainWindow : FluentWindow
 
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
-        RootNavigation.Navigate(typeof(OverviewPage));
+        RootNavigation.Navigate(typeof(ContainersPage));
         await _viewModel.InitializeAsync();
     }
 

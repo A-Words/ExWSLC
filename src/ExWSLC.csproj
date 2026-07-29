@@ -21,7 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Assets\wslc-ready-illustration.png" />
   </ItemGroup>
 
 </Project>
