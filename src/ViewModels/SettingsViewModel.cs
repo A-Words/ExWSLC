@@ -23,6 +23,10 @@ public partial class SettingsViewModel : ObservableObject
 
     public RuntimeWorkspace Workspace { get; }
     public RuntimeCapabilities Capabilities => Workspace.Capabilities;
+    public bool IsSdkAvailable =>
+        Capabilities.IsAvailable &&
+        !string.Equals(Capabilities.SdkVersion, "Preview API unavailable", StringComparison.OrdinalIgnoreCase);
+    public bool CanInstallComponents => Capabilities.MissingComponents.Count > 0;
 
     [ObservableProperty] public partial string RegistryServer { get; set; } = DefaultRegistryServer;
     [ObservableProperty] public partial string RegistryUsername { get; set; } = string.Empty;
@@ -33,26 +37,40 @@ public partial class SettingsViewModel : ObservableObject
 
     [RelayCommand] private void OpenNativeSettings() => Workspace.Runtime.OpenNativeSettings();
 
-    [RelayCommand]
+    private bool CanLoginRegistry() =>
+        !string.IsNullOrWhiteSpace(RegistryServer) &&
+        !string.IsNullOrWhiteSpace(RegistryUsername) &&
+        !string.IsNullOrEmpty(RegistryPassword);
+
+    [RelayCommand(CanExecute = nameof(CanLoginRegistry))]
     private async Task LoginRegistryAsync()
     {
-        if (string.IsNullOrWhiteSpace(RegistryServer) || string.IsNullOrWhiteSpace(RegistryUsername) || string.IsNullOrEmpty(RegistryPassword)) return;
         var result = await Workspace.Runtime.RegistryLoginAsync(RegistryServer, RegistryUsername, RegistryPassword, Workspace.Lifetime.Token);
         RegistryPassword = string.Empty;
         Workspace.ShowResult(result);
     }
 
+    partial void OnRegistryServerChanged(string value) => LoginRegistryCommand.NotifyCanExecuteChanged();
+
+    partial void OnRegistryUsernameChanged(string value) => LoginRegistryCommand.NotifyCanExecuteChanged();
+
+    partial void OnRegistryPasswordChanged(string value) => LoginRegistryCommand.NotifyCanExecuteChanged();
+
     [RelayCommand]
     private async Task ResetNativeSettingsAsync()
     {
-        if (!await Workspace.Interaction.ConfirmAsync("Reset WSLC settings", "Reset the native WSLC YAML settings to built-in defaults?")) return;
+        if (!await Workspace.Interaction.ConfirmAsync(
+                LocalizationService.GetString("ResetNativeSettings", "Reset WSLC settings"),
+                LocalizationService.GetString("ResetNativeSettingsConfirmation", "Reset the native WSLC YAML settings to built-in defaults?"))) return;
         Workspace.ShowResult(await Workspace.Runtime.ResetNativeSettingsAsync(Workspace.Lifetime.Token));
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanInstallComponents))]
     private async Task InstallComponentsAsync()
     {
-        if (!await Workspace.Interaction.ConfirmAsync("Install components", "Install missing WSL Container components using the Microsoft preview SDK?")) return;
+        if (!await Workspace.Interaction.ConfirmAsync(
+                LocalizationService.GetString("InstallComponents", "Install missing components"),
+                LocalizationService.GetString("InstallComponentsConfirmation", "Install missing WSL Container components using the Microsoft preview SDK?"))) return;
         Workspace.IsBusy = true;
         try
         {
@@ -60,7 +78,9 @@ public partial class SettingsViewModel : ObservableObject
         }
         catch (Exception exception)
         {
-            await Workspace.Interaction.ShowErrorAsync("Installation failed", exception.Message);
+            await Workspace.Interaction.ShowErrorAsync(
+                LocalizationService.GetString("InstallationFailed", "Installation failed"),
+                exception.Message);
         }
         finally
         {
@@ -77,7 +97,7 @@ public partial class SettingsViewModel : ObservableObject
         await Workspace.SettingsService.SaveAsync(Workspace.Lifetime.Token);
         LocalizationService.ApplyLanguage(SelectedLanguage);
         LocalizationService.ApplyTheme(SelectedTheme);
-        Workspace.StatusMessage = "Settings saved.";
+        Workspace.StatusMessage = LocalizationService.GetString("SettingsSavedStatus", "Settings saved.");
         WeakReferenceMessenger.Default.Send(new LanguageChangedMessage(SelectedLanguage));
     }
 
@@ -86,6 +106,9 @@ public partial class SettingsViewModel : ObservableObject
         if (eventArgs.PropertyName is nameof(RuntimeWorkspace.Capabilities))
         {
             OnPropertyChanged(nameof(Capabilities));
+            OnPropertyChanged(nameof(IsSdkAvailable));
+            OnPropertyChanged(nameof(CanInstallComponents));
+            InstallComponentsCommand.NotifyCanExecuteChanged();
         }
     }
 }

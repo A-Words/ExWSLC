@@ -56,12 +56,16 @@
     <sys:String x:Key="SettingsTitle">Settings</sys:String><sys:String x:Key="Appearance">Appearance &amp; refresh</sys:String>
     <sys:String x:Key="SettingsSubtitle">Check runtime health and customize ExWSLC behavior</sys:String><sys:String x:Key="RuntimeEnvironment">Runtime environment</sys:String>
     <sys:String x:Key="NativeSettingsHint">Use the native WSLC YAML file for session resources and runtime options</sys:String><sys:String x:Key="Open">Open</sys:String>
-    <sys:String x:Key="Language">Language</sys:String><sys:String x:Key="Theme">Theme</sys:String>
+    <sys:String x:Key="SdkPreviewProjection">Preview API projection</sys:String><sys:String x:Key="RuntimeMaintenance">Runtime maintenance</sys:String><sys:String x:Key="RuntimeMaintenanceHint">Install missing components or restore native settings to their defaults</sys:String>
+    <sys:String x:Key="Language">Language</sys:String><sys:String x:Key="LanguageChinese">Simplified Chinese</sys:String><sys:String x:Key="LanguageEnglish">English</sys:String><sys:String x:Key="Theme">Theme</sys:String>
+    <sys:String x:Key="ThemeSystem">Use system setting</sys:String><sys:String x:Key="ThemeLight">Light</sys:String><sys:String x:Key="ThemeDark">Dark</sys:String>
     <sys:String x:Key="RefreshInterval">Refresh interval (seconds)</sys:String><sys:String x:Key="SaveSettings">Save settings</sys:String>
     <sys:String x:Key="NativeSettings">Open native WSLC settings</sys:String><sys:String x:Key="ResetNativeSettings">Reset WSLC settings</sys:String><sys:String x:Key="InstallComponents">Install missing components</sys:String><sys:String x:Key="RegistryLogin">Container registry login</sys:String>
+    <sys:String x:Key="ResetNativeSettingsConfirmation">Reset the native WSLC YAML settings to built-in defaults?</sys:String><sys:String x:Key="InstallComponentsConfirmation">Install missing WSL Container components using the Microsoft preview SDK?</sys:String><sys:String x:Key="InstallationFailed">Installation failed</sys:String><sys:String x:Key="SettingsSavedStatus">Settings saved.</sys:String>
+    <sys:String x:Key="RegistryCredentialsHint">All fields are required. Credentials are sent directly to WSLC and are not stored by ExWSLC.</sys:String>
     <sys:String x:Key="Server">Server</sys:String><sys:String x:Key="Username">Username</sys:String>
     <sys:String x:Key="Password">Password or PAT</sys:String><sys:String x:Key="Login">Login</sys:String>
-    <sys:String x:Key="Unavailable">Unavailable</sys:String>
+    <sys:String x:Key="Ready">Ready</sys:String><sys:String x:Key="Unavailable">Unavailable</sys:String>
     <sys:String x:Key="Cancel">Cancel</sys:String>
     <sys:String x:Key="State">State</sys:String>
     <sys:String x:Key="Status">Uptime</sys:String>

@@ -70,6 +70,44 @@ public class MainViewModelTests
     }
 
     [Fact]
+    public void RegistryLoginCommand_RequiresEveryCredentialField()
+    {
+        var viewModel = CreateViewModel();
+        var settings = viewModel.SettingsPage;
+
+        Assert.False(settings.LoginRegistryCommand.CanExecute(null));
+
+        settings.RegistryUsername = "developer";
+        settings.RegistryPassword = "token";
+
+        Assert.True(settings.LoginRegistryCommand.CanExecute(null));
+
+        settings.RegistryServer = string.Empty;
+
+        Assert.False(settings.LoginRegistryCommand.CanExecute(null));
+        viewModel.Dispose();
+    }
+
+    [Fact]
+    public void InstallComponentsCommand_IsEnabledOnlyWhenComponentsAreMissing()
+    {
+        var viewModel = CreateViewModel();
+        var settings = viewModel.SettingsPage;
+
+        Assert.False(settings.InstallComponentsCommand.CanExecute(null));
+
+        viewModel.Workspace.Capabilities = new RuntimeCapabilities(
+            false,
+            "2.9.3",
+            "2.9.3",
+            ["Runtime"],
+            "Missing: Runtime");
+
+        Assert.True(settings.InstallComponentsCommand.CanExecute(null));
+        viewModel.Dispose();
+    }
+
+    [Fact]
     public void DesignViewModels_ExposeSampleDataWithoutRuntimeServices()
     {
         var containers = new DesignContainersViewModel();

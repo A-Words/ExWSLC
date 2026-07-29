@@ -8,21 +8,209 @@
       mc:Ignorable="d"
       d:DataContext="{d:DesignInstance Type=designViewModels:DesignSettingsViewModel, IsDesignTimeCreatable=True}"
       Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}">
+    <Page.Resources>
+        <Style x:Key="CapabilityIconStyle"
+               TargetType="ui:SymbolIcon">
+            <Setter Property="Symbol" Value="DismissCircle24" />
+            <Setter Property="Foreground" Value="{ui:ThemeResource SystemFillColorCriticalBrush}" />
+            <Setter Property="FontSize" Value="24" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Capabilities.IsAvailable}" Value="True">
+                    <Setter Property="Symbol" Value="CheckmarkCircle24" />
+                    <Setter Property="Foreground" Value="{ui:ThemeResource SystemFillColorSuccessBrush}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="SdkCapabilityIconStyle"
+               TargetType="ui:SymbolIcon"
+               BasedOn="{StaticResource CapabilityIconStyle}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsSdkAvailable}" Value="False">
+                    <Setter Property="Symbol" Value="DismissCircle24" />
+                    <Setter Property="Foreground" Value="{ui:ThemeResource SystemFillColorCriticalBrush}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="CapabilityStatusTextStyle"
+               TargetType="TextBlock"
+               BasedOn="{StaticResource MutedTextStyle}">
+            <Setter Property="Text" Value="{DynamicResource Unavailable}" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Capabilities.IsAvailable}" Value="True">
+                    <Setter Property="Text" Value="{DynamicResource Ready}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="SdkStatusTextStyle"
+               TargetType="TextBlock"
+               BasedOn="{StaticResource CapabilityStatusTextStyle}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsSdkAvailable}" Value="False">
+                    <Setter Property="Text" Value="{DynamicResource Unavailable}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="SettingsFieldStyle" TargetType="StackPanel">
+            <Setter Property="Width" Value="220" />
+            <Setter Property="Margin" Value="0,0,16,12" />
+        </Style>
+    </Page.Resources>
+
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="24,18,24,28">
-            <TextBlock Text="{DynamicResource SettingsTitle}" Style="{StaticResource PageTitleStyle}"/>
-            <TextBlock Text="{DynamicResource SettingsSubtitle}" Style="{StaticResource PageSubtitleStyle}"/>
+        <StackPanel Margin="24,18,24,28" MaxWidth="1180">
+            <TextBlock Text="{DynamicResource SettingsTitle}" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock Text="{DynamicResource SettingsSubtitle}" Style="{StaticResource PageSubtitleStyle}" />
 
-            <TextBlock Text="{DynamicResource RuntimeEnvironment}" Style="{StaticResource SectionTitleStyle}" Margin="0,0,0,12"/>
-            <Border Style="{StaticResource CompactCardStyle}" Margin="0,0,0,8"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><ui:SymbolIcon Symbol="CheckmarkCircle24" Foreground="{ui:ThemeResource SystemFillColorSuccessBrush}" FontSize="24" Margin="0,0,14,0"/><StackPanel Grid.Column="1"><TextBlock Text="WSL Container CLI" FontSize="16"/><TextBlock Text="{Binding Capabilities.CliVersion}" Style="{StaticResource MutedTextStyle}"/></StackPanel><TextBlock Grid.Column="2" Text="{Binding Capabilities.Message}" VerticalAlignment="Center"/></Grid></Border>
-            <Border Style="{StaticResource CompactCardStyle}" Margin="0,0,0,8"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><ui:SymbolIcon Symbol="CheckmarkCircle24" Foreground="{ui:ThemeResource SystemFillColorSuccessBrush}" FontSize="24" Margin="0,0,14,0"/><StackPanel Grid.Column="1"><TextBlock Text="Microsoft.WSL.Containers SDK" FontSize="16"/><TextBlock Text="Preview API projection" Style="{StaticResource MutedTextStyle}"/></StackPanel><TextBlock Grid.Column="2" Text="{Binding Capabilities.SdkVersion}" FontFamily="Consolas" VerticalAlignment="Center"/></Grid></Border>
-            <Border Style="{StaticResource CompactCardStyle}" Margin="0,0,0,18"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><ui:SymbolIcon Symbol="Settings24" FontSize="24" Margin="0,0,14,0"/><StackPanel Grid.Column="1"><TextBlock Text="{DynamicResource NativeSettings}" FontSize="16"/><TextBlock Text="{DynamicResource NativeSettingsHint}" Style="{StaticResource MutedTextStyle}"/></StackPanel><WrapPanel Grid.Column="2"><ui:Button Content="{DynamicResource Open}" Command="{Binding OpenNativeSettingsCommand}"/><ui:Button Content="{DynamicResource ResetNativeSettings}" Command="{Binding ResetNativeSettingsCommand}"/><ui:Button Content="{DynamicResource InstallComponents}" Command="{Binding InstallComponentsCommand}"/></WrapPanel></Grid></Border>
+            <TextBlock Text="{DynamicResource RuntimeEnvironment}" Style="{StaticResource SectionTitleStyle}" Margin="0,0,0,12" />
+            <ui:Card Padding="16,14" Margin="0,0,0,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon Style="{StaticResource CapabilityIconStyle}" Margin="0,0,14,0" />
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="WSL Container CLI" FontSize="16" />
+                        <TextBlock Text="{Binding Capabilities.CliVersion}" Style="{StaticResource MutedTextStyle}" />
+                    </StackPanel>
+                    <TextBlock Grid.Column="2" Style="{StaticResource CapabilityStatusTextStyle}" />
+                </Grid>
+            </ui:Card>
 
-            <TextBlock Text="{DynamicResource Appearance}" Style="{StaticResource SectionTitleStyle}" Margin="0,0,0,12"/>
-            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,18"><Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel Margin="0,0,18,0"><TextBlock Text="{DynamicResource Language}"/><ComboBox SelectedValue="{Binding SelectedLanguage}" SelectedValuePath="Content" Margin="0,6,0,0"><ComboBoxItem Content="zh-CN"/><ComboBoxItem Content="en-US"/></ComboBox></StackPanel><StackPanel Grid.Column="1" Margin="0,0,18,0"><TextBlock Text="{DynamicResource Theme}"/><ComboBox SelectedValue="{Binding SelectedTheme}" SelectedValuePath="Content" Margin="0,6,0,0"><ComboBoxItem Content="System"/><ComboBoxItem Content="Light"/><ComboBoxItem Content="Dark"/></ComboBox></StackPanel><StackPanel Grid.Column="2" Margin="0,0,18,0"><TextBlock Text="{DynamicResource RefreshInterval}"/><ui:NumberBox Value="{Binding RefreshIntervalSeconds}" Minimum="2" Maximum="300" Margin="0,6,0,0"/></StackPanel><ui:Button Grid.Column="3" Content="{DynamicResource SaveSettings}" Appearance="Primary" Command="{Binding SaveSettingsCommand}" VerticalAlignment="Bottom" Padding="18,8"/></Grid></Border>
+            <ui:Card Padding="16,14" Margin="0,0,0,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon Style="{StaticResource SdkCapabilityIconStyle}" Margin="0,0,14,0" />
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="Microsoft.WSL.Containers SDK" FontSize="16" />
+                        <TextBlock Text="{DynamicResource SdkPreviewProjection}" Style="{StaticResource MutedTextStyle}" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" HorizontalAlignment="Right">
+                        <TextBlock Text="{Binding Capabilities.SdkVersion}" FontFamily="Consolas" HorizontalAlignment="Right" />
+                        <TextBlock Style="{StaticResource SdkStatusTextStyle}" HorizontalAlignment="Right" />
+                    </StackPanel>
+                </Grid>
+            </ui:Card>
 
-            <TextBlock Text="{DynamicResource RegistryLogin}" Style="{StaticResource SectionTitleStyle}" Margin="0,0,0,12"/>
-            <Border Style="{StaticResource CardStyle}" Margin="0"><Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel Margin="0,0,18,0"><TextBlock Text="{DynamicResource Server}"/><ui:TextBox Text="{Binding RegistryServer}" Margin="0,6,0,0"/></StackPanel><StackPanel Grid.Column="1" Margin="0,0,18,0"><TextBlock Text="{DynamicResource Username}"/><ui:TextBox Text="{Binding RegistryUsername}" Margin="0,6,0,0"/></StackPanel><StackPanel Grid.Column="2" Margin="0,0,18,0"><TextBlock Text="{DynamicResource Password}"/><ui:PasswordBox PasswordChanged="RegistryPasswordBox_OnPasswordChanged" Margin="0,6,0,0"/></StackPanel><ui:Button Grid.Column="3" Content="{DynamicResource Login}" Appearance="Primary" Command="{Binding LoginRegistryCommand}" VerticalAlignment="Bottom" Padding="18,8"/></Grid></Border>
+            <ui:CardAction Command="{Binding OpenNativeSettingsCommand}"
+                           IsChevronVisible="True"
+                           Margin="0,0,0,8"
+                           AutomationProperties.Name="{DynamicResource NativeSettings}">
+                <ui:CardAction.Icon>
+                    <ui:SymbolIcon Symbol="Settings24" />
+                </ui:CardAction.Icon>
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource NativeSettings}" FontSize="16" />
+                    <TextBlock Text="{DynamicResource NativeSettingsHint}" Style="{StaticResource MutedTextStyle}" />
+                </StackPanel>
+            </ui:CardAction>
+
+            <ui:Card Padding="16,12" Margin="0,0,0,18">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="{DynamicResource RuntimeMaintenance}" FontSize="16" />
+                        <TextBlock Text="{DynamicResource RuntimeMaintenanceHint}" Style="{StaticResource MutedTextStyle}" />
+                    </StackPanel>
+                    <ui:Button Grid.Column="1"
+                               Content="{DynamicResource InstallComponents}"
+                               Icon="{ui:SymbolIcon Symbol=Wrench24}"
+                               Appearance="Secondary"
+                               Command="{Binding InstallComponentsCommand}"
+                               Margin="12,0,8,0" />
+                    <ui:Button Grid.Column="2"
+                               Content="{DynamicResource ResetNativeSettings}"
+                               Icon="{ui:SymbolIcon Symbol=ArrowCounterclockwise24}"
+                               Appearance="Danger"
+                               Command="{Binding ResetNativeSettingsCommand}" />
+                </Grid>
+            </ui:Card>
+
+            <TextBlock Text="{DynamicResource Appearance}" Style="{StaticResource SectionTitleStyle}" Margin="0,0,0,12" />
+            <ui:Card Padding="18" Margin="0,0,0,18">
+                <StackPanel>
+                    <WrapPanel>
+                        <StackPanel Style="{StaticResource SettingsFieldStyle}">
+                            <TextBlock x:Name="LanguageLabel" Text="{DynamicResource Language}" />
+                            <ComboBox SelectedValue="{Binding SelectedLanguage}"
+                                      SelectedValuePath="Tag"
+                                      AutomationProperties.LabeledBy="{Binding ElementName=LanguageLabel}"
+                                      Margin="0,6,0,0">
+                                <ComboBoxItem Tag="zh-CN" Content="{DynamicResource LanguageChinese}" />
+                                <ComboBoxItem Tag="en-US" Content="{DynamicResource LanguageEnglish}" />
+                            </ComboBox>
+                        </StackPanel>
+                        <StackPanel Style="{StaticResource SettingsFieldStyle}">
+                            <TextBlock x:Name="ThemeLabel" Text="{DynamicResource Theme}" />
+                            <ComboBox SelectedValue="{Binding SelectedTheme}"
+                                      SelectedValuePath="Tag"
+                                      AutomationProperties.LabeledBy="{Binding ElementName=ThemeLabel}"
+                                      Margin="0,6,0,0">
+                                <ComboBoxItem Tag="System" Content="{DynamicResource ThemeSystem}" />
+                                <ComboBoxItem Tag="Light" Content="{DynamicResource ThemeLight}" />
+                                <ComboBoxItem Tag="Dark" Content="{DynamicResource ThemeDark}" />
+                            </ComboBox>
+                        </StackPanel>
+                        <StackPanel Style="{StaticResource SettingsFieldStyle}">
+                            <TextBlock x:Name="RefreshIntervalLabel" Text="{DynamicResource RefreshInterval}" />
+                            <ui:NumberBox Value="{Binding RefreshIntervalSeconds}"
+                                          Minimum="2"
+                                          Maximum="300"
+                                          AutomationProperties.LabeledBy="{Binding ElementName=RefreshIntervalLabel}"
+                                          Margin="0,6,0,0" />
+                        </StackPanel>
+                    </WrapPanel>
+                    <ui:Button Content="{DynamicResource SaveSettings}"
+                               Icon="{ui:SymbolIcon Symbol=Save24}"
+                               Appearance="Primary"
+                               Command="{Binding SaveSettingsCommand}"
+                               HorizontalAlignment="Right"
+                               Padding="18,8" />
+                </StackPanel>
+            </ui:Card>
+
+            <TextBlock Text="{DynamicResource RegistryLogin}" Style="{StaticResource SectionTitleStyle}" Margin="0,0,0,4" />
+            <TextBlock Text="{DynamicResource RegistryCredentialsHint}" Style="{StaticResource MutedTextStyle}" Margin="0,0,0,12" TextWrapping="Wrap" />
+            <ui:Card Padding="18">
+                <StackPanel>
+                    <WrapPanel>
+                        <StackPanel Style="{StaticResource SettingsFieldStyle}">
+                            <TextBlock x:Name="RegistryServerLabel" Text="{DynamicResource Server}" />
+                            <ui:TextBox Text="{Binding RegistryServer, UpdateSourceTrigger=PropertyChanged}"
+                                        AutomationProperties.LabeledBy="{Binding ElementName=RegistryServerLabel}"
+                                        Margin="0,6,0,0" />
+                        </StackPanel>
+                        <StackPanel Style="{StaticResource SettingsFieldStyle}">
+                            <TextBlock x:Name="RegistryUsernameLabel" Text="{DynamicResource Username}" />
+                            <ui:TextBox Text="{Binding RegistryUsername, UpdateSourceTrigger=PropertyChanged}"
+                                        AutomationProperties.LabeledBy="{Binding ElementName=RegistryUsernameLabel}"
+                                        Margin="0,6,0,0" />
+                        </StackPanel>
+                        <StackPanel Style="{StaticResource SettingsFieldStyle}">
+                            <TextBlock x:Name="RegistryPasswordLabel" Text="{DynamicResource Password}" />
+                            <ui:PasswordBox PasswordChanged="RegistryPasswordBox_OnPasswordChanged"
+                                            AutomationProperties.LabeledBy="{Binding ElementName=RegistryPasswordLabel}"
+                                            Margin="0,6,0,0" />
+                        </StackPanel>
+                    </WrapPanel>
+                    <ui:Button Content="{DynamicResource Login}"
+                               Icon="{ui:SymbolIcon Symbol=Key24}"
+                               Appearance="Primary"
+                               Command="{Binding LoginRegistryCommand}"
+                               HorizontalAlignment="Right"
+                               Padding="18,8" />
+                </StackPanel>
+            </ui:Card>
         </StackPanel>
     </ScrollViewer>
 </Page>

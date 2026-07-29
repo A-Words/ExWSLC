@@ -118,6 +118,20 @@ public class ResourcePagesXamlTests
         Assert.Contains("<Grid Margin=\"24,18,24,24\">", containerDetail);
     }
 
+    [Fact]
+    public void SettingsPage_UsesFluentCardsAndAccessibleResponsiveFields()
+    {
+        var settingsPage = File.ReadAllText(Path.Combine(GetSourceDirectory(), "Views", "Pages", "SettingsPage.xaml"));
+
+        Assert.Contains("<ui:Card ", settingsPage);
+        Assert.Contains("<ui:CardAction ", settingsPage);
+        Assert.Contains("Appearance=\"Danger\"", settingsPage);
+        Assert.Contains("<WrapPanel>", settingsPage);
+        Assert.Equal(6, Regex.Matches(settingsPage, "AutomationProperties.LabeledBy").Count);
+        Assert.Contains("RegistryServer, UpdateSourceTrigger=PropertyChanged", settingsPage);
+        Assert.Contains("RegistryUsername, UpdateSourceTrigger=PropertyChanged", settingsPage);
+    }
+
     private static string GetSourceDirectory()
     {
         for (var directory = new DirectoryInfo(AppContext.BaseDirectory); directory is not null; directory = directory.Parent)
