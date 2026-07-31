@@ -1,0 +1,135 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    name: Build and test
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate release tag
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          if ($env:RELEASE_TAG -notmatch '^v\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$') {
+            throw "Release tags must use SemVer, for example v1.2.3 or v1.2.3-preview.1."
+          }
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore dependencies
+        run: dotnet restore ExWSLC.sln
+
+      - name: Build
+        run: dotnet build ExWSLC.sln -c Release --no-restore
+
+      - name: Test
+        run: dotnet test ExWSLC.sln -c Release --no-build
+
+  publish:
+    name: Publish ${{ matrix.runtime }}
+    needs: build-test
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        runtime:
+          - win-x64
+          - win-arm64
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore dependencies
+        run: dotnet restore src/ExWSLC.csproj -r ${{ matrix.runtime }}
+
+      - name: Publish
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          $version = $env:RELEASE_TAG.Substring(1)
+          dotnet publish src/ExWSLC.csproj `
+            -c Release `
+            -r "${{ matrix.runtime }}" `
+            --self-contained true `
+            --no-restore `
+            -p:Version="$version" `
+            -o "publish/${{ matrix.runtime }}"
+
+      - name: Create release archive
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          New-Item -ItemType Directory -Force release | Out-Null
+          Compress-Archive `
+            -Path "publish/${{ matrix.runtime }}/*" `
+            -DestinationPath "release/ExWSLC-$env:RELEASE_TAG-${{ matrix.runtime }}.zip"
+
+      - name: Upload release archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: ExWSLC-${{ github.ref_name }}-${{ matrix.runtime }}
+          path: release/*.zip
+          if-no-files-found: error
+          retention-days: 7
+
+  release:
+    name: Create GitHub Release
+    needs: publish
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download release archives
+        uses: actions/download-artifact@v5
+        with:
+          pattern: ExWSLC-${{ github.ref_name }}-*
+          path: release
+          merge-multiple: true
+
+      - name: Create checksums
+        shell: pwsh
+        run: |
+          Get-ChildItem release -Filter *.zip |
+            Sort-Object Name |
+            ForEach-Object {
+              $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+              "$hash  $($_.Name)"
+            } |
+            Set-Content release/SHA256SUMS.txt
+
+      - name: Publish release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          $assets = Get-ChildItem release -File | ForEach-Object FullName
+          gh release create "$env:RELEASE_TAG" @assets `
+            --verify-tag `
+            --generate-notes `
+            --title "ExWSLC $env:RELEASE_TAG"
