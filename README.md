@@ -1,4 +1,7 @@
-# ExWSLC
+<h1>
+  <img src="src/Assets/ExWSLC.png" alt="ExWSLC logo" width="48" align="absmiddle">
+  ExWSLC
+</h1>
 
 English | [中文](README_zh.md)
 
@@ -6,19 +9,30 @@ ExWSLC is a native Windows desktop manager for [WSL Container](https://learn.mic
 
 > WSL Container and its SDK are currently in preview. ExWSLC checks the installed CLI and SDK at startup and isolates preview-specific behavior behind a runtime interface.
 
+## Download
+
+Download the latest self-contained package from [GitHub Releases](https://github.com/A-Words/ExWSLC/releases/latest):
+
+- `win-x64` for most Intel and AMD Windows PCs.
+- `win-arm64` for Windows on Arm devices.
+
+Extract the archive and run `ExWSLC.exe`. A separate .NET installation is not required for release packages.
+
 ## Screenshot
 
-![ExWSLC overview screenshot](docs/images/screenshot-overview.png)
+![ExWSLC container management](docs/images/screenshot-containers-en.png)
 
 ## Features
 
-- WPF-UI 4.0 Fluent desktop UI with Mica, system/light/dark themes, English and Simplified Chinese.
-- Split container workbench with a searchable master list, creation form, selected-container overview, logs, exec, inspect, and metrics tabs.
+- WPF-UI 4.3 Fluent desktop UI with Mica, system/light/dark themes, English and Simplified Chinese.
+- Dedicated workspaces for containers, images, networks, volumes, and settings.
+- Split container workbench with a searchable list, creation form, quick lifecycle actions, and a detailed selected-container view.
 - Container creation with CPU, memory, GPU, ports, environment, network, user, workdir, and volume options.
-- Start, graceful stop, force stop, restart, remove, export, inspect, logs, live log following, one-shot exec, and Windows Terminal access.
+- Container details for logs, resource usage, networking, mounts, configuration, and raw inspect output.
+- Start, graceful stop, force stop, restart, remove, export, live log following, one-shot exec, and Windows Terminal access.
 - Pull, build, import, load, save, tag, push, inspect, remove, and prune images.
-- Create, inspect, remove, and prune networks and named volumes.
-- Live `wslc stats`, task history and cancellation, registry login through `--password-stdin`, and native WSLC settings access.
+- Create, inspect, remove, and prune networks; create, remove, and prune named volumes.
+- Cancellable runtime operations, registry login through `--password-stdin`, and native WSLC settings access.
 - Persistent application preferences for refresh interval, language, and theme.
 
 The navigation hierarchy and Fluent master-detail composition are inspired by
@@ -28,7 +42,7 @@ and product assets are implemented from scratch for the WSL Container workflow.
 ## Requirements
 
 - Windows 11 with WSL installed and updated to a release that includes `wslc.exe` (tested with WSL 2.9.3).
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) to build from source.
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) to build from source. Release packages are self-contained.
 - Windows Terminal is optional and only required for interactive container terminals.
 
 Run `wsl --update` and `wslc version` if the application reports missing components.
@@ -42,13 +56,13 @@ dotnet test ExWSLC.sln
 dotnet run --project src/ExWSLC.csproj
 ```
 
-Publish a self-contained package:
+Publish a self-contained package (replace `<RID>` with `win-x64` or `win-arm64`):
 
 ```powershell
-dotnet publish src/ExWSLC.csproj -c Release -r win-x64 --self-contained true -o publish/win-x64
+dotnet publish src/ExWSLC.csproj -c Release -r <RID> --self-contained true -o publish/<RID>
 ```
 
-The project targets `net8.0-windows10.0.19041.0`. The current application version is `0.1.0-preview`.
+The project targets `net10.0-windows10.0.19041.0`.
 
 ## Settings and safety
 
@@ -72,9 +86,9 @@ Safety boundaries:
 ExWSLC follows a WPF / MVVM structure:
 
 ```text
-WPF Views → MainViewModel → IContainerRuntime → wslc.exe
-                         ↘ ITaskService
-                         ↘ ISettingsService
+WPF Views → Page ViewModels → RuntimeWorkspace → IContainerRuntime → wslc.exe
+                                      ↘ ITaskService
+                                      ↘ ISettingsService
 Startup → IRuntimeCapabilityService → Microsoft.WSL.Containers.WslcService
 ```
 
@@ -91,7 +105,9 @@ Unit tests cover:
 - Task cancellation, task state transitions, and ViewModel error recovery.
 - Registry password redaction.
 - Settings persistence.
-- ViewModel refresh, search, and selected-container preservation.
+- ViewModel refresh, search, and selection preservation.
+- Container inspect, network, and mount parsing and loading behavior.
+- Localization resources, XAML bindings, and reusable control behavior.
 
 Run tests:
 
