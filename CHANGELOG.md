@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-07-31
+
+### Added
+
+- Added a dedicated ExWSLC application icon for the executable and title bar.
+
 ## [0.1.0] - 2026-07-31
 
 ### Added
@@ -24,5 +30,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added self-contained Windows x64 and ARM64 release packages with SHA-256
   checksums.
 
-[Unreleased]: https://github.com/A-Words/ExWSLC/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/A-Words/ExWSLC/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/A-Words/ExWSLC/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/A-Words/ExWSLC/releases/tag/v0.1.0
