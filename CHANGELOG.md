@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added a dedicated ExWSLC application icon for the executable and title bar.
 
+### Fixed
+
+- Fixed a crash when opening container mount details caused by an invalid
+  `SymbolIcon` style resource reference.
+
 ## [0.1.0] - 2026-07-31
 
 ### Added

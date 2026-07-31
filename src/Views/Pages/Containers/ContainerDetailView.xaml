@@ -425,7 +425,7 @@
                                                                    HorizontalAlignment="Center"
                                                                    VerticalAlignment="Center">
                                                         <ui:SymbolIcon.Style>
-                                                            <Style TargetType="ui:SymbolIcon" BasedOn="{StaticResource {x:Type ui:SymbolIcon}}">
+                                                            <Style TargetType="ui:SymbolIcon">
                                                                 <Setter Property="Symbol" Value="FolderLink24" />
                                                                 <Style.Triggers>
                                                                     <DataTrigger Binding="{Binding Kind}" Value="{x:Static models:ContainerMountKind.Tmpfs}">

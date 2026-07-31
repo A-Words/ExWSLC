@@ -104,7 +104,8 @@ public class ResourcePagesXamlTests
         Assert.DoesNotContain("DetailCardButtonStyle", combinedXaml);
 
         var containerDetail = File.ReadAllText(Path.Combine(sourceDirectory, "Views", "Pages", "Containers", "ContainerDetailView.xaml"));
-        Assert.Contains("TargetType=\"ui:SymbolIcon\" BasedOn=\"{StaticResource {x:Type ui:SymbolIcon}}\"", containerDetail);
+        Assert.Contains("<Style TargetType=\"ui:SymbolIcon\">", containerDetail);
+        Assert.DoesNotContain("BasedOn=\"{StaticResource {x:Type ui:SymbolIcon}}\"", containerDetail);
     }
 
     [Fact]
