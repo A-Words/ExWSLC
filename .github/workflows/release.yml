@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Validate release tag
         shell: pwsh
@@ -27,7 +27,7 @@ jobs:
           }
 
       - name: Set up .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
 
@@ -38,7 +38,7 @@ jobs:
         run: dotnet build ExWSLC.sln -c Release --no-restore
 
       - name: Test
-        run: dotnet test ExWSLC.sln -c Release --no-build
+        run: dotnet test --solution ExWSLC.sln -c Release --no-build
 
   publish:
     name: Publish ${{ matrix.runtime }}
@@ -53,10 +53,10 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
 
@@ -88,7 +88,7 @@ jobs:
             -DestinationPath "release/ExWSLC-$env:RELEASE_TAG-${{ matrix.runtime }}.zip"
 
       - name: Upload release archive
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ExWSLC-${{ github.ref_name }}-${{ matrix.runtime }}
           path: release/*.zip
@@ -104,7 +104,7 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Extract release notes from changelog
         shell: pwsh
@@ -150,22 +150,11 @@ jobs:
           Set-Content -LiteralPath release-notes.md -Value $body -Encoding utf8NoBOM
 
       - name: Download release archives
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           pattern: ExWSLC-${{ github.ref_name }}-*
           path: release
           merge-multiple: true
-
-      - name: Create checksums
-        shell: pwsh
-        run: |
-          Get-ChildItem release -Filter *.zip |
-            Sort-Object Name |
-            ForEach-Object {
-              $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
-              "$hash  $($_.Name)"
-            } |
-            Set-Content release/SHA256SUMS.txt
 
       - name: Publish release
         shell: pwsh

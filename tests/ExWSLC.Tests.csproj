@@ -10,7 +10,6 @@
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <WindowsSdkPackageVersion>10.0.26100.80</WindowsSdkPackageVersion>
-    <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
   </PropertyGroup>
 
   <ItemGroup>
