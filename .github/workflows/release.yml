@@ -103,6 +103,52 @@ jobs:
       contents: write
 
     steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Extract release notes from changelog
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          $version = $env:RELEASE_TAG.Substring(1)
+          $escapedVersion = [regex]::Escape($version)
+          $headingPattern = "^## \[$escapedVersion\](?: - \d{4}-\d{2}-\d{2})?\s*$"
+          $lines = Get-Content -LiteralPath CHANGELOG.md
+
+          $start = -1
+          for ($index = 0; $index -lt $lines.Count; $index++) {
+            if ($lines[$index] -match $headingPattern) {
+              $start = $index
+              break
+            }
+          }
+
+          if ($start -lt 0) {
+            throw "CHANGELOG.md does not contain a section for version $version."
+          }
+
+          $end = $lines.Count
+          for ($index = $start + 1; $index -lt $lines.Count; $index++) {
+            if ($lines[$index] -match '^## \[' -or $lines[$index] -match '^\[[^]]+\]:\s+https?://') {
+              $end = $index
+              break
+            }
+          }
+
+          $bodyLines = if ($end -gt $start + 1) {
+            $lines[($start + 1)..($end - 1)]
+          } else {
+            @()
+          }
+          $body = ($bodyLines -join "`n").Trim()
+
+          if ([string]::IsNullOrWhiteSpace($body)) {
+            throw "The CHANGELOG.md section for version $version is empty."
+          }
+
+          Set-Content -LiteralPath release-notes.md -Value $body -Encoding utf8NoBOM
+
       - name: Download release archives
         uses: actions/download-artifact@v5
         with:
@@ -131,5 +177,5 @@ jobs:
           $assets = Get-ChildItem release -File | ForEach-Object FullName
           gh release create "$env:RELEASE_TAG" @assets `
             --verify-tag `
-            --generate-notes `
+            --notes-file release-notes.md `
             --title "ExWSLC $env:RELEASE_TAG"
