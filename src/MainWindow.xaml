@@ -18,11 +18,8 @@
 
         <ui:TitleBar Grid.Row="0"
                      Title="{Binding Title, RelativeSource={RelativeSource AncestorType={x:Type ui:FluentWindow}}}"
-                     CloseWindowByDoubleClickOnIcon="True">
-            <ui:TitleBar.Icon>
-                <ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xE7B8;" FontSize="18" />
-            </ui:TitleBar.Icon>
-        </ui:TitleBar>
+                     Icon="{ui:ImageIcon 'pack://application:,,,/Assets/ExWSLC.png'}"
+                     CloseWindowByDoubleClickOnIcon="True" />
 
         <ui:NavigationView x:Name="RootNavigation"
                            Grid.Row="1"
