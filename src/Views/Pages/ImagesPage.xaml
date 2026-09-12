@@ -59,6 +59,7 @@
         </Border>
 
         <Expander x:Name="ImageOperationsExpander" Grid.Row="2" Header="{DynamicResource GeneralImageOperations}" Margin="0,0,0,12">
+            <ScrollViewer x:Name="ImageOperationsScrollViewer" MaxHeight="380" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <Border Style="{StaticResource ResourceSurfaceStyle}" Padding="16" Margin="0,8,0,0">
                 <Grid>
                     <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="16" /><ColumnDefinition /></Grid.ColumnDefinitions>
@@ -70,9 +71,51 @@
                         <Grid>
                             <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="12" /><ColumnDefinition /></Grid.ColumnDefinitions>
                             <StackPanel><TextBlock x:Name="DockerfileLabel" Text="{DynamicResource DockerfilePath}" /><ui:TextBox Text="{Binding DockerfilePath}" PlaceholderText="{DynamicResource OptionalCustomPath}" AutomationProperties.LabeledBy="{Binding ElementName=DockerfileLabel}" Margin="0,5,0,0" /></StackPanel>
-                            <StackPanel Grid.Column="2"><TextBlock x:Name="BuildImageTagLabel" Text="{DynamicResource ImageTag}" /><ui:TextBox Text="{Binding BuildImageTag}" PlaceholderText="my-app:latest" AutomationProperties.LabeledBy="{Binding ElementName=BuildImageTagLabel}" Margin="0,5,0,0" /></StackPanel>
+                            <StackPanel Grid.Column="2" IsEnabled="{Binding IsBuildLocalImage}"><TextBlock x:Name="BuildImageTagLabel" Text="{DynamicResource ImageTag}" /><ui:TextBox Text="{Binding BuildImageTag}" PlaceholderText="my-app:latest" AutomationProperties.LabeledBy="{Binding ElementName=BuildImageTagLabel}" Margin="0,5,0,0" /></StackPanel>
                         </Grid>
-                        <ui:Button Content="{DynamicResource Build}" Icon="{ui:SymbolIcon Symbol=Play24}" Style="{StaticResource ResourcePrimaryButtonStyle}" Command="{Binding BuildImageCommand}" HorizontalAlignment="Right" Margin="0,12,0,0" />
+                        <Expander x:Name="AdvancedBuildExpander" Header="{DynamicResource Advanced}" Margin="0,12,0,0">
+                            <StackPanel Margin="0,10,0,0">
+                                <TextBlock Text="{DynamicResource BuildCapabilitiesHint}" TextWrapping="Wrap" Style="{StaticResource MutedTextStyle}" />
+                                <TextBlock Text="{DynamicResource BuildArgumentsLabel}" Margin="0,10,0,5" />
+                                <ui:TextBox Text="{Binding BuildArgumentsText}" AcceptsReturn="True" Height="70" VerticalScrollBarVisibility="Auto" PlaceholderText="VERSION=1.0" AutomationProperties.Name="{DynamicResource BuildArgumentsLabel}" />
+                                <TextBlock Text="{DynamicResource BuildTargetLabel}" Margin="0,10,0,5" />
+                                <ui:TextBox Text="{Binding BuildTarget}" AutomationProperties.Name="{DynamicResource BuildTargetLabel}" />
+                                <WrapPanel Margin="0,10,0,0">
+                                    <CheckBox Content="{DynamicResource BuildNoCache}" IsChecked="{Binding BuildNoCache}" Margin="0,0,16,8" />
+                                    <CheckBox Content="{DynamicResource BuildPull}" IsChecked="{Binding BuildPull}" IsEnabled="{Binding CanToggleBuildPull}" Margin="0,0,0,8" />
+                                </WrapPanel>
+                                <TextBlock Text="{DynamicResource BuildOutputLabel}" Margin="0,4,0,5" />
+                                <ComboBox SelectedIndex="{Binding BuildOutputMode}" AutomationProperties.Name="{DynamicResource BuildOutputLabel}">
+                                    <ComboBoxItem Content="{DynamicResource BuildOutputImage}" />
+                                    <ComboBoxItem Content="{DynamicResource BuildOutputTar}" IsEnabled="{Binding CanUseBuildOutput}" />
+                                </ComboBox>
+                                <StackPanel Visibility="{Binding IsBuildExport, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <TextBlock Text="{DynamicResource BuildExportHint}" TextWrapping="Wrap" Style="{StaticResource MutedTextStyle}" Margin="0,5,0,5" />
+                                    <ui:TextBox Text="{Binding BuildOutputPath}" PlaceholderText="C:\artifacts\rootfs.tar" AutomationProperties.Name="{DynamicResource BuildOutputPathLabel}" />
+                                </StackPanel>
+                                <TextBlock Text="{DynamicResource BuildProgressLabel}" Margin="0,10,0,5" />
+                                <ComboBox SelectedIndex="{Binding BuildProgressMode}" IsEnabled="{Binding CanUseBuildProgress}" AutomationProperties.Name="{DynamicResource BuildProgressLabel}">
+                                    <ComboBoxItem Content="{DynamicResource BuildProgressAuto}" />
+                                    <ComboBoxItem Content="{DynamicResource BuildProgressPlain}" />
+                                    <ComboBoxItem Content="{DynamicResource BuildProgressQuiet}" />
+                                </ComboBox>
+                                <StackPanel IsEnabled="{Binding CanEditBuildSecrets}">
+                                    <TextBlock Text="{DynamicResource BuildSecretsHint}" TextWrapping="Wrap" Style="{StaticResource MutedTextStyle}" Margin="0,10,0,5" />
+                                    <TextBlock Text="{DynamicResource BuildSecretFilesLabel}" Margin="0,5,0,5" />
+                                    <ui:TextBox Text="{Binding BuildSecretFiles}" AcceptsReturn="True" Height="70" VerticalScrollBarVisibility="Auto" PlaceholderText="token=C:\secrets\token.txt" AutomationProperties.Name="{DynamicResource BuildSecretFilesLabel}" />
+                                    <TextBlock Text="{DynamicResource BuildSecretEnvironmentLabel}" Margin="0,10,0,5" />
+                                    <ui:TextBox Text="{Binding BuildSecretEnvironment}" AcceptsReturn="True" Height="70" VerticalScrollBarVisibility="Auto" PlaceholderText="token=BUILD_TOKEN" AutomationProperties.Name="{DynamicResource BuildSecretEnvironmentLabel}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Expander>
+                        <WrapPanel HorizontalAlignment="Right" Margin="0,12,0,0">
+                            <ui:Button Content="{DynamicResource Cancel}" Command="{Binding Workspace.CancelCurrentOperationCommand}" Visibility="{Binding BuildImageCommand.IsRunning, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="0,0,8,0" />
+                            <ui:Button Content="{DynamicResource Build}" Icon="{ui:SymbolIcon Symbol=Play24}" Style="{StaticResource ResourcePrimaryButtonStyle}" Command="{Binding BuildImageCommand}" />
+                        </WrapPanel>
+                        <TextBlock Text="{Binding BuildMessage}" TextWrapping="Wrap" Margin="0,8,0,0" />
+                        <Expander Header="{DynamicResource BuildLogLabel}" Margin="0,8,0,0">
+                            <ui:TextBox Text="{Binding BuildLog, Mode=OneWay}" IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap" FontFamily="Consolas" Height="180" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" AutomationProperties.Name="{DynamicResource BuildLogLabel}" />
+                        </Expander>
                     </StackPanel>
                     <Border Grid.Column="1" Width="1" Background="{ui:ThemeResource DividerStrokeColorDefaultBrush}" HorizontalAlignment="Center" />
                     <StackPanel Grid.Column="2">
@@ -86,6 +129,7 @@
                     </StackPanel>
                 </Grid>
             </Border>
+            </ScrollViewer>
         </Expander>
 
         <Grid Grid.Row="3">

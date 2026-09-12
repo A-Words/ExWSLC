@@ -141,12 +141,35 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner, IRuntimeC
     public Task<OperationResult> PullImageAsync(string image, IProgress<string>? progress = null, CancellationToken cancellationToken = default) =>
         RunAsync(["image", "pull", image], progress: progress, cancellationToken: cancellationToken);
 
-    public Task<OperationResult> BuildImageAsync(string path, string tag, string dockerfile, IProgress<string>? progress = null, CancellationToken cancellationToken = default)
+    public async Task<OperationResult> BuildImageAsync(ImageBuildRequest request, IProgress<string>? progress = null, CancellationToken cancellationToken = default)
     {
-        var arguments = new List<string> { "image", "build", "--tag", tag };
-        if (!string.IsNullOrWhiteSpace(dockerfile)) arguments.AddRange(["--file", dockerfile]);
-        arguments.Add(path);
-        return RunAsync(arguments, progress: progress, cancellationToken: cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
+        var arguments = ImageBuildOptions.BuildArguments(request);
+        var redactor = await BuildOutputRedactor.CreateAsync(request.Secrets, cancellationToken);
+        try
+        {
+            var result = await RunAsync(arguments, progress: new BuildProgress(progress, redactor), cancellationToken: cancellationToken);
+            // The task service recognizes cancellation through an exception, not exit code -2.
+            if (result.ExitCode == -2) throw new OperationCanceledException(cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+            return result with
+            {
+                Output = redactor.Clean(result.Output), Error = redactor.Clean(result.Error),
+                DisplayCommand = "wslc image build"
+            };
+        }
+        catch (OperationCanceledException) { throw; }
+        catch (Exception) when (request.Secrets.Count > 0)
+        {
+            // An exception from a runner must not bypass output redaction.
+            return new OperationResult(false, -1, string.Empty,
+                LocalizationService.GetString("BuildSecretOperationFailed", "Build failed. Check secret sources and build options."), "wslc image build");
+        }
+    }
+
+    private sealed class BuildProgress(IProgress<string>? target, BuildOutputRedactor redactor) : IProgress<string>
+    {
+        public void Report(string value) => target?.Report(redactor.Clean(value));
     }
 
     public Task<OperationResult> ImportImageAsync(string path, string name, IProgress<string>? progress = null, CancellationToken cancellationToken = default) =>

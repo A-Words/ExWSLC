@@ -12,9 +12,9 @@ public class ImagesViewModelTests
     {
         var runtime = new Mock<IContainerRuntime>();
         runtime.Setup(value => value.BuildImageAsync(
-                "C:\\src\\app",
-                "example/app:test",
-                "Dockerfile.dev",
+                It.Is<ImageBuildRequest>(request => request.ContextPath == "C:\\src\\app" &&
+                    request.Tag == "example/app:test" && request.Dockerfile == "Dockerfile.dev" &&
+                    request.Output == ImageBuildOutput.LocalImage && !request.NoCache && !request.Pull),
                 It.IsAny<IProgress<string>>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new OperationResult(false, 1, string.Empty, "expected failure", "wslc image build"));
@@ -35,6 +35,81 @@ public class ImagesViewModelTests
         Assert.Equal("imported:image", viewModel.ImportImageName);
         Assert.Equal("expected failure", viewModel.OperationOutput);
         Assert.Equal(string.Empty, viewModel.ImageInspectOutput);
+    }
+
+    [Fact]
+    public async Task BuildExport_AllowsEmptyTagAndRefreshesOnSuccess()
+    {
+        var runtime = CreateRefreshRuntime([]);
+        runtime.Setup(value => value.BuildImageAsync(It.Is<ImageBuildRequest>(request =>
+                request.Tag == "" && request.Output == ImageBuildOutput.Tar && request.OutputPath == @"C:\产物 文件\out.tar" &&
+                request.NoCache && request.Pull && request.Target == "export" && request.Secrets.Count == 2 && request.BuildArguments.Count == 1),
+                It.IsAny<IProgress<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new OperationResult(true, 0, "#1 CACHED", "", ""));
+        using var workspace = CreateWorkspace(runtime.Object);
+        var viewModel = new ImagesViewModel(workspace)
+        {
+            BuildContextPath = @"C:\项目", BuildOutputMode = 1, BuildOutputPath = @"C:\产物 文件\out.tar",
+            BuildNoCache = true, BuildPull = true, BuildTarget = "export", BuildArgumentsText = "VERSION=1",
+            BuildSecretFiles = "file=C:\\secret.txt", BuildSecretEnvironment = "token=BUILD_TOKEN",
+            ArchivePath = "unchanged", ImportImageName = "unchanged"
+        };
+        await viewModel.BuildImageCommand.ExecuteAsync(null);
+        runtime.VerifyAll();
+        runtime.Verify(value => value.GetImagesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        Assert.Equal("#1 CACHED", viewModel.BuildLog);
+        Assert.Equal(LocalizationService.GetString("BuildExportCompleted", "Tar export completed; no local image was created."), viewModel.BuildMessage);
+        Assert.Equal("unchanged", viewModel.ArchivePath);
+        Assert.Equal("unchanged", viewModel.ImportImageName);
+    }
+
+    [Fact]
+    public async Task BuildImage_RejectsMissingTagBeforeCreatingTask()
+    {
+        var runtime = new Mock<IContainerRuntime>(MockBehavior.Strict);
+        using var workspace = CreateWorkspace(runtime.Object);
+        var viewModel = new ImagesViewModel(workspace) { BuildContextPath = "context" };
+        await viewModel.BuildImageCommand.ExecuteAsync(null);
+        Assert.Equal(LocalizationService.GetString("BuildTagRequired", "BuildTagRequired"), viewModel.BuildMessage);
+        runtime.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task BuildImage_UnsupportedOptionIsBlockedAndRecheckUpdatesAvailability()
+    {
+        var runtime = new Mock<IContainerRuntime>(MockBehavior.Strict);
+        using var workspace = CreateWorkspace(runtime.Object);
+        var viewModel = new ImagesViewModel(workspace) { BuildContextPath = "context", BuildImageTag = "test", BuildPull = true };
+        workspace.Capabilities = new RuntimeCapabilities { Features = new Dictionary<RuntimeFeature, RuntimeFeatureCapability>
+        { [RuntimeFeature.BuildPull] = new(CapabilitySupport.Unsupported, "", "") } };
+        Assert.False(viewModel.CanUseBuildPull);
+        Assert.True(viewModel.CanToggleBuildPull);
+        await viewModel.BuildImageCommand.ExecuteAsync(null);
+        Assert.Equal(LocalizationService.GetString("BuildFeatureUnavailable", "BuildFeatureUnavailable"), viewModel.BuildMessage);
+        viewModel.BuildPull = false;
+        Assert.False(viewModel.CanToggleBuildPull);
+        workspace.Capabilities = new RuntimeCapabilities();
+        Assert.True(viewModel.CanUseBuildPull);
+        runtime.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task BuildImage_CancellationRetainsStreamedLogAndDoesNotRefresh()
+    {
+        var runtime = new Mock<IContainerRuntime>();
+        runtime.Setup(value => value.BuildImageAsync(It.IsAny<ImageBuildRequest>(), It.IsAny<IProgress<string>>(), It.IsAny<CancellationToken>()))
+            .Returns((ImageBuildRequest request, IProgress<string> progress, CancellationToken token) =>
+            {
+                progress.Report("#1 CACHED");
+                throw new OperationCanceledException(token);
+            });
+        using var workspace = CreateWorkspace(runtime.Object);
+        var viewModel = new ImagesViewModel(workspace) { BuildContextPath = "context", BuildImageTag = "test" };
+        await viewModel.BuildImageCommand.ExecuteAsync(null);
+        Assert.Contains("CACHED", viewModel.BuildLog);
+        Assert.Equal(LocalizationService.GetString("BuildCancelled", "Build cancelled. An export may be incomplete."), viewModel.BuildMessage);
+        Assert.False(workspace.IsBusy);
+        runtime.Verify(value => value.GetImagesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]

@@ -14,3 +14,5 @@
 - SDK 调用封装在可模拟的 `IWslcSdkService`。用户确认安装后重新读取缺失组件，只向 `InstallOptions.Components` 传入可安装的 `WslPackage` / `VirtualMachinePlatform`，`Repair=false`。`SdkNeedsUpdate` 要更新应用打包的 SDK，不能通过安装入口修复。取消请求传给 WinRT，但底层安装不保证立即停止或回滚。安装成功重新检测、刷新库存并恢复自动刷新。
 
 依据：已查阅 [官方 C# API](https://wsl.dev/api-reference/csharp/)，签名以 [2.9.9 IDL](https://github.com/microsoft/WSL/blob/2.9.9/src/windows/WslcSDK/winrt/wslcsdk.idl) 和 [WslcService 实现](https://github.com/microsoft/WSL/blob/2.9.9/src/windows/WslcSDK/winrt/WslcService.cpp) 为准；该版本公开 SDK 未提供 native restart 或运行时全局 events 流。
+
+任务 06 的构建表单消费现有 BuildSecret / BuildOutput / BuildProgress / BuildPull 快照，不增加探测或缓存。BuildOutput 只表示 `--output` 入口存在，不代表任意 exporter 都可用；本机 2.9.10 虽在帮助举例 `type=local`，实际拒绝目录 exporter，因此表单只提供本地镜像与 tar。Unsupported 阻止对应操作；Unknown 保留实际执行入口，重检后允许用户清除旧选项。具体命令、参数边界与验收见 [任务 06 验证记录](validation/wslc-06.md)。
