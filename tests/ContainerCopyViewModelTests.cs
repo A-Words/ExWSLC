@@ -1,4 +1,5 @@
 using System.IO;
+using System.Xml.Linq;
 using ExWSLC.Models;
 using ExWSLC.Services;
 using ExWSLC.ViewModels;
@@ -26,7 +27,7 @@ public class ContainerCopyViewModelTests
         await operation;
         fixture.Runtime.Verify(x => x.CopyContainerPathAsync(new(direction, "container-one", original, "/data"), It.IsAny<IProgress<string>>(), It.IsAny<CancellationToken>()), Times.Once);
         fixture.Interaction.Verify(x => x.ConfirmAsync(It.IsAny<string>(), It.Is<string>(text =>
-            text.Contains(original) && text.Contains("container-one") && text.Contains("/data") && text.Contains("same-name") && text.Contains("roll back"))), Times.Once);
+            text.Contains(original) && text.Contains("container-one") && text.Contains("/data") && ContainsMessage(text, "CopySemantics"))), Times.Once);
         Assert.Contains("container-one", fixture.ViewModel.CopyMessage);
         Assert.DoesNotContain("container-two", fixture.ViewModel.CopyMessage);
     }
@@ -58,7 +59,7 @@ public class ContainerCopyViewModelTests
         fixture.Workspace.CancelCurrentOperationCommand.Execute(null);
         await operation;
         Assert.Contains("container-one", fixture.ViewModel.CopyMessage);
-        Assert.Contains("no rollback", fixture.ViewModel.CopyMessage);
+        Assert.True(ContainsMessage(fixture.ViewModel.CopyMessage, "CopyCancelled"));
         Assert.Equal("keep", File.ReadAllText(fixture.Sentinel));
         Assert.False(fixture.Workspace.IsBusy);
         Assert.False(fixture.ViewModel.IsCopyRunning);
@@ -73,7 +74,7 @@ public class ContainerCopyViewModelTests
             .ReturnsAsync(new OperationResult(false, 1, "partial", "permission denied", "wslc container cp"));
         await fixture.ViewModel.StartCopyCommand.ExecuteAsync(null);
         Assert.Contains("permission denied", fixture.ViewModel.CopyOutput);
-        Assert.Contains("Transfer failed", fixture.ViewModel.CopyMessage);
+        Assert.True(ContainsMessage(fixture.ViewModel.CopyMessage, "CopyFailed"));
         Assert.Equal("keep", File.ReadAllText(fixture.Sentinel));
     }
 
@@ -84,7 +85,7 @@ public class ContainerCopyViewModelTests
         fixture.ViewModel.CopyLocalPath = Path.Combine(fixture.Root, "missing");
         await fixture.ViewModel.StartCopyCommand.ExecuteAsync(null);
         fixture.Interaction.Verify(x => x.ConfirmAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
-        Assert.Contains("does not exist", fixture.ViewModel.CopyMessage);
+        Assert.True(ContainsMessage(fixture.ViewModel.CopyMessage, "CopySourceMissing"));
     }
 
     [Fact]
@@ -130,6 +131,13 @@ public class ContainerCopyViewModelTests
     }
 
     private static OperationResult Success() => new(true, 0, "", "", "");
+
+    // WPF template tests can load either language into Application.Current while
+    // these tests run. Assert the complete resource text without changing global UI state.
+    private static bool ContainsMessage(string actual, string key) => new[] { "en-US", "zh-CN" }.Any(language =>
+        actual.Contains(XDocument.Load(Path.Combine(TestPaths.SourceDirectory, "Resources", $"Strings.{language}.xaml"))
+            .Root!.Elements().Single(element => (string?)element.Attribute(XName.Get("Key", "http://schemas.microsoft.com/winfx/2006/xaml")) == key).Value,
+            StringComparison.Ordinal));
 
     private sealed class Fixture : IDisposable
     {
