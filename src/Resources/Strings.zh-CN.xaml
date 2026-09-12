@@ -150,6 +150,10 @@
     <sys:String x:Key="ThemeLight">浅色</sys:String>
     <sys:String x:Key="ThemeDark">深色</sys:String>
     <sys:String x:Key="RefreshInterval">刷新间隔（秒）</sys:String>
+    <sys:String x:Key="PauseAutoRefreshWhenMinimized">窗口最小化时暂停自动刷新</sys:String>
+    <sys:String x:Key="IdleRefreshExplanation">默认关闭。开启并保存后，最小化暂停自动清单与统计查询；切换到其他应用不暂停。恢复窗口后会等待当前任务完成并刷新，仍可手动刷新。任务与正在跟随的日志继续执行，可能保持会话活动。此选项只调整 ExWSLC 的请求调度，不停止容器或会话、不修改原生空闲设置，也不保证 VM 一定回收。</sys:String>
+    <sys:String x:Key="AutoRefreshPaused">自动清单与统计刷新已暂停，显示的数据可能已过时。</sys:String>
+    <sys:String x:Key="AutoRefreshScheduled">运行时可用且没有忙碌任务时，按已保存的间隔自动刷新。</sys:String>
     <sys:String x:Key="SaveSettings">保存设置</sys:String>
     <sys:String x:Key="NativeSettings">打开 WSLC 原生设置</sys:String>
     <sys:String x:Key="ResetNativeSettings">重置 WSLC 设置</sys:String><sys:String x:Key="InstallComponents">安装缺失组件</sys:String>

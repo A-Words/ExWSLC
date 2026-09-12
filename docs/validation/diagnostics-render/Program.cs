@@ -42,7 +42,8 @@ internal static class Program
         if (snapshot.StatusKey != "DiagnosticsCollected") throw new InvalidOperationException(snapshot.StatusKey);
         // An optional task-09 result file is produced by the opt-in live test after
         // a connection to its own loopback listener. Rendering never starts a probe.
-        var hostProbe = args.Length > 1 ? JsonSerializer.Deserialize<HostLoopbackProbeResult>(File.ReadAllText(args[1])) : null;
+        var preferences = args.Contains("--preferences");
+        var hostProbe = args.Length > 1 && !preferences ? JsonSerializer.Deserialize<HostLoopbackProbeResult>(File.ReadAllText(args[1])) : null;
         var hostConfiguration = hostProbe is null ? null : Task.Run(() => new WslcContainerRuntime(runner).GetHostLoopbackConfigurationAsync()).GetAwaiter().GetResult();
 
         foreach (var language in new[] { "en-US", "zh-CN" })
@@ -82,6 +83,11 @@ internal static class Program
             app.Dispatcher.Invoke(() => { }, DispatcherPriority.ApplicationIdle);
             var scroll = (ScrollViewer)page.FindName("SettingsScrollViewer");
             var card = (FrameworkElement)page.FindName(hostProbe is null ? "DiagnosticsCard" : "HostLoopbackCard");
+            if (preferences)
+            {
+                card = (FrameworkElement)page.FindName("LanguageLabel");
+                while (card is not Wpf.Ui.Controls.Card) card = (FrameworkElement)VisualTreeHelper.GetParent(card);
+            }
             var offset = card.TranslatePoint(new Point(), (UIElement)scroll.Content).Y;
             Save(offset, name);
             if (width < 850) Save(offset + 400, name + "-bottom");

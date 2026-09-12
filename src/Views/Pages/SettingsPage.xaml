@@ -271,6 +271,12 @@
                                           Margin="0,6,0,0" />
                         </StackPanel>
                     </WrapPanel>
+                    <CheckBox IsChecked="{Binding PauseAutoRefreshWhenMinimized}" Margin="0,0,0,8"
+                              AutomationProperties.Name="{DynamicResource PauseAutoRefreshWhenMinimized}">
+                        <TextBlock Text="{DynamicResource PauseAutoRefreshWhenMinimized}" TextWrapping="Wrap" />
+                    </CheckBox>
+                    <TextBlock Text="{DynamicResource IdleRefreshExplanation}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" Margin="0,0,0,8" />
+                    <TextBlock Text="{Binding AutoRefreshStatus}" TextWrapping="Wrap" Margin="0,0,0,12" AutomationProperties.LiveSetting="Polite" />
                     <ui:Button Content="{DynamicResource SaveSettings}"
                                Icon="{ui:SymbolIcon Symbol=Save24}"
                                Appearance="Primary"

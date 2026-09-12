@@ -17,6 +17,7 @@ public class SettingsAndTaskServiceTests
             writer.Current.Language = "en-US";
             writer.Current.Theme = "Dark";
             writer.Current.RefreshIntervalSeconds = 15;
+            writer.Current.PauseAutoRefreshWhenMinimized = true;
             await writer.SaveAsync(TestContext.Current.CancellationToken);
 
             var reader = new SettingsService(path);
@@ -25,6 +26,7 @@ public class SettingsAndTaskServiceTests
             Assert.Equal("en-US", reader.Current.Language);
             Assert.Equal("Dark", reader.Current.Theme);
             Assert.Equal(15, reader.Current.RefreshIntervalSeconds);
+            Assert.True(reader.Current.PauseAutoRefreshWhenMinimized);
         }
         finally
         {
