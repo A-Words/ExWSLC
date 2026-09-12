@@ -13,50 +13,50 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner) : IContai
     public async Task<IReadOnlyList<ContainerSummary>> GetContainersAsync(CancellationToken cancellationToken = default)
     {
         var result = await RunAsync(["container", "list", "--all", "--no-trunc", "--format", "json"], cancellationToken: cancellationToken);
-        return ParseArray(result, element => new ContainerSummary(
-            element.ReadString("Id", "ID", "ContainerId"),
-            element.ReadString("Name", "Names"),
-            element.ReadString("Image"),
-            NormalizeContainerState(element.ReadString("State")),
-            element.ReadString("Status"),
-            element.ReadString("Ports"),
-            element.ReadString("Created", "CreatedAt", "CreatedSince")));
+        return ParseList(result, element => new ContainerSummary(
+            ReadIdentifier(element, "Id", "ContainerId"),
+            ReadListValue(element, "Name", "Names"),
+            ReadListValue(element, "Image"),
+            NormalizeContainerState(ReadListValue(element, "State")),
+            ReadListValue(element, "Status"),
+            ReadPorts(element),
+            ReadListValue(element, "Created", "CreatedAt", "CreatedSince")), "container list", "containers", cancellationToken);
     }
 
     public async Task<IReadOnlyList<ImageSummary>> GetImagesAsync(CancellationToken cancellationToken = default)
     {
         var result = await RunAsync(["image", "list", "--no-trunc", "--format", "json"], cancellationToken: cancellationToken);
-        return ParseArray(result, element => new ImageSummary(
-            element.ReadString("Id", "ID", "ImageId"),
-            element.ReadString("Repository", "Name"),
-            element.ReadString("Tag"),
-            element.ReadString("Size"),
-            element.ReadString("Created", "CreatedAt", "CreatedSince")));
+        return ParseList(result, element => new ImageSummary(
+            ReadIdentifier(element, "Id", "ImageId"),
+            ReadListValue(element, "Repository", "Name"),
+            ReadListValue(element, "Tag"),
+            ReadListValue(element, "Size"),
+            ReadListValue(element, "Created", "CreatedAt", "CreatedSince")), "image list", "images", cancellationToken);
     }
 
     public async Task<IReadOnlyList<NetworkSummary>> GetNetworksAsync(CancellationToken cancellationToken = default)
     {
         var result = await RunAsync(["network", "list", "--format", "json"], cancellationToken: cancellationToken);
-        return ParseArrayOrThrow(result, ParseNetworkSummary, "network list");
+        return ParseList(result, ParseNetworkSummary, "network list", "networks", cancellationToken);
     }
 
     public async Task<IReadOnlyList<VolumeSummary>> GetVolumesAsync(CancellationToken cancellationToken = default)
     {
         var result = await RunAsync(["volume", "list", "--format", "json"], cancellationToken: cancellationToken);
-        return ParseArray(result, ParseVolumeSummary);
+        return ParseList(result, ParseVolumeSummary, "volume list", "volumes", cancellationToken);
     }
 
     public async Task<IReadOnlyList<ContainerStats>> GetStatsAsync(CancellationToken cancellationToken = default)
     {
         var result = await RunAsync(["stats", "--all", "--no-trunc", "--format", "json"], cancellationToken: cancellationToken);
-        return ParseArray(result, element => new ContainerStats(
-            element.ReadString("Id", "ID", "ContainerId"),
-            element.ReadString("Name"),
-            element.ReadString("Cpu", "CPU", "CpuPercent", "CPUPerc", "CPU %"),
-            element.ReadString("Memory", "MemUsage", "MemoryUsage"),
-            element.ReadString("NetworkIo", "NetIO", "Network I/O"),
-            element.ReadString("BlockIo", "BlockIO", "Block I/O"),
-            element.ReadString("Pids", "PIDs")));
+        return ParseList(result, element => new ContainerStats(
+            ReadIdentifier(element, "Id", "ContainerId"),
+            ReadListValue(element, "Name"),
+            ReadListValue(element, "Cpu", "CpuPercent", "CPUPerc", "CPU %"),
+            ReadListValue(element, "Memory", "MemUsage", "MemoryUsage"),
+            ReadListValue(element, "NetworkIo", "NetIO", "Network I/O"),
+            ReadListValue(element, "BlockIo", "Block I/O"),
+            ReadListValue(element, "Pids")), "stats", "stats", cancellationToken);
     }
 
     public Task<OperationResult> StartContainerAsync(string id, CancellationToken cancellationToken = default) =>
@@ -256,59 +256,143 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner) : IContai
         return [resource.Trim(), "prune"];
     }
 
-    internal static IReadOnlyList<T> ParseArray<T>(OperationResult result, Func<JsonElement, T> selector)
+    private static IReadOnlyList<T> ParseList<T>(
+        OperationResult result,
+        Func<JsonElement, T> selector,
+        string operation,
+        string collectionName,
+        CancellationToken cancellationToken)
     {
-        if (!result.Success || string.IsNullOrWhiteSpace(result.Output)) return [];
+        cancellationToken.ThrowIfCancellationRequested();
+        if (result.ExitCode == -2)
+        {
+            throw new OperationCanceledException($"WSLC {operation} was cancelled.", cancellationToken);
+        }
+
+        if (!result.Success || result.ExitCode != 0)
+        {
+            var detail = string.IsNullOrWhiteSpace(result.Error) ? string.Empty : $" {result.Error.Trim()}";
+            throw new InvalidOperationException($"WSLC {operation} failed with exit code {result.ExitCode}.{detail}");
+        }
+
+        // Since WSL 2.9.8 an empty list prints nothing. Never treat failed commands as empty lists.
+        if (string.IsNullOrWhiteSpace(result.Output)) return [];
+
+        JsonDocument document;
         try
         {
-            return ParseArrayPayload(result.Output, selector) ?? [];
+            document = JsonDocument.Parse(result.Output);
         }
         catch (JsonException)
         {
-            return [];
+            // A complete legacy document is tried first so pretty-printed arrays/objects remain valid.
+            // In the new format each non-empty line must be one complete object.
+            return ParseJsonLines(result.Output, selector, operation, cancellationToken);
+        }
+
+        using (document)
+        {
+            var root = document.RootElement;
+            if (root.ValueKind == JsonValueKind.Object &&
+                !new[] { "Id", "ContainerId", "ImageId", "NetworkId", "Name", "Names" }
+                    .Any(name => root.TryGetPropertyIgnoreCase(name, out _)))
+            {
+                foreach (var name in new[] { collectionName, "items", "data" })
+                {
+                    if (!root.TryGetPropertyIgnoreCase(name, out var collection)) continue;
+                    if (collection.ValueKind != JsonValueKind.Array)
+                        throw new InvalidOperationException($"WSLC {operation} returned a non-array '{name}' collection.");
+                    root = collection;
+                    break;
+                }
+            }
+
+            if (root.ValueKind != JsonValueKind.Array)
+                return [ParseListRecord(root, selector, operation, "record 1")];
+
+            var records = new List<T>();
+            foreach (var element in root.EnumerateArray())
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                records.Add(ParseListRecord(element, selector, operation, $"record {records.Count + 1}"));
+            }
+            return records;
         }
     }
 
-    internal static IReadOnlyList<T> ParseArrayOrThrow<T>(
-        OperationResult result,
+    private static IReadOnlyList<T> ParseJsonLines<T>(
+        string output,
         Func<JsonElement, T> selector,
-        string operation)
+        string operation,
+        CancellationToken cancellationToken)
     {
-        if (!result.Success)
+        var records = new List<T>();
+        using var reader = new StringReader(output);
+        var lineNumber = 0;
+        while (reader.ReadLine() is { } line)
         {
-            var detail = string.IsNullOrWhiteSpace(result.Error)
-                ? $"WSLC {operation} failed with exit code {result.ExitCode}."
-                : result.Error.Trim();
-            throw new InvalidOperationException(detail);
+            lineNumber++;
+            cancellationToken.ThrowIfCancellationRequested();
+            if (string.IsNullOrWhiteSpace(line)) continue;
+            try
+            {
+                using var document = JsonDocument.Parse(line);
+                records.Add(ParseListRecord(document.RootElement, selector, operation, $"line {lineNumber}"));
+            }
+            catch (JsonException exception)
+            {
+                throw new InvalidOperationException($"WSLC {operation} returned invalid JSON at line {lineNumber}.", exception);
+            }
         }
+        return records;
+    }
 
-        if (string.IsNullOrWhiteSpace(result.Output))
-        {
-            throw new InvalidOperationException($"WSLC {operation} returned no JSON output.");
-        }
-
+    private static T ParseListRecord<T>(JsonElement element, Func<JsonElement, T> selector, string operation, string location)
+    {
+        if (element.ValueKind != JsonValueKind.Object)
+            throw new InvalidOperationException($"WSLC {operation} returned a non-object at {location}.");
         try
         {
-            return ParseArrayPayload(result.Output, selector)
-                ?? throw new InvalidOperationException($"WSLC {operation} returned an unsupported JSON payload.");
+            return selector(element);
         }
-        catch (JsonException exception)
+        catch (FormatException exception)
         {
-            throw new InvalidOperationException($"WSLC {operation} returned invalid JSON.", exception);
+            // Report only the field and location; inventory JSON can contain user data.
+            throw new InvalidOperationException($"WSLC {operation} returned an invalid {location}: {exception.Message}", exception);
         }
     }
 
-    private static IReadOnlyList<T>? ParseArrayPayload<T>(string output, Func<JsonElement, T> selector)
+    private static string ReadIdentifier(JsonElement element, params string[] names)
     {
-        using var document = JsonDocument.Parse(output);
-        var root = document.RootElement;
-        var array = root.ValueKind == JsonValueKind.Array
-            ? root
-            : root.ValueKind == JsonValueKind.Object
-                ? root.EnumerateObject().FirstOrDefault(property => property.Value.ValueKind == JsonValueKind.Array).Value
-                : default;
-        if (array.ValueKind != JsonValueKind.Array) return null;
-        return array.EnumerateArray().Where(item => item.ValueKind == JsonValueKind.Object).Select(selector).ToArray();
+        foreach (var name in names)
+        {
+            if (!element.TryGetPropertyIgnoreCase(name, out var value) || value.ValueKind == JsonValueKind.Null) continue;
+            if (value.ValueKind != JsonValueKind.String) throw new FormatException($"'{name}' must be a string.");
+            if (!string.IsNullOrWhiteSpace(value.GetString())) return value.GetString()!;
+        }
+        throw new FormatException($"Missing non-empty '{names[0]}' identifier.");
+    }
+
+    private static string ReadListValue(JsonElement element, params string[] names)
+    {
+        // Prefer the requested alias order, independent of property order in the CLI JSON.
+        foreach (var name in names)
+        {
+            if (!element.TryGetPropertyIgnoreCase(name, out var value) || value.ValueKind == JsonValueKind.Null) continue;
+            if (value.ValueKind is not (JsonValueKind.String or JsonValueKind.Number))
+                throw new FormatException($"'{name}' must be a string or number.");
+            var text = value.ToString();
+            if (!string.IsNullOrWhiteSpace(text)) return text;
+        }
+        return string.Empty;
+    }
+
+    private static string ReadPorts(JsonElement element)
+    {
+        if (!element.TryGetPropertyIgnoreCase("Ports", out var ports) || ports.ValueKind == JsonValueKind.Null) return string.Empty;
+        if (ports.ValueKind is not (JsonValueKind.String or JsonValueKind.Array or JsonValueKind.Object))
+            throw new FormatException("'Ports' must be a string, array or object.");
+        return ports.ToString();
     }
 
     internal static string NormalizeContainerState(string state) => state switch
@@ -323,37 +407,38 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner) : IContai
 
     internal static NetworkSummary ParseNetworkSummary(JsonElement element)
     {
-        var subnet = element.ReadString("Subnet");
-        var gateway = element.ReadString("Gateway");
+        var subnet = ReadListValue(element, "Subnet");
+        var gateway = ReadListValue(element, "Gateway");
 
-        if (element.TryGetPropertyIgnoreCase("IPAM", out var ipam))
+        if (element.TryGetPropertyIgnoreCase("IPAM", out var ipam) && ipam.ValueKind != JsonValueKind.Null)
         {
-            subnet = FirstNonEmpty(subnet, ipam.ReadString("Subnet"));
-            gateway = FirstNonEmpty(gateway, ipam.ReadString("Gateway"));
+            if (ipam.ValueKind != JsonValueKind.Object) throw new FormatException("'IPAM' must be an object.");
+            subnet = FirstNonEmpty(subnet, ReadListValue(ipam, "Subnet"));
+            gateway = FirstNonEmpty(gateway, ReadListValue(ipam, "Gateway"));
 
             if (ipam.TryGetPropertyIgnoreCase("Config", out var config) && config.ValueKind == JsonValueKind.Array)
             {
                 var firstConfiguration = config.EnumerateArray()
                     .FirstOrDefault(item => item.ValueKind == JsonValueKind.Object);
-                subnet = FirstNonEmpty(subnet, firstConfiguration.ReadString("Subnet"));
-                gateway = FirstNonEmpty(gateway, firstConfiguration.ReadString("Gateway"));
+                subnet = FirstNonEmpty(subnet, ReadListValue(firstConfiguration, "Subnet"));
+                gateway = FirstNonEmpty(gateway, ReadListValue(firstConfiguration, "Gateway"));
             }
         }
 
         return new NetworkSummary(
-            element.ReadString("Id", "ID", "NetworkId"),
-            element.ReadString("Name"),
-            element.ReadString("Driver"),
-            element.ReadString("Scope"),
+            ReadListValue(element, "Id", "NetworkId"),
+            ReadIdentifier(element, "Name"),
+            ReadListValue(element, "Driver"),
+            ReadListValue(element, "Scope"),
             subnet,
             gateway);
     }
 
     internal static VolumeSummary ParseVolumeSummary(JsonElement element) => new(
-        element.ReadString("Name"),
-        element.ReadString("Driver"),
-        element.ReadString("Mountpoint", "MountPoint"),
-        element.ReadString("Size"));
+        ReadIdentifier(element, "Name"),
+        ReadListValue(element, "Driver"),
+        ReadListValue(element, "Mountpoint"),
+        ReadListValue(element, "Size"));
 
     internal static ProcessStartInfo BuildInteractiveTerminalStartInfo(string containerId, string? executablePath = null)
     {

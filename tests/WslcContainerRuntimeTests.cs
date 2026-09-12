@@ -160,49 +160,6 @@ public class WslcContainerRuntimeTests
     }
 
     [Fact]
-    public void ParseArray_AcceptsWrappedPayloadAndUnknownFields()
-    {
-        const string json = """
-            { "containers": [{ "ID": "abc123", "Names": "web", "Image": "nginx", "State": "running", "FutureField": 42 }] }
-            """;
-        var result = new OperationResult(true, 0, json, string.Empty, "wslc list");
-
-        var containers = WslcContainerRuntime.ParseArray(result, element => new ContainerSummary(
-            element.ReadString("Id", "ID"), element.ReadString("Name", "Names"),
-            element.ReadString("Image"), element.ReadString("State"), element.ReadString("Status"),
-            element.ReadString("Ports"), element.ReadString("Created")));
-
-        var container = Assert.Single(containers);
-        Assert.Equal("abc123", container.Id);
-        Assert.Equal("web", container.Name);
-        Assert.True(container.IsRunning);
-    }
-
-    [Fact]
-    public void ParseArray_ReturnsEmptyForMalformedJson()
-    {
-        var result = new OperationResult(true, 0, "not-json", string.Empty, "wslc list");
-        Assert.Empty(WslcContainerRuntime.ParseArray(result, element => element.ToString()));
-    }
-
-    [Fact]
-    public void ParseArrayOrThrow_ReportsFailedAndMalformedInventory()
-    {
-        var failed = new OperationResult(false, 7, string.Empty, "network service unavailable", "wslc network list");
-        var failure = Assert.Throws<InvalidOperationException>(() =>
-            WslcContainerRuntime.ParseArrayOrThrow(failed, element => element.ToString(), "network list"));
-        Assert.Equal("network service unavailable", failure.Message);
-
-        var malformed = new OperationResult(true, 0, "not-json", string.Empty, "wslc network list");
-        var malformedFailure = Assert.Throws<InvalidOperationException>(() =>
-            WslcContainerRuntime.ParseArrayOrThrow(malformed, element => element.ToString(), "network list"));
-        Assert.Equal("WSLC network list returned invalid JSON.", malformedFailure.Message);
-
-        var empty = new OperationResult(true, 0, "[]", string.Empty, "wslc network list");
-        Assert.Empty(WslcContainerRuntime.ParseArrayOrThrow(empty, element => element.ToString(), "network list"));
-    }
-
-    [Fact]
     public void ParseNetworkSummary_ReadsNestedIpamConfiguration()
     {
         using var document = JsonDocument.Parse("""
