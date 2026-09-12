@@ -693,6 +693,44 @@
             </ScrollViewer>
         </DataTemplate>
 
+        <DataTemplate x:Key="HealthDetailTemplate">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="0,16,0,0">
+                    <DockPanel Margin="0,0,0,12">
+                        <ui:Button DockPanel.Dock="Right" Content="{DynamicResource Refresh}" Command="{Binding InspectContainerCommand}" HorizontalAlignment="Right" />
+                        <TextBlock Text="{DynamicResource HealthChecks}" Style="{StaticResource SectionTitleStyle}" />
+                    </DockPanel>
+                    <TextBlock Text="{DynamicResource HealthLoading}" Visibility="{Binding IsInspectDetailsLoading, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="0,0,0,8" />
+                    <ui:InfoBar IsOpen="{Binding HasInspectDetailsError, Mode=OneWay}" IsClosable="False" Severity="Warning" Title="{DynamicResource HealthUnavailable}" Message="{Binding InspectDetailsError}" />
+                    <Border Style="{StaticResource ConfigurationCardStyle}">
+                        <StackPanel>
+                            <TextBlock DataContext="{Binding InspectDetails.Health.Status}" Style="{StaticResource HealthStatusTextStyle}" FontSize="18" FontWeight="SemiBold" />
+                            <TextBlock Text="{DynamicResource HealthFailingStreak}" Margin="0,12,0,4" />
+                            <TextBlock Text="{Binding InspectDetails.Health.FailingStreak, TargetNullValue=--, FallbackValue=--}" />
+                            <TextBlock Text="{DynamicResource HealthLogsHint}" TextWrapping="Wrap" Margin="0,12,0,0" />
+                            <TextBlock Text="{DynamicResource HealthNoLogs}" Margin="0,8,0,0">
+                                <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding InspectDetails.Health.HasLogs}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                            </TextBlock>
+                            <ItemsControl ItemsSource="{Binding InspectDetails.Health.Logs}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="{ui:ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,1,0,0" Padding="0,12" Margin="0,12,0,0">
+                                            <StackPanel>
+                                                <TextBlock Text="{DynamicResource HealthCheckStart}" /><TextBlock Text="{Binding Start}" TextWrapping="Wrap" />
+                                                <TextBlock Text="{DynamicResource HealthCheckEnd}" Margin="0,8,0,0" /><TextBlock Text="{Binding End}" TextWrapping="Wrap" />
+                                                <TextBlock Text="{DynamicResource HealthExitCode}" Margin="0,8,0,0" /><TextBlock Text="{Binding ExitCode, TargetNullValue=--}" />
+                                                <TextBox Text="{Binding Output, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" MaxHeight="180" VerticalScrollBarVisibility="Auto" FontFamily="Consolas" Margin="0,8,0,0" AutomationProperties.Name="{DynamicResource HealthOutput}" />
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </DataTemplate>
+
         <DataTemplate x:Key="InspectDetailTemplate">
             <Grid Margin="0,14,0,0">
                 <Border Style="{StaticResource WorkbenchPanelStyle}" Padding="0" ClipToBounds="True">
@@ -814,6 +852,7 @@
                 <controls:SelectorBarItem Text="{DynamicResource Mounts}" Tag="{StaticResource MountsDetailTemplate}" />
                 <controls:SelectorBarItem Text="{DynamicResource Configuration}" Tag="{StaticResource ConfigurationDetailTemplate}" />
                 <controls:SelectorBarItem Text="{DynamicResource Inspect}" Tag="{StaticResource InspectDetailTemplate}" />
+                <controls:SelectorBarItem Text="{DynamicResource HealthChecks}" Tag="{StaticResource HealthDetailTemplate}" />
             </controls:SelectorBar>
 
             <ContentControl Grid.Row="1"

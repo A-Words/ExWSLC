@@ -87,6 +87,31 @@
                 </StackPanel>
             </Border>
 
+            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource HealthChecks}" Style="{StaticResource SectionTitleStyle}" />
+                    <ComboBox SelectedIndex="{Binding NewHealthModeIndex}" HorizontalAlignment="Stretch" Margin="0,4,0,8">
+                        <ComboBoxItem Content="{DynamicResource HealthInherit}" />
+                        <ComboBoxItem Content="{DynamicResource HealthDisable}" IsEnabled="{Binding CanConfigureHealth}" />
+                        <ComboBoxItem Content="{DynamicResource HealthCustom}" IsEnabled="{Binding CanConfigureHealth}" />
+                    </ComboBox>
+                    <TextBlock Text="{DynamicResource HealthUnsupported}" TextWrapping="Wrap" Margin="0,0,0,8">
+                        <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding CanConfigureHealth}" Value="False"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                    </TextBlock>
+                    <StackPanel Visibility="{Binding IsCustomHealth, Converter={StaticResource BoolToVisibility}}">
+                        <TextBlock Text="{DynamicResource HealthOptionsHint}" TextWrapping="Wrap" Margin="0,0,0,10" />
+                        <TextBlock Text="{DynamicResource HealthCommand}" />
+                        <ui:TextBox Text="{Binding NewHealthCommand, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="test -f /tmp/ready" Margin="0,4,0,12" />
+                        <UniformGrid Columns="2">
+                            <StackPanel Margin="0,0,12,10"><TextBlock Text="{DynamicResource HealthInterval}" /><ui:TextBox Text="{Binding NewHealthInterval, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="30s" /></StackPanel>
+                            <StackPanel Margin="0,0,0,10"><TextBlock Text="{DynamicResource HealthTimeout}" /><ui:TextBox Text="{Binding NewHealthTimeout, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="5s" /></StackPanel>
+                            <StackPanel Margin="0,0,12,0"><TextBlock Text="{DynamicResource HealthStartPeriod}" /><ui:TextBox Text="{Binding NewHealthStartPeriod, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="1m30s" /></StackPanel>
+                            <StackPanel><TextBlock Text="{DynamicResource HealthRetries}" /><ui:TextBox Text="{Binding NewHealthRetries, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="3" /></StackPanel>
+                        </UniformGrid>
+                    </StackPanel>
+                    <TextBlock Text="{Binding HealthValidationError}" Foreground="{ui:ThemeResource SystemFillColorCriticalBrush}" TextWrapping="Wrap" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
             <ui:Button Content="{DynamicResource Run}" Icon="{ui:SymbolIcon Symbol=Play24}" Appearance="Primary" Command="{Binding RunNewContainerCommand}" Padding="24,9" HorizontalAlignment="Right" />
         </StackPanel>
     </ScrollViewer>

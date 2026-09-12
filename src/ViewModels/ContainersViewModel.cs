@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ExWSLC.Helpers;
 using ExWSLC.Models;
+using ExWSLC.Services;
 
 namespace ExWSLC.ViewModels;
 
@@ -18,6 +19,7 @@ public partial class ContainersViewModel : WorkspaceViewModel
     private const int MountsTabIndex = 3;
     private const int ConfigurationTabIndex = 4;
     private const int InspectTabIndex = 5;
+    private const int HealthTabIndex = 6;
 
     private CancellationTokenSource? _logFollow;
     private CancellationTokenSource? _networkDetailsLoad;
@@ -37,6 +39,12 @@ public partial class ContainersViewModel : WorkspaceViewModel
         Workspace.Refreshed += OnWorkspaceRefreshed;
     }
     public ObservableCollection<ContainerListItem> VisibleContainerItems { get; } = [];
+
+    protected override void OnWorkspacePropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs eventArgs)
+    {
+        base.OnWorkspacePropertyChanged(sender, eventArgs);
+        if (eventArgs.PropertyName == nameof(RuntimeWorkspace.Capabilities)) OnPropertyChanged(nameof(CanConfigureHealth));
+    }
 
     /// <summary>Log lines for the selected container's Logs tab, one row per line.</summary>
     public ObservableCollection<LogLine> LogLines { get; } = [];
@@ -64,6 +72,20 @@ public partial class ContainersViewModel : WorkspaceViewModel
     [ObservableProperty] public partial string NewVolumes { get; set; } = string.Empty;
     [ObservableProperty] public partial bool NewUseAllGpus { get; set; }
     [ObservableProperty] public partial bool NewRemoveWhenStopped { get; set; }
+    [ObservableProperty] public partial int NewHealthModeIndex { get; set; }
+    [ObservableProperty] public partial string NewHealthCommand { get; set; } = string.Empty;
+    [ObservableProperty] public partial string NewHealthInterval { get; set; } = string.Empty;
+    [ObservableProperty] public partial string NewHealthTimeout { get; set; } = string.Empty;
+    [ObservableProperty] public partial string NewHealthStartPeriod { get; set; } = string.Empty;
+    [ObservableProperty] public partial string NewHealthRetries { get; set; } = string.Empty;
+    [ObservableProperty] public partial string HealthValidationError { get; set; } = string.Empty;
+    public bool CanConfigureHealth => Workspace.Capabilities[RuntimeFeature.HealthChecks].Support == CapabilitySupport.Supported;
+    public bool IsCustomHealth => NewHealthModeIndex == (int)HealthCheckMode.Custom;
+    partial void OnNewHealthModeIndexChanged(int value)
+    {
+        HealthValidationError = string.Empty;
+        OnPropertyChanged(nameof(IsCustomHealth));
+    }
     [ObservableProperty] public partial string ExecText { get; set; } = DefaultExecCommand;
     [ObservableProperty] public partial ContainerNetworkDetails? NetworkDetails { get; set; }
     [ObservableProperty] public partial bool IsNetworkDetailsLoading { get; set; }
@@ -143,6 +165,7 @@ public partial class ContainersViewModel : WorkspaceViewModel
     {
         try
         {
+            HealthValidationError = string.Empty;
             var spec = BuildCreateSpec();
             var result = await Workspace.RunTrackedAsync($"Run {spec.Image}", (progress, token) => Workspace.Runtime.RunContainerAsync(spec, progress, token));
             Workspace.ShowResult(result);
@@ -154,7 +177,8 @@ public partial class ContainersViewModel : WorkspaceViewModel
         }
         catch (ArgumentException exception)
         {
-            await Workspace.Interaction.ShowErrorAsync("Invalid container", exception.Message);
+            HealthValidationError = exception.Message;
+            await Workspace.Interaction.ShowErrorAsync(LocalizationService.GetString("InvalidContainer", "Invalid container"), exception.Message);
         }
     }
 
@@ -177,6 +201,7 @@ public partial class ContainersViewModel : WorkspaceViewModel
                 break;
             case ConfigurationTabIndex:
             case InspectTabIndex:
+            case HealthTabIndex:
                 _networkDetailsLoad?.Cancel();
                 _mountDetailsLoad?.Cancel();
                 _ = LoadInspectDetailsAsync(force: false);
@@ -455,6 +480,7 @@ public partial class ContainersViewModel : WorkspaceViewModel
 
         if (!force && _inspectDetailsCache.TryGetValue(container.Id, out var cachedDetails))
         {
+            IsInspectDetailsLoading = false;
             InspectDetails = cachedDetails;
             InspectOutput = cachedDetails.RawJson;
             InspectDetailsError = string.Empty;
@@ -466,10 +492,14 @@ public partial class ContainersViewModel : WorkspaceViewModel
         _inspectDetailsLoadContainerId = container.Id;
         IsInspectDetailsLoading = true;
         InspectDetailsError = string.Empty;
+        _inspectDetailsCache.Remove(container.Id);
+        InspectDetails = null;
+        InspectOutput = string.Empty;
+        InspectDetailsUpdatedAt = null;
         try
         {
             var result = await Workspace.Runtime.InspectContainerAsync(container.Id, load.Token);
-            if (load.IsCancellationRequested || !IsCurrentInspectContainer(container.Id)) return;
+            if (load.IsCancellationRequested || !ReferenceEquals(_inspectDetailsLoad, load) || !IsCurrentInspectContainer(container.Id)) return;
 
             if (!result.Success)
             {
@@ -482,6 +512,12 @@ public partial class ContainersViewModel : WorkspaceViewModel
             if (!ContainerInspectDetailsParser.TryParse(result.Output, out var details))
             {
                 InspectDetailsError = "WSLC returned unsupported container configuration data.";
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(details.Id) && !details.Id.Equals(container.Id, StringComparison.OrdinalIgnoreCase))
+            {
+                InspectDetailsError = LocalizationService.GetString("HealthInspectMismatch", "Inspection returned a different container. Refresh and try again.");
                 return;
             }
 
@@ -517,7 +553,7 @@ public partial class ContainersViewModel : WorkspaceViewModel
     }
 
     private bool IsCurrentInspectContainer(string containerId) =>
-        SelectedDetailTabIndex is ConfigurationTabIndex or InspectTabIndex &&
+        SelectedDetailTabIndex is ConfigurationTabIndex or InspectTabIndex or HealthTabIndex &&
         SelectedContainer is { } container &&
         container.Id.Equals(containerId, StringComparison.OrdinalIgnoreCase);
 
@@ -711,8 +747,17 @@ public partial class ContainersViewModel : WorkspaceViewModel
             User = NewUser.Trim(),
             WorkingDirectory = NewWorkingDirectory.Trim(),
             UseAllGpus = NewUseAllGpus,
-            RemoveWhenStopped = NewRemoveWhenStopped
+            RemoveWhenStopped = NewRemoveWhenStopped,
+            HealthMode = (HealthCheckMode)NewHealthModeIndex,
+            HealthCommand = IsCustomHealth ? OptionalHealthValue(NewHealthCommand) : null,
+            HealthInterval = IsCustomHealth ? OptionalHealthValue(NewHealthInterval) : null,
+            HealthTimeout = IsCustomHealth ? OptionalHealthValue(NewHealthTimeout) : null,
+            HealthStartPeriod = IsCustomHealth ? OptionalHealthValue(NewHealthStartPeriod) : null,
+            HealthRetries = IsCustomHealth ? OptionalHealthValue(NewHealthRetries) : null
         };
+        HealthCheckOptions.Validate(spec);
+        if (spec.HealthMode != HealthCheckMode.Inherit)
+            HealthCheckOptions.RequireSupport(Workspace.Capabilities[RuntimeFeature.HealthChecks].Support);
         foreach (var line in StringSplitter.SplitValues(NewEnvironment))
         {
             var index = line.IndexOf('=');
@@ -724,8 +769,16 @@ public partial class ContainersViewModel : WorkspaceViewModel
         return spec;
     }
 
+    private static string? OptionalHealthValue(string value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
     private void OnWorkspaceRefreshed(object? sender, EventArgs eventArgs)
     {
+        // Health is runtime state: no cached inspection may survive an inventory refresh.
+        _inspectDetailsLoad?.Cancel();
+        _inspectDetailsCache.Clear();
+        InspectDetails = null;
+        InspectOutput = string.Empty;
+        InspectDetailsUpdatedAt = null;
         var selectedBeforeRefresh = SelectedContainer;
         ApplyContainerFilter();
         RestoreSelectedContainerIfUnchanged(selectedBeforeRefresh);
@@ -738,11 +791,9 @@ public partial class ContainersViewModel : WorkspaceViewModel
         {
             _mountDetailsCache.Remove(containerId);
         }
-        foreach (var containerId in _inspectDetailsCache.Keys.Where(containerId => !existingContainerIds.Contains(containerId)).ToArray())
-        {
-            _inspectDetailsCache.Remove(containerId);
-        }
         OnPropertyChanged(nameof(SelectedContainerStats));
+        if (SelectedDetailTabIndex is ConfigurationTabIndex or InspectTabIndex or HealthTabIndex)
+            _ = LoadInspectDetailsAsync(force: true);
     }
 
     private void InvalidateNetworkDetails(string containerId)

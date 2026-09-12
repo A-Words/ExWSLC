@@ -11,7 +11,7 @@ namespace ExWSLC.Tests;
 public class ContainerDetailXamlTests
 {
     [Fact]
-    public void MountsDetailTemplate_LoadsMountCardWithoutMissingSymbolIconResource()
+    public void MountAndHealthTemplates_LoadCardsWithoutMissingResources()
     {
         StaTest.Run(() =>
         {
@@ -37,6 +37,21 @@ public class ContainerDetailXamlTests
                 content.Measure(new Size(1024, 768));
                 content.Arrange(new Rect(0, 0, 1024, 768));
                 content.UpdateLayout();
+
+                var healthTemplate = Assert.IsType<DataTemplate>(view.Resources["HealthDetailTemplate"]);
+                var healthContent = Assert.IsAssignableFrom<FrameworkElement>(healthTemplate.LoadContent());
+                healthContent.DataContext = new
+                {
+                    IsInspectDetailsLoading = false,
+                    HasInspectDetailsError = false,
+                    InspectDetails = new ContainerInspectDetails("test", new ContainerInspectConfig([]), [], "{}")
+                    {
+                        Health = new(ContainerHealthStatus.Unhealthy, 2, [new("start", "end", 1, "not ready")])
+                    }
+                };
+                healthContent.Measure(new Size(800, 600));
+                healthContent.Arrange(new Rect(0, 0, 800, 600));
+                healthContent.UpdateLayout();
             }
             finally
             {

@@ -6,7 +6,7 @@ using ExWSLC.Models;
 
 namespace ExWSLC.Services;
 
-public sealed class WslcContainerRuntime(IProcessRunner processRunner) : IContainerRuntime
+public sealed class WslcContainerRuntime(IProcessRunner processRunner, IRuntimeCapabilityService? capabilityService = null) : IContainerRuntime
 {
     private const string Executable = "wslc.exe";
 
@@ -20,7 +20,8 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner) : IContai
             NormalizeContainerState(ReadListValue(element, "State")),
             ReadListValue(element, "Status"),
             ReadPorts(element),
-            ReadListValue(element, "Created", "CreatedAt", "CreatedSince")), "container list", "containers", cancellationToken);
+            ReadListValue(element, "Created", "CreatedAt", "CreatedSince"),
+            ContainerHealthParser.ReadListStatus(element)), "container list", "containers", cancellationToken);
     }
 
     public async Task<IReadOnlyList<ImageSummary>> GetImagesAsync(CancellationToken cancellationToken = default)
@@ -82,8 +83,17 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner) : IContai
         return RunAsync(arguments, cancellationToken: cancellationToken);
     }
 
-    public Task<OperationResult> RunContainerAsync(ContainerCreateSpec spec, IProgress<string>? progress = null, CancellationToken cancellationToken = default) =>
-        RunAsync(BuildRunArguments(spec), progress: progress, cancellationToken: cancellationToken);
+    public async Task<OperationResult> RunContainerAsync(ContainerCreateSpec spec, IProgress<string>? progress = null, CancellationToken cancellationToken = default)
+    {
+        var arguments = BuildRunArguments(spec);
+        if (spec.HealthMode != HealthCheckMode.Inherit)
+        {
+            var capabilities = capabilityService is null ? null : await capabilityService.DetectAsync(cancellationToken);
+            HealthCheckOptions.RequireSupport(capabilities?[RuntimeFeature.HealthChecks].Support ?? CapabilitySupport.Unknown);
+        }
+        cancellationToken.ThrowIfCancellationRequested();
+        return await RunAsync(arguments, progress: progress, cancellationToken: cancellationToken);
+    }
 
     public Task<OperationResult> ExportContainerAsync(string id, string path, IProgress<string>? progress = null, CancellationToken cancellationToken = default) =>
         RunAsync(["container", "export", id, "--output", path], progress: progress, cancellationToken: cancellationToken);
@@ -172,6 +182,16 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner) : IContai
     {
         if (string.IsNullOrWhiteSpace(spec.Image)) throw new ArgumentException("Image is required.", nameof(spec));
         var arguments = new List<string> { "run", "--detach" };
+        HealthCheckOptions.Validate(spec);
+        if (spec.HealthMode == HealthCheckMode.Disabled) arguments.Add("--no-healthcheck");
+        if (spec.HealthMode == HealthCheckMode.Custom)
+        {
+            AddOption(arguments, "--health-cmd", spec.HealthCommand ?? string.Empty);
+            AddOption(arguments, "--health-interval", spec.HealthInterval ?? string.Empty);
+            AddOption(arguments, "--health-timeout", spec.HealthTimeout ?? string.Empty);
+            AddOption(arguments, "--health-start-period", spec.HealthStartPeriod ?? string.Empty);
+            AddOption(arguments, "--health-retries", spec.HealthRetries ?? string.Empty);
+        }
         AddOption(arguments, "--name", spec.Name);
         AddOption(arguments, "--cpus", spec.CpuLimit);
         AddOption(arguments, "--memory", spec.MemoryLimit);

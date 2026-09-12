@@ -22,7 +22,7 @@ internal static class ContainerInspectDetailsParser
                 root.ReadString("Id", "ID", "ContainerId"),
                 new ContainerInspectConfig(ReadStringArray(config, "Cmd", "Command")),
                 ReadEnvironment(config),
-                JsonOutputFormatter.Format(inspectOutput));
+                JsonOutputFormatter.Format(inspectOutput)) { Health = ContainerHealthParser.ReadInspect(root) };
             return true;
         }
         catch (JsonException)

@@ -5,6 +5,16 @@
     <Application.Resources>
         <ResourceDictionary>
             <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+            <Style x:Key="HealthStatusTextStyle" TargetType="TextBlock">
+                <Setter Property="Text" Value="{DynamicResource HealthUnknown}" />
+                <Setter Property="TextWrapping" Value="Wrap" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding}" Value="NotConfigured"><Setter Property="Text" Value="{DynamicResource HealthNotConfigured}" /></DataTrigger>
+                    <DataTrigger Binding="{Binding}" Value="Starting"><Setter Property="Text" Value="{DynamicResource HealthStarting}" /></DataTrigger>
+                    <DataTrigger Binding="{Binding}" Value="Healthy"><Setter Property="Text" Value="{DynamicResource HealthHealthy}" /><Setter Property="Foreground" Value="{ui:ThemeResource SystemFillColorSuccessBrush}" /></DataTrigger>
+                    <DataTrigger Binding="{Binding}" Value="Unhealthy"><Setter Property="Text" Value="{DynamicResource HealthUnhealthy}" /><Setter Property="Foreground" Value="{ui:ThemeResource SystemFillColorCriticalBrush}" /></DataTrigger>
+                </Style.Triggers>
+            </Style>
             <FontFamily x:Key="SegoeFluentIcons">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
             <Style x:Key="CardStyle" TargetType="Border">
                 <Setter Property="Background" Value="{ui:ThemeResource ControlFillColorSecondaryBrush}" />

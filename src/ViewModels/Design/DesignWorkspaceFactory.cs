@@ -43,7 +43,7 @@ internal static class DesignWorkspaceFactory
 
     private static readonly ContainerSummary[] SampleContainers =
     [
-        new("1234567890abcdef", "api-gateway", "nginx:latest", "running", "Up 12 minutes", "8080:80", "now"),
+        new("1234567890abcdef", "api-gateway", "nginx:latest", "running", "Up 12 minutes", "8080:80", "now", ContainerHealthStatus.Healthy),
         new("abcdef1234567890", "worker-cache", "redis:7", "running", "Up 8 minutes", string.Empty, "now"),
         new("fedcba0987654321", "demo-shell", "ubuntu:latest", "stopped", "Exited", string.Empty, "yesterday")
     ];

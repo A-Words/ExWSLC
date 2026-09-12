@@ -6,6 +6,7 @@ public sealed record ContainerInspectDetails(
     IReadOnlyList<ContainerKeyValue> EnvironmentVariables,
     string RawJson)
 {
+    public ContainerHealthDetails Health { get; init; } = ContainerHealthDetails.Unknown;
     public bool HasEnvironmentVariables => EnvironmentVariables.Count > 0;
 }
 

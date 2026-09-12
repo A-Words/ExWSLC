@@ -9,6 +9,11 @@ public sealed class DesignContainersViewModel : ContainersViewModel
         IsDesignMode = true;
         SearchText = "api";
         SelectedContainer = VisibleContainerItems.FirstOrDefault()?.Container;
+        InspectDetails = new ContainerInspectDetails("1234567890abcdef", new ContainerInspectConfig(["nginx"]), [], "{}")
+        {
+            Health = new ContainerHealthDetails(ContainerHealthStatus.Healthy, 0,
+                [new ContainerHealthLog("2026-09-12T01:00:00Z", "2026-09-12T01:00:01Z", 0, "Service ready")])
+        };
         NetworkDetails = new ContainerNetworkDetails(
             "bridge",
             "api-gateway",

@@ -40,7 +40,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*" />
                         <ColumnDefinition Width="1.5*" />
-                        <ColumnDefinition Width="110" />
+                        <ColumnDefinition Width="140" />
                         <ColumnDefinition Width="1.2*" />
                         <ColumnDefinition Width="90" />
                         <ColumnDefinition Width="100" />
@@ -65,7 +65,10 @@
                                 </Style>
                             </Border.Style>
                         </Border>
-                        <TextBlock Text="{Binding Container.State}" />
+                        <StackPanel>
+                            <TextBlock Text="{Binding Container.State}" />
+                            <TextBlock DataContext="{Binding Container.HealthStatus}" Style="{StaticResource HealthStatusTextStyle}" FontSize="11" Margin="0,3,0,0" />
+                        </StackPanel>
                     </StackPanel>
                     <TextBlock Grid.Column="3" Text="{Binding Ports}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="12,0" ToolTip="{Binding Ports}" />
                     <TextBlock Grid.Column="4" Text="{Binding Cpu}" VerticalAlignment="Center" Margin="12,0" />
@@ -183,7 +186,7 @@
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*" /><ColumnDefinition Width="1.5*" />
-                            <ColumnDefinition Width="110" /><ColumnDefinition Width="1.2*" />
+                            <ColumnDefinition Width="140" /><ColumnDefinition Width="1.2*" />
                             <ColumnDefinition Width="90" /><ColumnDefinition Width="100" /><ColumnDefinition Width="112" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="{DynamicResource Name}" Margin="14,0" VerticalAlignment="Center" FontWeight="SemiBold" />

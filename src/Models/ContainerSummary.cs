@@ -9,7 +9,8 @@ public sealed record ContainerSummary(
     string State,
     string Status,
     string Ports,
-    string Created)
+    string Created,
+    ContainerHealthStatus HealthStatus = ContainerHealthStatus.Unknown)
 {
     public bool IsRunning => State.Equals(ContainerState.Running, StringComparison.OrdinalIgnoreCase) ||
                              State == ContainerState.CodeRunning ||

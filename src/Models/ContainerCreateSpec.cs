@@ -12,6 +12,12 @@ public sealed class ContainerCreateSpec
     public string WorkingDirectory { get; set; } = string.Empty;
     public bool UseAllGpus { get; set; }
     public bool RemoveWhenStopped { get; set; }
+    public HealthCheckMode HealthMode { get; set; }
+    public string? HealthCommand { get; set; }
+    public string? HealthInterval { get; set; }
+    public string? HealthTimeout { get; set; }
+    public string? HealthStartPeriod { get; set; }
+    public string? HealthRetries { get; set; }
     public List<KeyValuePair<string, string>> Environment { get; } = [];
     public List<string> Ports { get; } = [];
     public List<string> Volumes { get; } = [];
