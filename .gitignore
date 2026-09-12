@@ -10,3 +10,8 @@ publish/
 settings.json
 *.pfx
 *.snk
+
+# Local implementation prompts and acceptance artifacts belong in artifacts/.
+/docs/implementation-prompts/
+/docs/validation/
+/docs/runtime-capabilities.md
