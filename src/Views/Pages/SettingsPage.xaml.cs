@@ -16,6 +16,13 @@ public partial class SettingsPage : System.Windows.Controls.Page
     public SettingsPage(SettingsViewModel viewModel) : this()
     {
         DataContext = viewModel;
+        Loaded += async (_, _) =>
+        {
+            if (viewModel.Diagnostics is null && viewModel.RefreshDiagnosticsCommand.CanExecute(null))
+                await viewModel.RefreshDiagnosticsCommand.ExecuteAsync(null);
+            if (viewModel.HostLoopbackConfiguration is null && viewModel.ReadHostLoopbackCommand.CanExecute(null))
+                await viewModel.ReadHostLoopbackCommand.ExecuteAsync(null);
+        };
     }
 
     private void RegistryPasswordBox_OnPasswordChanged(object sender, RoutedEventArgs e)

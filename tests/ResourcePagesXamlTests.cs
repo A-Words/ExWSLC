@@ -132,7 +132,9 @@ public class ResourcePagesXamlTests
         Assert.Contains("Height=\"{Binding ActualHeight, ElementName=RootPage}\"", settingsPage);
         Assert.Contains("PreviewMouseWheel=\"SettingsScrollViewer_OnPreviewMouseWheel\"", settingsPage);
         Assert.Contains("HorizontalScrollBarVisibility=\"Disabled\"", settingsPage);
-        Assert.Equal(6, Regex.Matches(settingsPage, "AutomationProperties.LabeledBy").Count);
+        Assert.Equal(8, Regex.Matches(settingsPage, "AutomationProperties.LabeledBy").Count);
+        Assert.Contains("ElementName=HostProbeContainerLabel", settingsPage);
+        Assert.Contains("ElementName=HostProbePortLabel", settingsPage);
         Assert.Contains("RegistryServer, UpdateSourceTrigger=PropertyChanged", settingsPage);
         Assert.Contains("RegistryUsername, UpdateSourceTrigger=PropertyChanged", settingsPage);
     }

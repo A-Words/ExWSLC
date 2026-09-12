@@ -28,6 +28,7 @@ public enum RuntimeFeature
     CreateIp,
     CreateNetworkAlias,
     SystemInfo,
+    HostLoopback,
     NativeRestart,
     Events,
     NetworkConnectDriverOptions,

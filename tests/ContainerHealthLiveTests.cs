@@ -34,7 +34,7 @@ public class ContainerHealthLiveTests
             await File.WriteAllTextAsync(Path.Combine(directory, "Dockerfile"),
                 $"FROM {image}\nHEALTHCHECK --interval=1s --timeout=1s --retries=1 CMD echo inherited-ready\nCMD [\"sleep\",\"600\"]\n", token);
             imageBuildAttempted = true;
-            var build = await runtime.BuildImageAsync(directory, tag, "", cancellationToken: token);
+            var build = await runtime.BuildImageAsync(new ImageBuildRequest { ContextPath = directory, Tag = tag }, cancellationToken: token);
             Assert.True(build.Success, build.Error);
             foreach (var mode in new[] { HealthCheckMode.Inherit, HealthCheckMode.Disabled, HealthCheckMode.Custom })
             {

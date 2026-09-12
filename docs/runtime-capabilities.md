@@ -16,3 +16,30 @@
 依据：已查阅 [官方 C# API](https://wsl.dev/api-reference/csharp/)，签名以 [2.9.9 IDL](https://github.com/microsoft/WSL/blob/2.9.9/src/windows/WslcSDK/winrt/wslcsdk.idl) 和 [WslcService 实现](https://github.com/microsoft/WSL/blob/2.9.9/src/windows/WslcSDK/winrt/WslcService.cpp) 为准；该版本公开 SDK 未提供 native restart 或运行时全局 events 流。
 
 任务 06 的构建表单消费现有 BuildSecret / BuildOutput / BuildProgress / BuildPull 快照，不增加探测或缓存。BuildOutput 只表示 `--output` 入口存在，不代表任意 exporter 都可用；本机 2.9.10 虽在帮助举例 `type=local`，实际拒绝目录 exporter，因此表单只提供本地镜像与 tar。Unsupported 阻止对应操作；Unknown 保留实际执行入口，重检后允许用户清除旧选项。具体命令、参数边界与验收见 [任务 06 验证记录](validation/wslc-06.md)。
+## 任务 08：诊断快照
+
+`IContainerRuntime.GetSystemInfoAsync(RuntimeCapabilities, CancellationToken)` 接收同一能力服务的快照，通过 CLI 读取 `system info --format json`。不新增 SDK 探测或版本缓存：`RuntimeFeature.SystemInfo` 明确不支持时直接回退；Unknown 允许实际查询。设置页“刷新诊断”复用缓存检测，原“重新检测”仍负责失效并重检能力。
+
+诊断快照在内存中独立保存采集时间，并分开呈现 `system info` 客户端／会话管理服务版本与能力快照的基础版本；不覆盖原有版本来源。查询超时为 10 秒，沿用工作区任务与取消入口。失败更新为当前失败快照并保留基础版本；取消保留上一次快照及原时间。首次进入设置页且工作区空闲时自动采集，否则提供手动刷新；库存自动刷新不采集诊断。
+
+解析器只接收版本、设置路径及会话 Name／ID／CreatorPid，未知字段忽略。返回的类型化对象已脱敏：默认设置路径缩写为 `%LOCALAPPDATA%\wslc\settings.yaml`，其他路径遮蔽；默认会话名称保留 `wslc-cli-` 前缀并隐藏账户，GUID 会话名保留，自定义自由文本名遮蔽。版本只接受已知格式；不识别格式显示未知。界面、复制及导出使用相同字段白名单。原始 stdout、stderr 和异常消息不写入诊断任务详情，也不持久化快照。
+
+验收记录及已知边界见 [任务 08 验证](validation/wslc-08.md)。
+
+## 任务 09：宿主机回环诊断
+
+`RuntimeFeature.HostLoopback` 在能力快照中保持 `Unknown`，来源为 `session.hostLoopback`。版本或帮助不能证明已有会话、SDK 创建的会话启用了此能力；原有缓存／重检流程不增加连接探测。
+
+`IContainerRuntime.GetHostLoopbackConfigurationAsync` 只读取当前用户 `%LOCALAPPDATA%\wslc\settings.yaml`。缺失、null 或 `default` 得到默认候选域名 `host.wslc.internal`，`none` 明确禁用；合法自定义 DNS 名仅表示配置可识别，不代表既有会话支持。无法读取、歧义 YAML 或超出安全解析边界时返回未知，不调用可能创建文件的 `wslc settings`。页面进入时可读取配置，网络检查始终需要用户选择运行中容器、明确端口并手动执行。
+
+`IContainerRuntime.ProbeHostLoopbackAsync` 接收不可变目标及同一能力快照；执行前重新读取配置并定点 inspect 容器，配置变化则要求重新检查。通过 `ArgumentList` 传入固定脚本与独立目标参数，仅解析 IPv4 并尝试首个地址的一次 TCP 连接，不发送请求或读取响应。整体期限 15 秒、容器内期限 8 秒，沿用任务与取消机制；工具不存在时返回缺少工具，不安装依赖。
+
+结果分别保留 DNS 阶段与最终连接状态。成功只证明解析端点接受了连接，不证明会话配置、应用协议或认证有效。结果只存于内存，复制摘要隐藏容器名称、自定义域名和原始进程输出。实现与实测边界见 [任务 09 验证](validation/wslc-09.md)。
+
+## 任务 10：最小化时的刷新调度
+
+`AppSettings.PauseAutoRefreshWhenMinimized` 默认 false，旧设置文件也保留现有刷新体验。开启并保存后，MainWindow 只将是否最小化传给 `RuntimeWorkspace.SetWindowMinimized`；失焦不暂停。窗口类型和 WPF 事件不进入运行时接口。
+
+`AutoRefreshService` 仍只有一个循环，定时入口检查工作区忙碌、运行时可用及暂停状态。恢复窗口或最小化期间关闭该偏好，会合并为一个待刷新请求并唤醒循环；任务忙碌时保留请求，任务结束后唤醒。手动刷新和已有操作完成后的刷新不受暂停偏好阻止，开始刷新时消耗待刷新请求。已开始的查询不会因最小化取消；退出仍使用工作区 Lifetime 取消并阻止新刷新。
+
+仅自动清单与统计受此策略控制。任务 08 的手动诊断、09 的主动探测、日志跟随及上传／下载／构建等操作保持原语义。没有新增 `RuntimeFeature`、修改能力缓存、调用会话终止或修改原生 idle/keep-alive 设置。暂停应用查询不等于停止容器或保证 VM 回收。源码证据、验证与桌面验收边界见 [任务 10 验证](validation/wslc-10.md)。

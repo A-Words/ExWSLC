@@ -140,7 +140,7 @@ public class RuntimeCapabilityServiceTests
         Assert.Equal(Enum.GetValues<RuntimeFeature>().Length, result.Features.Count);
         foreach (var feature in Enum.GetValues<RuntimeFeature>())
         {
-            var expected = feature is RuntimeFeature.NativeRestart or RuntimeFeature.Events
+            var expected = feature == RuntimeFeature.HostLoopback ? CapabilitySupport.Unknown : feature is RuntimeFeature.NativeRestart or RuntimeFeature.Events
                 ? CapabilitySupport.Unsupported
                 : CapabilitySupport.Supported;
             Assert.Equal(expected, result[feature].Support);

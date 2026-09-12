@@ -127,6 +127,8 @@ public sealed class RuntimeCapabilityService(
             [RuntimeFeature.CreateIp] = help["container create"].Options("--ip"),
             [RuntimeFeature.CreateNetworkAlias] = help["container create"].Options("--network-alias"),
             [RuntimeFeature.SystemInfo] = help["system"].Command("info"),
+            // Neither a CLI version nor help proves configuration of an existing session.
+            [RuntimeFeature.HostLoopback] = new(CapabilitySupport.Unknown, "HostLoopbackSessionUnknown", "session.hostLoopback"),
             // SDK 2.9.9 exposes neither native restart nor a global events stream.
             // These gates describe the CLI route; backend COM support is not a public entry point.
             [RuntimeFeature.NativeRestart] = help["container"].Command("restart"),

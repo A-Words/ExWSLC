@@ -14,6 +14,8 @@ public partial class RuntimeWorkspace : ObservableObject, IDisposable
     private CancellationTokenSource? _currentOperation;
     private bool _disposed;
     private bool _autoRefreshStarted;
+    private bool _windowMinimized;
+    private readonly AutoRefreshService _autoRefresh;
 
     public RuntimeWorkspace(
         IContainerRuntime runtime,
@@ -27,6 +29,9 @@ public partial class RuntimeWorkspace : ObservableObject, IDisposable
         SettingsService = settingsService;
         _taskService = taskService;
         Interaction = interaction;
+        _autoRefresh = new AutoRefreshService(RefreshAllAsync,
+            () => !_disposed && !IsBusy && !IsAutoRefreshPaused && Capabilities.IsAvailable,
+            () => SettingsService.Current.RefreshIntervalSeconds);
         _taskService.TasksChanged += OnTasksChanged;
     }
 
@@ -50,6 +55,29 @@ public partial class RuntimeWorkspace : ObservableObject, IDisposable
     [ObservableProperty] public partial string DetailOutput { get; set; } = string.Empty;
     [ObservableProperty] public partial RuntimeCapabilities Capabilities { get; set; } = new();
     [ObservableProperty] public partial RuntimeTaskItem? ActiveTask { get; set; }
+    [ObservableProperty] public partial bool IsAutoRefreshPaused { get; private set; }
+
+    public void SetWindowMinimized(bool minimized)
+    {
+        if (_disposed) return;
+        _windowMinimized = minimized;
+        ApplyRefreshPreferences();
+    }
+
+    public void ApplyRefreshPreferences()
+    {
+        if (_disposed) return;
+        var wasPaused = IsAutoRefreshPaused;
+        IsAutoRefreshPaused = _windowMinimized && SettingsService.Current.PauseAutoRefreshWhenMinimized;
+        if (wasPaused && !IsAutoRefreshPaused) _autoRefresh.RequestRefresh();
+    }
+
+    partial void OnIsBusyChanged(bool value)
+    {
+        if (!value && !_disposed) _autoRefresh.NotifyEligibilityChanged();
+    }
+
+    internal Task AutoRefreshTickAsync() => _disposed ? Task.CompletedTask : _autoRefresh.TickAsync(Lifetime.Token);
 
     public int RunningContainerCount => Containers.Count(container => container.IsRunning);
     public int StoppedContainerCount => Containers.Count - RunningContainerCount;
@@ -67,9 +95,16 @@ public partial class RuntimeWorkspace : ObservableObject, IDisposable
 
     public event EventHandler? Refreshed;
 
+    public async Task<RuntimeCapabilities> GetCapabilitiesAsync(CancellationToken cancellationToken = default)
+    {
+        Capabilities = await _capabilityService.DetectAsync(cancellationToken);
+        return Capabilities;
+    }
+
     public async Task InitializeAsync()
     {
         Capabilities = await _capabilityService.DetectAsync(Lifetime.Token);
+        if (_disposed) return;
         StartAutoRefresh();
         if (!Capabilities.IsAvailable)
         {
@@ -77,18 +112,14 @@ public partial class RuntimeWorkspace : ObservableObject, IDisposable
             return;
         }
 
-        await RefreshAllAsync();
+        if (!IsAutoRefreshPaused) await RefreshAllAsync();
     }
 
     private void StartAutoRefresh()
     {
-        if (_autoRefreshStarted) return;
+        if (_autoRefreshStarted || _disposed) return;
         _autoRefreshStarted = true;
-        var autoRefresh = new AutoRefreshService(
-            RefreshAllAsync,
-            () => !IsBusy && Capabilities.IsAvailable,
-            () => SettingsService.Current.RefreshIntervalSeconds);
-        _ = autoRefresh.RunAsync(Lifetime.Token);
+        _ = _autoRefresh.RunAsync(Lifetime.Token);
     }
 
     public async Task InstallMissingComponentsAsync(IProgress<string> progress)
@@ -129,7 +160,9 @@ public partial class RuntimeWorkspace : ObservableObject, IDisposable
     [RelayCommand]
     public async Task RefreshAllAsync()
     {
-        if (IsBusy) return;
+        if (_disposed || IsBusy) return;
+        _autoRefresh.AcknowledgeRefresh();
+        var cancellationToken = Lifetime.Token;
         IsBusy = true;
         RefreshError = string.Empty;
         StatusMessage = "Refreshing WSLC state...";
@@ -141,6 +174,7 @@ public partial class RuntimeWorkspace : ObservableObject, IDisposable
             var volumesTask = Runtime.GetVolumesAsync(Lifetime.Token);
             var statsTask = Runtime.GetStatsAsync(Lifetime.Token);
             await Task.WhenAll(containersTask, imagesTask, networksTask, volumesTask, statsTask);
+            cancellationToken.ThrowIfCancellationRequested();
             Containers.ReplaceAll(containersTask.Result);
             ActiveContainers.ReplaceAll(containersTask.Result.Where(container => container.IsRunning).Take(4));
             Images.ReplaceAll(imagesTask.Result);
@@ -151,6 +185,7 @@ public partial class RuntimeWorkspace : ObservableObject, IDisposable
             Refreshed?.Invoke(this, EventArgs.Empty);
             StatusMessage = $"Updated {DateTime.Now:T}";
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { }
         catch (Exception exception)
         {
             RefreshError = exception.Message;

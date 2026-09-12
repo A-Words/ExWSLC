@@ -20,6 +20,19 @@ public partial class SettingsViewModel : ObservableObject
         SelectedLanguage = Workspace.SettingsService.Current.Language;
         SelectedTheme = Workspace.SettingsService.Current.Theme;
         RefreshIntervalSeconds = Workspace.SettingsService.Current.RefreshIntervalSeconds;
+        PauseAutoRefreshWhenMinimized = Workspace.SettingsService.Current.PauseAutoRefreshWhenMinimized;
+        RefreshDiagnosticsCommand.PropertyChanged += (_, args) =>
+        {
+            if (args.PropertyName == nameof(RefreshDiagnosticsCommand.IsRunning)) RaiseDiagnosticsChanged();
+        };
+        ProbeHostLoopbackCommand.PropertyChanged += (_, args) =>
+        {
+            if (args.PropertyName == nameof(ProbeHostLoopbackCommand.IsRunning)) RaiseHostLoopbackChanged();
+        };
+        ReadHostLoopbackCommand.PropertyChanged += (_, args) =>
+        {
+            if (args.PropertyName == nameof(ReadHostLoopbackCommand.IsRunning)) RaiseHostLoopbackChanged();
+        };
     }
 
     public RuntimeWorkspace Workspace { get; }
@@ -37,6 +50,9 @@ public partial class SettingsViewModel : ObservableObject
 
     private void RaiseLanguageChanged()
     {
+        OnPropertyChanged(nameof(AutoRefreshStatus));
+        RaiseDiagnosticsChanged();
+        RaiseHostLoopbackChanged();
         OnPropertyChanged(nameof(CliVersionText));
         OnPropertyChanged(nameof(ServiceVersionText));
         OnPropertyChanged(nameof(EnvironmentMessage));
@@ -48,6 +64,9 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty] public partial string SelectedLanguage { get; set; }
     [ObservableProperty] public partial string SelectedTheme { get; set; }
     [ObservableProperty] public partial int RefreshIntervalSeconds { get; set; }
+    [ObservableProperty] public partial bool PauseAutoRefreshWhenMinimized { get; set; }
+    public string AutoRefreshStatus => LocalizationService.GetString(
+        Workspace.IsAutoRefreshPaused ? "AutoRefreshPaused" : "AutoRefreshScheduled", "");
 
     [RelayCommand] private void OpenNativeSettings() => Workspace.Runtime.OpenNativeSettings();
 
@@ -122,7 +141,9 @@ public partial class SettingsViewModel : ObservableObject
         Workspace.SettingsService.Current.Language = SelectedLanguage;
         Workspace.SettingsService.Current.Theme = SelectedTheme;
         Workspace.SettingsService.Current.RefreshIntervalSeconds = Math.Clamp(RefreshIntervalSeconds, 2, 300);
+        Workspace.SettingsService.Current.PauseAutoRefreshWhenMinimized = PauseAutoRefreshWhenMinimized;
         await Workspace.SettingsService.SaveAsync(Workspace.Lifetime.Token);
+        Workspace.ApplyRefreshPreferences();
         LocalizationService.ApplyLanguage(SelectedLanguage);
         LocalizationService.ApplyTheme(SelectedTheme);
         Workspace.StatusMessage = LocalizationService.GetString("SettingsSavedStatus", "Settings saved.");
@@ -131,6 +152,7 @@ public partial class SettingsViewModel : ObservableObject
 
     private void OnWorkspacePropertyChanged(object? sender, PropertyChangedEventArgs eventArgs)
     {
+        if (eventArgs.PropertyName == nameof(RuntimeWorkspace.IsAutoRefreshPaused)) OnPropertyChanged(nameof(AutoRefreshStatus));
         if (eventArgs.PropertyName is nameof(RuntimeWorkspace.Capabilities))
         {
             OnPropertyChanged(nameof(Capabilities));
@@ -139,6 +161,9 @@ public partial class SettingsViewModel : ObservableObject
         }
         if (eventArgs.PropertyName is nameof(RuntimeWorkspace.Capabilities) or nameof(RuntimeWorkspace.IsBusy))
         {
+            RaiseHostLoopbackChanged();
+            OnPropertyChanged(nameof(CanRefreshDiagnostics));
+            RefreshDiagnosticsCommand.NotifyCanExecuteChanged();
             OnPropertyChanged(nameof(CanInstallComponents));
             OnPropertyChanged(nameof(CanRefreshCapabilities));
             InstallComponentsCommand.NotifyCanExecuteChanged();

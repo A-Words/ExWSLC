@@ -116,6 +116,89 @@
 
             <TextBlock Text="{Binding EnvironmentMessage}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" Margin="0,0,0,8" />
 
+            <ui:Card x:Name="DiagnosticsCard" Padding="16" Margin="0,8,0,18">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource DiagnosticsTitle}" Style="{StaticResource SectionTitleStyle}" />
+                    <TextBlock Text="{DynamicResource DiagnosticsPrivacyHint}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" Margin="0,0,0,12" />
+                    <WrapPanel Margin="0,0,0,12">
+                        <ui:Button Content="{DynamicResource DiagnosticsRefresh}" Command="{Binding RefreshDiagnosticsCommand}"
+                                   Icon="{ui:SymbolIcon Symbol=ArrowClockwise24}" Margin="0,0,8,8" />
+                        <ui:Button Content="{DynamicResource Cancel}" Command="{Binding Workspace.CancelCurrentOperationCommand}"
+                                   IsEnabled="{Binding RefreshDiagnosticsCommand.IsRunning}" Margin="0,0,8,8" />
+                        <ui:Button Content="{DynamicResource DiagnosticsCopy}" Command="{Binding CopyDiagnosticsCommand}" Margin="0,0,8,8" />
+                        <ui:Button Content="{DynamicResource DiagnosticsExport}" Command="{Binding ExportDiagnosticsCommand}" Margin="0,0,0,8" />
+                    </WrapPanel>
+                    <TextBlock Text="{Binding DiagnosticsStatus}" TextWrapping="Wrap" Margin="0,0,0,8" />
+                    <TextBlock Text="{Binding DiagnosticsActionStatus}" TextWrapping="Wrap" Margin="0,0,0,8"
+                               AutomationProperties.LiveSetting="Polite" />
+                    <ItemsControl ItemsSource="{Binding DiagnosticsFields}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0,0,0,10">
+                                    <TextBlock Text="{Binding Label}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding Value}" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemContainerStyle>
+                            <Style TargetType="ContentPresenter"><Setter Property="Width" Value="300" /><Setter Property="Margin" Value="0,0,12,0" /></Style>
+                        </ItemsControl.ItemContainerStyle>
+                    </ItemsControl>
+                    <TextBlock Text="{DynamicResource DiagnosticsSessions}" FontSize="16" Margin="0,12,0,8" />
+                    <TextBlock Text="{Binding DiagnosticsSessionsStatus}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" />
+                    <ItemsControl ItemsSource="{Binding DiagnosticsSessions}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0,0,0,10">
+                                    <TextBlock Text="{Binding Label}" TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding Value}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ui:Card>
+
+            <ui:Card x:Name="HostLoopbackCard" Padding="16" Margin="0,0,0,18">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource HostLoopbackTitle}" Style="{StaticResource SectionTitleStyle}" TextWrapping="Wrap" />
+                    <TextBlock Text="{DynamicResource HostLoopbackExplanation}" TextWrapping="Wrap" Margin="0,0,0,10" />
+                    <TextBlock Text="{DynamicResource HostLoopbackSessionUnknown}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" Margin="0,0,0,12" />
+                    <WrapPanel Margin="0,0,0,8">
+                        <ui:Button Content="{DynamicResource HostConfigRead}" Command="{Binding ReadHostLoopbackCommand}" Margin="0,0,8,8" />
+                        <StackPanel Margin="0,0,0,8" MaxWidth="420">
+                            <TextBlock Text="{Binding HostLoopbackHost}" TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding HostLoopbackConfigStatus}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </WrapPanel>
+                    <WrapPanel>
+                        <StackPanel Style="{StaticResource SettingsFieldStyle}">
+                            <TextBlock x:Name="HostProbeContainerLabel" Text="{DynamicResource HostProbeContainer}" />
+                            <ComboBox ItemsSource="{Binding Workspace.ActiveContainers}" SelectedItem="{Binding HostProbeContainer}"
+                                      DisplayMemberPath="Name" Margin="0,6,0,0" AutomationProperties.LabeledBy="{Binding ElementName=HostProbeContainerLabel}" />
+                        </StackPanel>
+                        <StackPanel Style="{StaticResource SettingsFieldStyle}">
+                            <TextBlock x:Name="HostProbePortLabel" Text="{DynamicResource HostProbePort}" />
+                            <ui:TextBox Text="{Binding HostProbePort, UpdateSourceTrigger=PropertyChanged}" MaxLength="5" Margin="0,6,0,0"
+                                        AutomationProperties.LabeledBy="{Binding ElementName=HostProbePortLabel}" />
+                        </StackPanel>
+                    </WrapPanel>
+                    <TextBlock Text="{Binding HostProbeValidation}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" Margin="0,0,0,8" />
+                    <TextBlock Text="{DynamicResource HostProbeLimits}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" Margin="0,0,0,12" />
+                    <WrapPanel>
+                        <ui:Button Content="{DynamicResource HostProbeRun}" Command="{Binding ProbeHostLoopbackCommand}" Appearance="Primary" Margin="0,0,8,8" />
+                        <ui:Button Content="{DynamicResource Cancel}" Command="{Binding Workspace.CancelCurrentOperationCommand}"
+                                   IsEnabled="{Binding ProbeHostLoopbackCommand.IsRunning}" Margin="0,0,8,8" />
+                        <ui:Button Content="{DynamicResource HostProbeCopy}" Command="{Binding CopyHostProbeCommand}" Margin="0,0,8,8" />
+                    </WrapPanel>
+                    <TextBlock Text="{Binding HostProbeSummary}" TextWrapping="Wrap" Margin="0,8,0,0" AutomationProperties.LiveSetting="Polite" />
+                    <TextBlock Text="{Binding HostProbeCopyStatus}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" />
+                </StackPanel>
+            </ui:Card>
+
             <ui:CardAction Command="{Binding OpenNativeSettingsCommand}"
                            IsChevronVisible="True"
                            Margin="0,0,0,8"
@@ -188,6 +271,12 @@
                                           Margin="0,6,0,0" />
                         </StackPanel>
                     </WrapPanel>
+                    <CheckBox IsChecked="{Binding PauseAutoRefreshWhenMinimized}" Margin="0,0,0,8"
+                              AutomationProperties.Name="{DynamicResource PauseAutoRefreshWhenMinimized}">
+                        <TextBlock Text="{DynamicResource PauseAutoRefreshWhenMinimized}" TextWrapping="Wrap" />
+                    </CheckBox>
+                    <TextBlock Text="{DynamicResource IdleRefreshExplanation}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" Margin="0,0,0,8" />
+                    <TextBlock Text="{Binding AutoRefreshStatus}" TextWrapping="Wrap" Margin="0,0,0,12" AutomationProperties.LiveSetting="Polite" />
                     <ui:Button Content="{DynamicResource SaveSettings}"
                                Icon="{ui:SymbolIcon Symbol=Save24}"
                                Appearance="Primary"

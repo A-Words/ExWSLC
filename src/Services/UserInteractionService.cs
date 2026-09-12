@@ -31,6 +31,7 @@ public sealed class UserInteractionService : IUserInteractionService
         finally { viewModel.PropertyChanged -= update; }
     }
 
+    public void SetClipboardText(string text) => Clipboard.SetText(text);
     public async Task<bool> ConfirmAsync(string title, string message)
     {
         var messageBox = new Wpf.Ui.Controls.MessageBox
