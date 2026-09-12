@@ -101,6 +101,20 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner, IRuntimeC
     public Task<OperationResult> InspectContainerAsync(string id, CancellationToken cancellationToken = default) =>
         RunAsync(["container", "inspect", id], cancellationToken: cancellationToken);
 
+    public async Task<OperationResult> CopyContainerPathAsync(ContainerCopyRequest request, IProgress<string>? progress = null, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var arguments = ContainerCopyOptions.BuildArguments(request);
+        var capabilities = capabilityService is null ? null : await capabilityService.DetectAsync(cancellationToken);
+        if (capabilities?[RuntimeFeature.ContainerCopy].Support != CapabilitySupport.Supported)
+            throw new ArgumentException(ContainerCopyOptions.Text("CopyUnavailable", "File transfer is unavailable or unverified. Recheck runtime capabilities in Settings."));
+        cancellationToken.ThrowIfCancellationRequested();
+        var result = await RunAsync(arguments, progress: progress, cancellationToken: cancellationToken);
+        // TaskService marks thrown cancellation as Cancelled, rather than Failed.
+        if (result.ExitCode == -2) throw new OperationCanceledException(cancellationToken);
+        return result;
+    }
+
     public Task<OperationResult> FollowLogsAsync(string id, IProgress<string>? progress = null, CancellationToken cancellationToken = default) =>
         RunAsync(["container", "logs", "--follow", id], progress: progress, cancellationToken: cancellationToken);
 

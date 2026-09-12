@@ -19,6 +19,7 @@ internal sealed class DesignContainerRuntime : IContainerRuntime
     public Task<OperationResult> RemoveContainerAsync(string id, bool force, CancellationToken cancellationToken = default) => Task.FromResult(Success);
     public Task<OperationResult> RunContainerAsync(ContainerCreateSpec spec, IProgress<string>? progress = null, CancellationToken cancellationToken = default) => Task.FromResult(Success);
     public Task<OperationResult> ExportContainerAsync(string id, string path, IProgress<string>? progress = null, CancellationToken cancellationToken = default) => Task.FromResult(Success);
+    public Task<OperationResult> CopyContainerPathAsync(ContainerCopyRequest request, IProgress<string>? progress = null, CancellationToken cancellationToken = default) => Task.FromResult(Success);
     public Task<OperationResult> InspectContainerAsync(string id, CancellationToken cancellationToken = default) => Task.FromResult(Success);
     public Task<OperationResult> FollowLogsAsync(string id, IProgress<string>? progress = null, CancellationToken cancellationToken = default) => Task.FromResult(Success);
     public Task<OperationResult> ExecAsync(string id, string command, IProgress<string>? progress = null, CancellationToken cancellationToken = default) => Task.FromResult(Success);

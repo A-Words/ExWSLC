@@ -18,7 +18,7 @@ internal sealed class DesignRuntimeCapabilityService : IRuntimeCapabilityService
         CliVersion = "2.9.10.0",
         ServiceVersion = "2.9.10",
         MessageKey = "RuntimeReady",
-        Features = new[] { RuntimeFeature.NetworkConnect, RuntimeFeature.NetworkDisconnect, RuntimeFeature.NetworkConnectIp,
+        Features = new[] { RuntimeFeature.ContainerCopy, RuntimeFeature.NetworkConnect, RuntimeFeature.NetworkDisconnect, RuntimeFeature.NetworkConnectIp,
             RuntimeFeature.NetworkConnectAlias, RuntimeFeature.NetworkConnectDriverOptions, RuntimeFeature.NetworkCreateSubnet,
             RuntimeFeature.NetworkCreateGateway, RuntimeFeature.NetworkCreateIpRange }
             .ToDictionary(feature => feature, _ => new RuntimeFeatureCapability(CapabilitySupport.Supported, "CapabilityAdvertised", "Design data"))

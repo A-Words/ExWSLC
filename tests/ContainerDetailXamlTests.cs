@@ -56,6 +56,10 @@ public class ContainerDetailXamlTests
                 var networkContent = Assert.IsAssignableFrom<FrameworkElement>(networkTemplate.LoadContent());
                 networkContent.Measure(new Size(800, 600));
                 networkContent.Arrange(new Rect(0, 0, 800, 600));
+                var copyTemplate = Assert.IsType<DataTemplate>(view.Resources["CopyDetailTemplate"]);
+                var copyContent = Assert.IsAssignableFrom<FrameworkElement>(copyTemplate.LoadContent());
+                copyContent.Measure(new Size(800, 500));
+                copyContent.Arrange(new Rect(0, 0, 800, 500));
                 var createNetwork = new ExWSLC.Views.Dialogs.NetworkCreateDialogContent();
                 createNetwork.Measure(new Size(540, 480));
                 createNetwork.Arrange(new Rect(0, 0, 540, 480));

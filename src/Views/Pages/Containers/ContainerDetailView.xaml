@@ -775,6 +775,50 @@
                 </Border>
             </Grid>
         </DataTemplate>
+        <DataTemplate x:Key="CopyDetailTemplate">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,12,0,0">
+                <StackPanel>
+                    <ui:InfoBar IsOpen="{Binding IsCopyUnavailable, Mode=OneWay}" IsClosable="False" Severity="Warning"
+                                Message="{DynamicResource CopyUnavailable}" Margin="0,0,0,12" />
+                    <Border Style="{StaticResource WorkbenchPanelStyle}" Padding="18">
+                        <StackPanel>
+                            <StackPanel IsEnabled="{Binding CanEditCopy}">
+                                <ComboBox SelectedIndex="{Binding CopyDirectionIndex, Mode=TwoWay}" HorizontalAlignment="Left" MinWidth="220"
+                                          AutomationProperties.Name="{DynamicResource CopyDirection}">
+                                    <ComboBoxItem Content="{DynamicResource CopyUpload}" />
+                                    <ComboBoxItem Content="{DynamicResource CopyDownload}" />
+                                </ComboBox>
+                                <TextBlock Text="{DynamicResource CopyUploadHint}" TextWrapping="Wrap" Margin="0,12,0,0"
+                                           Visibility="{Binding IsCopyUpload, Converter={StaticResource BoolToVisibility}}" />
+                                <TextBlock Text="{DynamicResource CopyDownloadHint}" TextWrapping="Wrap" Margin="0,12,0,0"
+                                           Visibility="{Binding IsCopyDownload, Converter={StaticResource BoolToVisibility}}" />
+                                <TextBlock Text="{DynamicResource CopyLocalPath}" Margin="0,14,0,6" />
+                                <ui:TextBox Text="{Binding CopyLocalPath, UpdateSourceTrigger=PropertyChanged}"
+                                            AutomationProperties.Name="{DynamicResource CopyLocalPath}" />
+                                <WrapPanel Margin="0,8,0,0">
+                                    <ui:Button Content="{DynamicResource CopyChooseFile}" Command="{Binding PickCopyFileCommand}" Margin="0,0,8,0"
+                                               Visibility="{Binding IsCopyUpload, Converter={StaticResource BoolToVisibility}}" />
+                                    <ui:Button Content="{DynamicResource CopyChooseFolder}" Command="{Binding PickCopyFolderCommand}" />
+                                </WrapPanel>
+                                <TextBlock Text="{DynamicResource CopyRemotePath}" Margin="0,14,0,6" />
+                                <ui:TextBox Text="{Binding CopyContainerPath, UpdateSourceTrigger=PropertyChanged}"
+                                            PlaceholderText="/path" AutomationProperties.Name="{DynamicResource CopyRemotePath}" />
+                            </StackPanel>
+                            <TextBlock Text="{DynamicResource CopyShortSemantics}" TextWrapping="Wrap" Margin="0,12,0,0"
+                                       Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                            <WrapPanel Margin="0,14,0,0">
+                                <ui:Button Content="{DynamicResource CopyStart}" Appearance="Primary" Command="{Binding StartCopyCommand}" Margin="0,0,8,0" />
+                                <ui:Button Content="{DynamicResource Cancel}" Command="{Binding Workspace.CancelCurrentOperationCommand}"
+                                           Visibility="{Binding IsCopyRunning, Converter={StaticResource BoolToVisibility}}" />
+                            </WrapPanel>
+                        </StackPanel>
+                    </Border>
+                    <TextBlock Text="{Binding CopyMessage}" TextWrapping="Wrap" Margin="0,12,0,0" />
+                    <TextBox Text="{Binding CopyOutput, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" Margin="0,8,0,0"
+                             MaxHeight="220" VerticalScrollBarVisibility="Auto" AutomationProperties.Name="{DynamicResource CopyOutput}" />
+                </StackPanel>
+            </ScrollViewer>
+        </DataTemplate>
     </UserControl.Resources>
 
     <Grid Margin="24,18,24,24">
@@ -884,6 +928,7 @@
                 <controls:SelectorBarItem Text="{DynamicResource Configuration}" Tag="{StaticResource ConfigurationDetailTemplate}" />
                 <controls:SelectorBarItem Text="{DynamicResource Inspect}" Tag="{StaticResource InspectDetailTemplate}" />
                 <controls:SelectorBarItem Text="{DynamicResource HealthChecks}" Tag="{StaticResource HealthDetailTemplate}" />
+                <controls:SelectorBarItem Text="{DynamicResource CopyTitle}" Tag="{StaticResource CopyDetailTemplate}" />
             </controls:SelectorBar>
 
             <ContentControl Grid.Row="1"

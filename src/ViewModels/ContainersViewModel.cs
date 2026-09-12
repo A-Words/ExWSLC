@@ -45,6 +45,7 @@ public partial class ContainersViewModel : WorkspaceViewModel
         base.OnWorkspacePropertyChanged(sender, eventArgs);
         if (eventArgs.PropertyName == nameof(RuntimeWorkspace.Capabilities)) OnPropertyChanged(nameof(CanConfigureHealth));
         if (eventArgs.PropertyName is nameof(RuntimeWorkspace.Capabilities) or nameof(RuntimeWorkspace.IsBusy)) NotifyNetworkCommands();
+        if (eventArgs.PropertyName is nameof(RuntimeWorkspace.Capabilities) or nameof(RuntimeWorkspace.IsBusy)) NotifyCopyCommands();
     }
 
     /// <summary>Log lines for the selected container's Logs tab, one row per line.</summary>
@@ -456,6 +457,8 @@ public partial class ContainersViewModel : WorkspaceViewModel
         OnPropertyChanged(nameof(SelectedContainerStats));
         IsNetworkDetailsStale = value is not null && _staleNetworkContainers.Contains(value.Id);
         if (!isSameContainer) NetworkOperationMessage = string.Empty;
+        if (!isSameContainer) CopyContainerPath = string.Empty;
+        NotifyCopyCommands();
         UpdateConnectionNetworks();
     }
 
