@@ -137,6 +137,22 @@ public class ResourcePagesXamlTests
         Assert.Contains("RegistryUsername, UpdateSourceTrigger=PropertyChanged", settingsPage);
     }
 
+    [Fact]
+    public void SettingsPage_SeparatesClientServiceAndPackageAvailability()
+    {
+        var settingsPage = File.ReadAllText(Path.Combine(GetSourceDirectory(), "Views", "Pages", "SettingsPage.xaml"));
+
+        Assert.Contains("Binding CliVersionText", settingsPage);
+        Assert.Contains("Binding ServiceVersionText", settingsPage);
+        Assert.Contains("Binding Capabilities.SdkPackageVersion", settingsPage);
+        Assert.Contains("Binding Capabilities.CliAvailability", settingsPage);
+        Assert.Contains("Binding Capabilities.ServiceAvailability", settingsPage);
+        Assert.Contains("Binding Capabilities.SdkAvailability", settingsPage);
+        Assert.Contains("DynamicResource Unknown", settingsPage);
+        Assert.DoesNotContain("Capabilities.SdkVersion", settingsPage);
+        Assert.DoesNotContain("Capabilities.IsAvailable", settingsPage);
+    }
+
     private static string GetSourceDirectory()
     {
         for (var directory = new DirectoryInfo(AppContext.BaseDirectory); directory is not null; directory = directory.Parent)

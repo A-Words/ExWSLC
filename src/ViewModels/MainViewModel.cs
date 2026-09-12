@@ -22,7 +22,22 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public VolumesViewModel VolumesPage { get; }
     public SettingsViewModel SettingsPage { get; }
 
-    public Task InitializeAsync() => Workspace.InitializeAsync();
+    public async Task InitializeAsync()
+    {
+        // Capture the token before awaiting: closing the window disposes the workspace's source.
+        var cancellationToken = Workspace.Lifetime.Token;
+        try
+        {
+            await Workspace.InitializeAsync();
+        }
+        catch (Exception exception)
+        {
+            if (cancellationToken.IsCancellationRequested) return;
+            Workspace.Capabilities = Workspace.Capabilities with { MessageKey = "RuntimeDetectionFailed", MessageArguments = [] };
+            Workspace.RefreshError = $"{LocalizationService.GetString("RuntimeDetectionFailed", "Environment detection failed")}: {exception.Message}";
+            Workspace.StatusMessage = Workspace.RefreshError;
+        }
+    }
 
     public void ApplyConfiguredTheme()
     {

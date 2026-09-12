@@ -114,4 +114,21 @@
     <sys:String x:Key="VolumeDriver">Volume driver</sys:String>
     <sys:String x:Key="VolumeOptionsHint">Enter one --opt key=value per line</sys:String>
     <sys:String x:Key="VolumeLabelsHint">Enter one --label key=value per line</sys:String>
+    <sys:String x:Key="RuntimeService">WSL Container service</sys:String>
+    <sys:String x:Key="BundledSdkPackage">Package bundled with ExWSLC</sys:String>
+    <sys:String x:Key="Unknown">Unknown</sys:String>
+    <sys:String x:Key="RefreshRuntimeEnvironment">Check again</sys:String>
+    <sys:String x:Key="RuntimeDetectionFailed">Environment detection failed</sys:String>
+    <sys:String x:Key="CliUnavailable">wslc.exe could not be started.</sys:String>
+    <sys:String x:Key="SdkUpdateRequired">Update ExWSLC to obtain a compatible bundled SDK.</sys:String>
+    <sys:String x:Key="SdkUnavailable">The bundled SDK could not be loaded. CLI operations can still be attempted.</sys:String>
+    <sys:String x:Key="MissingRuntimeComponents">Missing components: {0}</sys:String>
+    <sys:String x:Key="RuntimeDetectionIncomplete">Some environment details could not be detected. CLI operations can still be attempted.</sys:String>
+    <sys:String x:Key="RuntimeReady">WSL Container is ready.</sys:String>
+    <sys:String x:Key="InstallationCancelled">Installation cancellation requested. The underlying installer may still finish its current step.</sys:String>
+    <sys:String x:Key="CapabilityNotChecked">This capability has not been checked.</sys:String>
+    <sys:String x:Key="CapabilityProbeFailed">The capability check failed or timed out.</sys:String>
+    <sys:String x:Key="CapabilityHelpUnrecognized">The command help format could not be recognized.</sys:String>
+    <sys:String x:Key="CapabilityAdvertised">The installed CLI advertises this command or option.</sys:String>
+    <sys:String x:Key="CapabilityNotAdvertised">The installed CLI does not advertise this command or option.</sys:String>
 </ResourceDictionary>

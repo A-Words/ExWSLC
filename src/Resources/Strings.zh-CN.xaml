@@ -213,4 +213,21 @@
     <sys:String x:Key="VolumeDriver">卷驱动</sys:String>
     <sys:String x:Key="VolumeOptionsHint">每行输入一个 --opt key=value</sys:String>
     <sys:String x:Key="VolumeLabelsHint">每行输入一个 --label key=value</sys:String>
+    <sys:String x:Key="RuntimeService">WSL Container 服务</sys:String>
+    <sys:String x:Key="BundledSdkPackage">随 ExWSLC 打包的组件版本</sys:String>
+    <sys:String x:Key="Unknown">未知</sys:String>
+    <sys:String x:Key="RefreshRuntimeEnvironment">重新检测</sys:String>
+    <sys:String x:Key="RuntimeDetectionFailed">环境检测失败</sys:String>
+    <sys:String x:Key="CliUnavailable">无法启动 wslc.exe。</sys:String>
+    <sys:String x:Key="SdkUpdateRequired">请更新 ExWSLC，以获得兼容的内置 SDK。</sys:String>
+    <sys:String x:Key="SdkUnavailable">无法加载内置 SDK，仍可尝试执行 CLI 操作。</sys:String>
+    <sys:String x:Key="MissingRuntimeComponents">缺少组件：{0}</sys:String>
+    <sys:String x:Key="RuntimeDetectionIncomplete">部分环境信息未能检测到，仍可尝试执行 CLI 操作。</sys:String>
+    <sys:String x:Key="RuntimeReady">WSL Container 已就绪。</sys:String>
+    <sys:String x:Key="InstallationCancelled">已请求取消安装。底层安装程序可能仍会完成当前步骤。</sys:String>
+    <sys:String x:Key="CapabilityNotChecked">尚未检测此功能。</sys:String>
+    <sys:String x:Key="CapabilityProbeFailed">功能检测失败或超时。</sys:String>
+    <sys:String x:Key="CapabilityHelpUnrecognized">无法识别命令帮助的格式。</sys:String>
+    <sys:String x:Key="CapabilityAdvertised">已安装的 CLI 提供此命令或选项。</sys:String>
+    <sys:String x:Key="CapabilityNotAdvertised">已安装的 CLI 未提供此命令或选项。</sys:String>
 </ResourceDictionary>

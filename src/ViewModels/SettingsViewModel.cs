@@ -16,6 +16,7 @@ public partial class SettingsViewModel : ObservableObject
     {
         Workspace = workspace;
         Workspace.PropertyChanged += OnWorkspacePropertyChanged;
+        WeakReferenceMessenger.Default.Register<LanguageChangedMessage>(this, (recipient, _) => ((SettingsViewModel)recipient).RaiseLanguageChanged());
         SelectedLanguage = Workspace.SettingsService.Current.Language;
         SelectedTheme = Workspace.SettingsService.Current.Theme;
         RefreshIntervalSeconds = Workspace.SettingsService.Current.RefreshIntervalSeconds;
@@ -23,10 +24,23 @@ public partial class SettingsViewModel : ObservableObject
 
     public RuntimeWorkspace Workspace { get; }
     public RuntimeCapabilities Capabilities => Workspace.Capabilities;
-    public bool IsSdkAvailable =>
-        Capabilities.IsAvailable &&
-        !string.Equals(Capabilities.SdkVersion, "Preview API unavailable", StringComparison.OrdinalIgnoreCase);
-    public bool CanInstallComponents => Capabilities.MissingComponents.Count > 0;
+    public bool IsSdkAvailable => Capabilities.SdkAvailability == CapabilitySupport.Supported;
+    public string CliVersionText => DisplayVersion(Capabilities.CliVersion);
+    public string ServiceVersionText => DisplayVersion(Capabilities.ServiceVersion);
+    public string EnvironmentMessage => Workspace.CapabilityMessage;
+    public bool CanInstallComponents => !Workspace.IsBusy && Capabilities.CanInstallComponents;
+    public bool CanRefreshCapabilities => !Workspace.IsBusy;
+
+    private static string DisplayVersion(string version) => string.IsNullOrWhiteSpace(version)
+        ? LocalizationService.GetString("Unknown", "Unknown")
+        : version;
+
+    private void RaiseLanguageChanged()
+    {
+        OnPropertyChanged(nameof(CliVersionText));
+        OnPropertyChanged(nameof(ServiceVersionText));
+        OnPropertyChanged(nameof(EnvironmentMessage));
+    }
 
     [ObservableProperty] public partial string RegistryServer { get; set; } = DefaultRegistryServer;
     [ObservableProperty] public partial string RegistryUsername { get; set; } = string.Empty;
@@ -71,10 +85,13 @@ public partial class SettingsViewModel : ObservableObject
         if (!await Workspace.Interaction.ConfirmAsync(
                 LocalizationService.GetString("InstallComponents", "Install missing components"),
                 LocalizationService.GetString("InstallComponentsConfirmation", "Install missing WSL Container components using the Microsoft preview SDK?"))) return;
-        Workspace.IsBusy = true;
         try
         {
             await Workspace.InstallMissingComponentsAsync(new Progress<string>(line => Workspace.StatusMessage = line));
+        }
+        catch (OperationCanceledException)
+        {
+            Workspace.StatusMessage = LocalizationService.GetString("InstallationCancelled", "Installation cancellation requested.");
         }
         catch (Exception exception)
         {
@@ -82,9 +99,20 @@ public partial class SettingsViewModel : ObservableObject
                 LocalizationService.GetString("InstallationFailed", "Installation failed"),
                 exception.Message);
         }
-        finally
+    }
+
+    [RelayCommand(CanExecute = nameof(CanRefreshCapabilities))]
+    private async Task RefreshCapabilitiesAsync()
+    {
+        try
         {
-            Workspace.IsBusy = false;
+            await Workspace.RefreshCapabilitiesAsync();
+        }
+        catch (OperationCanceledException) when (Workspace.Lifetime.IsCancellationRequested) { }
+        catch (Exception exception)
+        {
+            await Workspace.Interaction.ShowErrorAsync(
+                LocalizationService.GetString("RuntimeDetectionFailed", "Environment detection failed"), exception.Message);
         }
     }
 
@@ -107,8 +135,14 @@ public partial class SettingsViewModel : ObservableObject
         {
             OnPropertyChanged(nameof(Capabilities));
             OnPropertyChanged(nameof(IsSdkAvailable));
+            RaiseLanguageChanged();
+        }
+        if (eventArgs.PropertyName is nameof(RuntimeWorkspace.Capabilities) or nameof(RuntimeWorkspace.IsBusy))
+        {
             OnPropertyChanged(nameof(CanInstallComponents));
+            OnPropertyChanged(nameof(CanRefreshCapabilities));
             InstallComponentsCommand.NotifyCanExecuteChanged();
+            RefreshCapabilitiesCommand.NotifyCanExecuteChanged();
         }
     }
 }

@@ -96,12 +96,11 @@ public class MainViewModelTests
 
         Assert.False(settings.InstallComponentsCommand.CanExecute(null));
 
-        viewModel.Workspace.Capabilities = new RuntimeCapabilities(
-            false,
-            "2.9.3",
-            "2.9.3",
-            ["Runtime"],
-            "Missing: Runtime");
+        viewModel.Workspace.Capabilities = new RuntimeCapabilities
+        {
+            SdkAvailability = CapabilitySupport.Supported,
+            MissingComponents = ["WslPackage"]
+        };
 
         Assert.True(settings.InstallComponentsCommand.CanExecute(null));
         viewModel.Dispose();
@@ -196,7 +195,7 @@ public class MainViewModelTests
         runtime.Setup(value => value.GetContainersAsync(It.IsAny<CancellationToken>())).ThrowsAsync(new InvalidOperationException("runtime failed"));
         var capabilities = new Mock<IRuntimeCapabilityService>();
         capabilities.Setup(value => value.DetectAsync(It.IsAny<CancellationToken>())).ReturnsAsync(
-            new RuntimeCapabilities(true, "2.9.3", "2.9.3", [], "ready"));
+            new RuntimeCapabilities { CliAvailability = CapabilitySupport.Supported });
         var viewModel = CreateViewModel(runtime, capabilities);
 
         await viewModel.InitializeAsync();
@@ -223,7 +222,7 @@ public class MainViewModelTests
         runtime.Setup(value => value.GetStatsAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
         var capabilities = new Mock<IRuntimeCapabilityService>();
         capabilities.Setup(value => value.DetectAsync(It.IsAny<CancellationToken>())).ReturnsAsync(
-            new RuntimeCapabilities(true, "2.9.3", "2.9.3", [], "ready"));
+            new RuntimeCapabilities { CliAvailability = CapabilitySupport.Supported });
         var viewModel = CreateViewModel(runtime, capabilities);
 
         await viewModel.InitializeAsync();

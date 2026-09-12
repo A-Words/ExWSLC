@@ -11,17 +11,21 @@
     <Authors>ExWSLC contributors</Authors>
     <WindowsSdkPackageVersion>10.0.26100.80</WindowsSdkPackageVersion>
     <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
+    <WslContainersSdkVersion>2.9.9</WslContainersSdkVersion>
+    <!-- The native SDK requires a concrete architecture for builds without a RID. -->
+    <PlatformTarget Condition="'$(RuntimeIdentifier)' == '' and ('$(PlatformTarget)' == '' or '$(PlatformTarget)' == 'AnyCPU')">$([System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture.ToString().ToLowerInvariant())</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="AvalonEdit" Version="6.3.1.120" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.9" />
-    <PackageReference Include="Microsoft.WSL.Containers" Version="2.9.3" />
+    <PackageReference Include="Microsoft.WSL.Containers" Version="$(WslContainersSdkVersion)" />
     <PackageReference Include="WPF-UI" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <AssemblyMetadata Include="WslContainersSdkPackageVersion" Value="$(WslContainersSdkVersion)" />
     <Resource Include="Assets\ExWSLC.png" />
   </ItemGroup>
 

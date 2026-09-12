@@ -5,6 +5,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:designViewModels="clr-namespace:ExWSLC.ViewModels.Design"
+      xmlns:models="clr-namespace:ExWSLC.Models"
       x:Name="RootPage"
       mc:Ignorable="d"
       d:DataContext="{d:DesignInstance Type=designViewModels:DesignSettingsViewModel, IsDesignTimeCreatable=True}"
@@ -12,21 +13,15 @@
     <Page.Resources>
         <Style x:Key="CapabilityIconStyle"
                TargetType="ui:SymbolIcon">
-            <Setter Property="Symbol" Value="DismissCircle24" />
-            <Setter Property="Foreground" Value="{ui:ThemeResource SystemFillColorCriticalBrush}" />
+            <Setter Property="Symbol" Value="QuestionCircle24" />
+            <Setter Property="Foreground" Value="{ui:ThemeResource TextFillColorSecondaryBrush}" />
             <Setter Property="FontSize" Value="24" />
             <Style.Triggers>
-                <DataTrigger Binding="{Binding Capabilities.IsAvailable}" Value="True">
+                <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="{x:Static models:CapabilitySupport.Supported}">
                     <Setter Property="Symbol" Value="CheckmarkCircle24" />
                     <Setter Property="Foreground" Value="{ui:ThemeResource SystemFillColorSuccessBrush}" />
                 </DataTrigger>
-            </Style.Triggers>
-        </Style>
-        <Style x:Key="SdkCapabilityIconStyle"
-               TargetType="ui:SymbolIcon"
-               BasedOn="{StaticResource CapabilityIconStyle}">
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsSdkAvailable}" Value="False">
+                <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="{x:Static models:CapabilitySupport.Unsupported}">
                     <Setter Property="Symbol" Value="DismissCircle24" />
                     <Setter Property="Foreground" Value="{ui:ThemeResource SystemFillColorCriticalBrush}" />
                 </DataTrigger>
@@ -35,19 +30,13 @@
         <Style x:Key="CapabilityStatusTextStyle"
                TargetType="TextBlock"
                BasedOn="{StaticResource MutedTextStyle}">
-            <Setter Property="Text" Value="{DynamicResource Unavailable}" />
+            <Setter Property="Text" Value="{DynamicResource Unknown}" />
             <Setter Property="VerticalAlignment" Value="Center" />
             <Style.Triggers>
-                <DataTrigger Binding="{Binding Capabilities.IsAvailable}" Value="True">
+                <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="{x:Static models:CapabilitySupport.Supported}">
                     <Setter Property="Text" Value="{DynamicResource Ready}" />
                 </DataTrigger>
-            </Style.Triggers>
-        </Style>
-        <Style x:Key="SdkStatusTextStyle"
-               TargetType="TextBlock"
-               BasedOn="{StaticResource CapabilityStatusTextStyle}">
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsSdkAvailable}" Value="False">
+                <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="{x:Static models:CapabilitySupport.Unsupported}">
                     <Setter Property="Text" Value="{DynamicResource Unavailable}" />
                 </DataTrigger>
             </Style.Triggers>
@@ -67,7 +56,13 @@
             <TextBlock Text="{DynamicResource SettingsTitle}" Style="{StaticResource PageTitleStyle}" />
             <TextBlock Text="{DynamicResource SettingsSubtitle}" Style="{StaticResource PageSubtitleStyle}" />
 
-            <TextBlock Text="{DynamicResource RuntimeEnvironment}" Style="{StaticResource SectionTitleStyle}" Margin="0,0,0,12" />
+            <DockPanel Margin="0,0,0,12">
+                <ui:Button DockPanel.Dock="Right" HorizontalAlignment="Right"
+                           Content="{DynamicResource RefreshRuntimeEnvironment}"
+                           Icon="{ui:SymbolIcon Symbol=ArrowClockwise24}"
+                           Command="{Binding RefreshCapabilitiesCommand}" />
+                <TextBlock Text="{DynamicResource RuntimeEnvironment}" Style="{StaticResource SectionTitleStyle}" VerticalAlignment="Center" />
+            </DockPanel>
             <ui:Card Padding="16,14" Margin="0,0,0,8">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -75,12 +70,12 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <ui:SymbolIcon Style="{StaticResource CapabilityIconStyle}" Margin="0,0,14,0" />
+                    <ui:SymbolIcon Style="{StaticResource CapabilityIconStyle}" Tag="{Binding Capabilities.CliAvailability}" Margin="0,0,14,0" />
                     <StackPanel Grid.Column="1">
                         <TextBlock Text="WSL Container CLI" FontSize="16" />
-                        <TextBlock Text="{Binding Capabilities.CliVersion}" Style="{StaticResource MutedTextStyle}" />
+                        <TextBlock Text="{Binding CliVersionText}" Style="{StaticResource MutedTextStyle}" />
                     </StackPanel>
-                    <TextBlock Grid.Column="2" Style="{StaticResource CapabilityStatusTextStyle}" />
+                    <TextBlock Grid.Column="2" Style="{StaticResource CapabilityStatusTextStyle}" Tag="{Binding Capabilities.CliAvailability}" />
                 </Grid>
             </ui:Card>
 
@@ -91,17 +86,35 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <ui:SymbolIcon Style="{StaticResource SdkCapabilityIconStyle}" Margin="0,0,14,0" />
+                    <ui:SymbolIcon Style="{StaticResource CapabilityIconStyle}" Tag="{Binding Capabilities.ServiceAvailability}" Margin="0,0,14,0" />
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="{DynamicResource RuntimeService}" FontSize="16" />
+                        <TextBlock Text="{Binding ServiceVersionText}" Style="{StaticResource MutedTextStyle}" />
+                    </StackPanel>
+                    <TextBlock Grid.Column="2" Style="{StaticResource CapabilityStatusTextStyle}" Tag="{Binding Capabilities.ServiceAvailability}" />
+                </Grid>
+            </ui:Card>
+
+            <ui:Card Padding="16,14" Margin="0,0,0,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon Style="{StaticResource CapabilityIconStyle}" Tag="{Binding Capabilities.SdkAvailability}" Margin="0,0,14,0" />
                     <StackPanel Grid.Column="1">
                         <TextBlock Text="Microsoft.WSL.Containers SDK" FontSize="16" />
-                        <TextBlock Text="{DynamicResource SdkPreviewProjection}" Style="{StaticResource MutedTextStyle}" />
+                        <TextBlock Text="{DynamicResource BundledSdkPackage}" Style="{StaticResource MutedTextStyle}" />
                     </StackPanel>
                     <StackPanel Grid.Column="2" HorizontalAlignment="Right">
-                        <TextBlock Text="{Binding Capabilities.SdkVersion}" FontFamily="Consolas" HorizontalAlignment="Right" />
-                        <TextBlock Style="{StaticResource SdkStatusTextStyle}" HorizontalAlignment="Right" />
+                        <TextBlock Text="{Binding Capabilities.SdkPackageVersion}" FontFamily="Consolas" HorizontalAlignment="Right" />
+                        <TextBlock Style="{StaticResource CapabilityStatusTextStyle}" Tag="{Binding Capabilities.SdkAvailability}" HorizontalAlignment="Right" />
                     </StackPanel>
                 </Grid>
             </ui:Card>
+
+            <TextBlock Text="{Binding EnvironmentMessage}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" Margin="0,0,0,8" />
 
             <ui:CardAction Command="{Binding OpenNativeSettingsCommand}"
                            IsChevronVisible="True"
@@ -125,7 +138,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock Text="{DynamicResource RuntimeMaintenance}" FontSize="16" />
-                        <TextBlock Text="{DynamicResource RuntimeMaintenanceHint}" Style="{StaticResource MutedTextStyle}" />
+                        <TextBlock Text="{DynamicResource RuntimeMaintenanceHint}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" />
                     </StackPanel>
                     <ui:Button Grid.Column="1"
                                Content="{DynamicResource InstallComponents}"

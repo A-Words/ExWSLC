@@ -13,6 +13,7 @@ public partial class RuntimeWorkspace : ObservableObject, IDisposable
     private readonly ITaskService _taskService;
     private CancellationTokenSource? _currentOperation;
     private bool _disposed;
+    private bool _autoRefreshStarted;
 
     public RuntimeWorkspace(
         IContainerRuntime runtime,
@@ -47,7 +48,7 @@ public partial class RuntimeWorkspace : ObservableObject, IDisposable
     [ObservableProperty] public partial string StatusMessage { get; set; } = "Initializing...";
     [ObservableProperty] public partial string RefreshError { get; set; } = string.Empty;
     [ObservableProperty] public partial string DetailOutput { get; set; } = string.Empty;
-    [ObservableProperty] public partial RuntimeCapabilities Capabilities { get; set; } = RuntimeCapabilities.Unavailable("Not checked");
+    [ObservableProperty] public partial RuntimeCapabilities Capabilities { get; set; } = new();
     [ObservableProperty] public partial RuntimeTaskItem? ActiveTask { get; set; }
 
     public int RunningContainerCount => Containers.Count(container => container.IsRunning);
@@ -56,21 +57,33 @@ public partial class RuntimeWorkspace : ObservableObject, IDisposable
     public int NetworkCount => Networks.Count;
     public int VolumeCount => Volumes.Count;
     public int ActiveTaskCount => Tasks.Count(task => task.State is RuntimeTaskState.Running or RuntimeTaskState.Queued);
-    public string VersionSummary => $"CLI: {Capabilities.CliVersion}  ·  SDK: {Capabilities.SdkVersion}";
+    public string VersionSummary => $"CLI: {DisplayVersion(Capabilities.CliVersion)}  ·  Service: {DisplayVersion(Capabilities.ServiceVersion)}  ·  SDK: {DisplayVersion(Capabilities.SdkPackageVersion)}";
+    public string CapabilityMessage => string.Format(
+        LocalizationService.GetString(Capabilities.MessageKey, Capabilities.MessageKey),
+        Capabilities.MessageArguments.Cast<object>().ToArray());
+
+    private static string DisplayVersion(string version) => string.IsNullOrWhiteSpace(version) ? "—" : version;
+    partial void OnCapabilitiesChanged(RuntimeCapabilities value) => OnPropertyChanged(nameof(VersionSummary));
 
     public event EventHandler? Refreshed;
 
     public async Task InitializeAsync()
     {
         Capabilities = await _capabilityService.DetectAsync(Lifetime.Token);
-        OnPropertyChanged(nameof(VersionSummary));
+        StartAutoRefresh();
         if (!Capabilities.IsAvailable)
         {
-            StatusMessage = Capabilities.Message;
+            StatusMessage = CapabilityMessage;
             return;
         }
 
         await RefreshAllAsync();
+    }
+
+    private void StartAutoRefresh()
+    {
+        if (_autoRefreshStarted) return;
+        _autoRefreshStarted = true;
         var autoRefresh = new AutoRefreshService(
             RefreshAllAsync,
             () => !IsBusy && Capabilities.IsAvailable,
@@ -80,9 +93,37 @@ public partial class RuntimeWorkspace : ObservableObject, IDisposable
 
     public async Task InstallMissingComponentsAsync(IProgress<string> progress)
     {
-        await _capabilityService.InstallMissingComponentsAsync(progress, Lifetime.Token);
-        Capabilities = await _capabilityService.DetectAsync(Lifetime.Token);
-        OnPropertyChanged(nameof(VersionSummary));
+        if (IsBusy) return;
+        IsBusy = true;
+        try
+        {
+            await _capabilityService.InstallMissingComponentsAsync(progress, Lifetime.Token);
+            Capabilities = await _capabilityService.DetectAsync(Lifetime.Token);
+            StatusMessage = CapabilityMessage;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+        StartAutoRefresh();
+        if (Capabilities.IsAvailable) await RefreshAllAsync();
+    }
+
+    public async Task RefreshCapabilitiesAsync()
+    {
+        if (IsBusy) return;
+        IsBusy = true;
+        try
+        {
+            Capabilities = await _capabilityService.RefreshAsync(Lifetime.Token);
+            StatusMessage = CapabilityMessage;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+        StartAutoRefresh();
+        if (Capabilities.IsAvailable) await RefreshAllAsync();
     }
 
     [RelayCommand]

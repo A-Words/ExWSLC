@@ -14,7 +14,7 @@ internal static class DesignWorkspaceFactory
             new DesignTaskService(),
             new DesignUserInteractionService())
         {
-            Capabilities = new RuntimeCapabilities(true, "2.9.3", "2.9.3", [], "Design data ready"),
+            Capabilities = DesignRuntimeCapabilityService.CreateCapabilities(),
             StatusMessage = "Design data ready",
             DetailOutput = """
                 $ wslc ps

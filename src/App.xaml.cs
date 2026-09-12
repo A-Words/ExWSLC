@@ -32,6 +32,7 @@ public partial class App : Application
         // Services
         services.AddSingleton<IProcessRunner, WslcProcessRunner>();
         services.AddSingleton<IContainerRuntime, WslcContainerRuntime>();
+        services.AddSingleton<IWslcSdkService, WslcSdkService>();
         services.AddSingleton<IRuntimeCapabilityService, RuntimeCapabilityService>();
         services.AddSingleton<ISettingsService, SettingsService>();
         services.AddSingleton<ITaskService, TaskService>();
