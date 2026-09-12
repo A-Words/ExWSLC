@@ -10,6 +10,52 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner) : IContai
 {
     private const string Executable = "wslc.exe";
 
+    public async Task<RuntimeDiagnostics> GetSystemInfoAsync(RuntimeCapabilities capabilities, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var snapshot = new RuntimeDiagnostics
+        {
+            BasicCliVersion = RuntimeSystemInfoParser.SafeVersion(capabilities.CliVersion),
+            BasicServiceVersion = RuntimeSystemInfoParser.SafeVersion(capabilities.ServiceVersion),
+            SdkPackageVersion = RuntimeSystemInfoParser.SafeVersion(capabilities.SdkPackageVersion),
+            CapabilityReasonKey = capabilities[RuntimeFeature.SystemInfo].ReasonKey
+        };
+        if (capabilities.CliAvailability == CapabilitySupport.Unsupported)
+            return snapshot with { StatusKey = "DiagnosticsCliUnavailable" };
+        if (capabilities[RuntimeFeature.SystemInfo].Support == CapabilitySupport.Unsupported)
+            return snapshot with { StatusKey = "DiagnosticsUnsupported" };
+
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        timeout.CancelAfter(TimeSpan.FromSeconds(10));
+        try
+        {
+            // Do not pass progress: raw stdout/stderr may contain account names or paths.
+            var result = await RunAsync(["system", "info", "--format", "json"], cancellationToken: timeout.Token);
+            cancellationToken.ThrowIfCancellationRequested();
+            timeout.Token.ThrowIfCancellationRequested();
+            RuntimeSystemInfo? info = null;
+            try { info = RuntimeSystemInfoParser.Parse(result.Output); }
+            catch (JsonException) { }
+            return snapshot with
+            {
+                SystemInfo = info,
+                StatusKey = !result.Success ? "DiagnosticsQueryFailed" : info is null ? "DiagnosticsInvalidJson" : "DiagnosticsCollected",
+                ExitCode = result.Success ? null : result.ExitCode
+            };
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            return snapshot with { StatusKey = "DiagnosticsTimedOut" };
+        }
+        catch (OperationCanceledException) { throw; }
+        catch (Exception)
+        {
+            // Exception messages are not a safe diagnostic field.
+            cancellationToken.ThrowIfCancellationRequested();
+            return snapshot with { StatusKey = "DiagnosticsQueryFailed" };
+        }
+    }
+
     public async Task<IReadOnlyList<ContainerSummary>> GetContainersAsync(CancellationToken cancellationToken = default)
     {
         var result = await RunAsync(["container", "list", "--all", "--no-trunc", "--format", "json"], cancellationToken: cancellationToken);

@@ -116,6 +116,52 @@
 
             <TextBlock Text="{Binding EnvironmentMessage}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" Margin="0,0,0,8" />
 
+            <ui:Card x:Name="DiagnosticsCard" Padding="16" Margin="0,8,0,18">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource DiagnosticsTitle}" Style="{StaticResource SectionTitleStyle}" />
+                    <TextBlock Text="{DynamicResource DiagnosticsPrivacyHint}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" Margin="0,0,0,12" />
+                    <WrapPanel Margin="0,0,0,12">
+                        <ui:Button Content="{DynamicResource DiagnosticsRefresh}" Command="{Binding RefreshDiagnosticsCommand}"
+                                   Icon="{ui:SymbolIcon Symbol=ArrowClockwise24}" Margin="0,0,8,8" />
+                        <ui:Button Content="{DynamicResource Cancel}" Command="{Binding Workspace.CancelCurrentOperationCommand}"
+                                   IsEnabled="{Binding RefreshDiagnosticsCommand.IsRunning}" Margin="0,0,8,8" />
+                        <ui:Button Content="{DynamicResource DiagnosticsCopy}" Command="{Binding CopyDiagnosticsCommand}" Margin="0,0,8,8" />
+                        <ui:Button Content="{DynamicResource DiagnosticsExport}" Command="{Binding ExportDiagnosticsCommand}" Margin="0,0,0,8" />
+                    </WrapPanel>
+                    <TextBlock Text="{Binding DiagnosticsStatus}" TextWrapping="Wrap" Margin="0,0,0,8" />
+                    <TextBlock Text="{Binding DiagnosticsActionStatus}" TextWrapping="Wrap" Margin="0,0,0,8"
+                               AutomationProperties.LiveSetting="Polite" />
+                    <ItemsControl ItemsSource="{Binding DiagnosticsFields}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0,0,0,10">
+                                    <TextBlock Text="{Binding Label}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding Value}" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemContainerStyle>
+                            <Style TargetType="ContentPresenter"><Setter Property="Width" Value="300" /><Setter Property="Margin" Value="0,0,12,0" /></Style>
+                        </ItemsControl.ItemContainerStyle>
+                    </ItemsControl>
+                    <TextBlock Text="{DynamicResource DiagnosticsSessions}" FontSize="16" Margin="0,12,0,8" />
+                    <TextBlock Text="{Binding DiagnosticsSessionsStatus}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" />
+                    <ItemsControl ItemsSource="{Binding DiagnosticsSessions}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0,0,0,10">
+                                    <TextBlock Text="{Binding Label}" TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding Value}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ui:Card>
+
             <ui:CardAction Command="{Binding OpenNativeSettingsCommand}"
                            IsChevronVisible="True"
                            Margin="0,0,0,8"

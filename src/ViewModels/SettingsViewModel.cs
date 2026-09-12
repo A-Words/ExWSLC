@@ -20,6 +20,10 @@ public partial class SettingsViewModel : ObservableObject
         SelectedLanguage = Workspace.SettingsService.Current.Language;
         SelectedTheme = Workspace.SettingsService.Current.Theme;
         RefreshIntervalSeconds = Workspace.SettingsService.Current.RefreshIntervalSeconds;
+        RefreshDiagnosticsCommand.PropertyChanged += (_, args) =>
+        {
+            if (args.PropertyName == nameof(RefreshDiagnosticsCommand.IsRunning)) RaiseDiagnosticsChanged();
+        };
     }
 
     public RuntimeWorkspace Workspace { get; }
@@ -37,6 +41,7 @@ public partial class SettingsViewModel : ObservableObject
 
     private void RaiseLanguageChanged()
     {
+        RaiseDiagnosticsChanged();
         OnPropertyChanged(nameof(CliVersionText));
         OnPropertyChanged(nameof(ServiceVersionText));
         OnPropertyChanged(nameof(EnvironmentMessage));
@@ -139,6 +144,8 @@ public partial class SettingsViewModel : ObservableObject
         }
         if (eventArgs.PropertyName is nameof(RuntimeWorkspace.Capabilities) or nameof(RuntimeWorkspace.IsBusy))
         {
+            OnPropertyChanged(nameof(CanRefreshDiagnostics));
+            RefreshDiagnosticsCommand.NotifyCanExecuteChanged();
             OnPropertyChanged(nameof(CanInstallComponents));
             OnPropertyChanged(nameof(CanRefreshCapabilities));
             InstallComponentsCommand.NotifyCanExecuteChanged();

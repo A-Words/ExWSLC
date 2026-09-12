@@ -2,6 +2,7 @@
 
 public interface IUserInteractionService
 {
+    void SetClipboardText(string text);
     Task<bool> ConfirmAsync(string title, string message);
     Task ShowErrorAsync(string title, string message);
     string? PickOpenFile(string title, string filter);

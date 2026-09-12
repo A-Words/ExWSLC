@@ -12,3 +12,13 @@
 - SDK 调用封装在可模拟的 `IWslcSdkService`。用户确认安装后重新读取缺失组件，只向 `InstallOptions.Components` 传入可安装的 `WslPackage` / `VirtualMachinePlatform`，`Repair=false`。`SdkNeedsUpdate` 要更新应用打包的 SDK，不能通过安装入口修复。取消请求传给 WinRT，但底层安装不保证立即停止或回滚。安装成功重新检测、刷新库存并恢复自动刷新。
 
 依据：已查阅 [官方 C# API](https://wsl.dev/api-reference/csharp/)，签名以 [2.9.9 IDL](https://github.com/microsoft/WSL/blob/2.9.9/src/windows/WslcSDK/winrt/wslcsdk.idl) 和 [WslcService 实现](https://github.com/microsoft/WSL/blob/2.9.9/src/windows/WslcSDK/winrt/WslcService.cpp) 为准；该版本公开 SDK 未提供 native restart 或运行时全局 events 流。
+
+## 任务 08：诊断快照
+
+`IContainerRuntime.GetSystemInfoAsync(RuntimeCapabilities, CancellationToken)` 接收同一能力服务的快照，通过 CLI 读取 `system info --format json`。不新增 SDK 探测或版本缓存：`RuntimeFeature.SystemInfo` 明确不支持时直接回退；Unknown 允许实际查询。设置页“刷新诊断”复用缓存检测，原“重新检测”仍负责失效并重检能力。
+
+诊断快照在内存中独立保存采集时间，并分开呈现 `system info` 客户端／会话管理服务版本与能力快照的基础版本；不覆盖原有版本来源。查询超时为 10 秒，沿用工作区任务与取消入口。失败更新为当前失败快照并保留基础版本；取消保留上一次快照及原时间。首次进入设置页且工作区空闲时自动采集，否则提供手动刷新；库存自动刷新不采集诊断。
+
+解析器只接收版本、设置路径及会话 Name／ID／CreatorPid，未知字段忽略。返回的类型化对象已脱敏：默认设置路径缩写为 `%LOCALAPPDATA%\wslc\settings.yaml`，其他路径遮蔽；默认会话名称保留 `wslc-cli-` 前缀并隐藏账户，GUID 会话名保留，自定义自由文本名遮蔽。版本只接受已知格式；不识别格式显示未知。界面、复制及导出使用相同字段白名单。原始 stdout、stderr 和异常消息不写入诊断任务详情，也不持久化快照。
+
+验收记录及已知边界见 [任务 08 验证](validation/wslc-08.md)。

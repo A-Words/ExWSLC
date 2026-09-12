@@ -67,6 +67,12 @@ public partial class RuntimeWorkspace : ObservableObject, IDisposable
 
     public event EventHandler? Refreshed;
 
+    public async Task<RuntimeCapabilities> GetCapabilitiesAsync(CancellationToken cancellationToken = default)
+    {
+        Capabilities = await _capabilityService.DetectAsync(cancellationToken);
+        return Capabilities;
+    }
+
     public async Task InitializeAsync()
     {
         Capabilities = await _capabilityService.DetectAsync(Lifetime.Token);

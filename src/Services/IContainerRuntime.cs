@@ -4,6 +4,7 @@ namespace ExWSLC.Services;
 
 public interface IContainerRuntime
 {
+    Task<RuntimeDiagnostics> GetSystemInfoAsync(RuntimeCapabilities capabilities, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<ContainerSummary>> GetContainersAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<ImageSummary>> GetImagesAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<NetworkSummary>> GetNetworksAsync(CancellationToken cancellationToken = default);

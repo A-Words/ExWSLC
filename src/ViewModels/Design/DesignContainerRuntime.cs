@@ -5,6 +5,21 @@ namespace ExWSLC.ViewModels.Design;
 
 internal sealed class DesignContainerRuntime : IContainerRuntime
 {
+    public Task<RuntimeDiagnostics> GetSystemInfoAsync(RuntimeCapabilities capabilities, CancellationToken cancellationToken = default) =>
+        Task.FromResult(new RuntimeDiagnostics
+        {
+            StatusKey = "DiagnosticsCollected",
+            BasicCliVersion = capabilities.CliVersion,
+            BasicServiceVersion = capabilities.ServiceVersion,
+            SdkPackageVersion = capabilities.SdkPackageVersion,
+            SystemInfo = new RuntimeSystemInfo
+            {
+                ClientVersion = "2.9.10.0", ServiceVersion = "2.9.10", WindowsVersion = "10.0.26200.9445",
+                KernelVersion = "6.18.40.1-1", Direct3DVersion = "1.611.1-81528511",
+                DxCoreVersion = "10.0.26100.1-240331-1435.ge-release", SettingsFile = @"%LOCALAPPDATA%\wslc\settings.yaml",
+                Sessions = [new("wslc-cli-[user]", 1, 1234)]
+            }
+        });
     private static readonly OperationResult Success = new(true, 0, "Design operation completed.", string.Empty, "design");
 
     public Task<IReadOnlyList<ContainerSummary>> GetContainersAsync(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyList<ContainerSummary>>([]);
