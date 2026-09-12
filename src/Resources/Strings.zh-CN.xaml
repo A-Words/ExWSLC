@@ -230,4 +230,34 @@
     <sys:String x:Key="CapabilityHelpUnrecognized">无法识别命令帮助的格式。</sys:String>
     <sys:String x:Key="CapabilityAdvertised">已安装的 CLI 提供此命令或选项。</sys:String>
     <sys:String x:Key="CapabilityNotAdvertised">已安装的 CLI 未提供此命令或选项。</sys:String>
+    <sys:String x:Key="BuildArgumentsLabel">构建变量（每行 KEY=VALUE）</sys:String>
+    <sys:String x:Key="BuildTargetLabel">目标阶段（可选）</sys:String>
+    <sys:String x:Key="BuildNoCache">禁用缓存</sys:String>
+    <sys:String x:Key="BuildPull">更新基础镜像</sys:String>
+    <sys:String x:Key="BuildOutputLabel">构建输出</sys:String>
+    <sys:String x:Key="BuildOutputImage">本地镜像（标签必填）</sys:String>
+    <sys:String x:Key="BuildOutputTar">Tar 产物（无需镜像标签）</sys:String>
+    <sys:String x:Key="BuildOutputPathLabel">Tar 输出路径</sys:String>
+    <sys:String x:Key="BuildExportHint">导出根文件系统，并非可加载的镜像归档；不会创建本地镜像。已有目标文件可能被覆盖。</sys:String>
+    <sys:String x:Key="BuildProgressLabel">构建日志模式</sys:String>
+    <sys:String x:Key="BuildProgressAuto">自动（auto）</sys:String>
+    <sys:String x:Key="BuildProgressPlain">步骤日志（plain）</sys:String>
+    <sys:String x:Key="BuildProgressQuiet">安静（quiet）</sys:String>
+    <sys:String x:Key="BuildSecretsHint">仅填写 secret 来源引用，切勿将机密值放入构建变量。环境变量须在启动 ExWSLC 前设置。不要在 Dockerfile 中打印机密。</sys:String>
+    <sys:String x:Key="BuildSecretFilesLabel">Secret 文件（每行 id=路径）</sys:String>
+    <sys:String x:Key="BuildSecretEnvironmentLabel">Secret 环境来源（每行 id=变量名）</sys:String>
+    <sys:String x:Key="BuildCapabilitiesHint">不支持的 CLI 选项会禁用；检测不确定时以实际构建结果为准，可在设置中重新检测。WSLC 2.9.10 拒绝目录导出，请使用 tar。</sys:String>
+    <sys:String x:Key="BuildContextRequired">请选择构建上下文。</sys:String>
+    <sys:String x:Key="BuildTagRequired">本地镜像输出必须填写标签。</sys:String>
+    <sys:String x:Key="BuildOutputPathRequired">请输入 tar 文件路径，不支持逗号、引号或标准输出（-）。</sys:String>
+    <sys:String x:Key="BuildArgumentsInvalid">请每行填写一个 KEY=VALUE 构建变量。</sys:String>
+    <sys:String x:Key="BuildSecretsInvalid">请使用唯一的 secret ID，每行 id=来源；文件路径不支持逗号或引号。</sys:String>
+    <sys:String x:Key="BuildInvalidOptions">构建输出或进度模式无效。</sys:String>
+    <sys:String x:Key="BuildFeatureUnavailable">所选选项不受当前 CLI 支持，请检查高级选项或在设置中重新检测。</sys:String>
+    <sys:String x:Key="BuildSecretSourceFailed">无法读取构建 secret 来源，请检查文件或环境变量。</sys:String>
+    <sys:String x:Key="BuildSecretOperationFailed">构建失败，请检查 secret 来源与构建选项。</sys:String>
+    <sys:String x:Key="BuildImageCompleted">本地镜像构建完成。</sys:String>
+    <sys:String x:Key="BuildExportCompleted">Tar 导出完成，未创建本地镜像。</sys:String>
+    <sys:String x:Key="BuildCancelled">构建已取消，导出产物可能不完整。</sys:String>
+    <sys:String x:Key="BuildLogLabel">构建日志（含缓存步骤）</sys:String>
 </ResourceDictionary>

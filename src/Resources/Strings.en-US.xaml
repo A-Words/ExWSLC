@@ -131,4 +131,34 @@
     <sys:String x:Key="CapabilityHelpUnrecognized">The command help format could not be recognized.</sys:String>
     <sys:String x:Key="CapabilityAdvertised">The installed CLI advertises this command or option.</sys:String>
     <sys:String x:Key="CapabilityNotAdvertised">The installed CLI does not advertise this command or option.</sys:String>
+    <sys:String x:Key="BuildArgumentsLabel">Build variables (KEY=VALUE, one per line)</sys:String>
+    <sys:String x:Key="BuildTargetLabel">Target stage (optional)</sys:String>
+    <sys:String x:Key="BuildNoCache">Disable cache</sys:String>
+    <sys:String x:Key="BuildPull">Update base images</sys:String>
+    <sys:String x:Key="BuildOutputLabel">Build output</sys:String>
+    <sys:String x:Key="BuildOutputImage">Local image (tag required)</sys:String>
+    <sys:String x:Key="BuildOutputTar">Tar artifact (no image tag)</sys:String>
+    <sys:String x:Key="BuildOutputPathLabel">Tar output path</sys:String>
+    <sys:String x:Key="BuildExportHint">Exports the root filesystem, not a loadable image archive. No local image is created. Existing destinations may be overwritten.</sys:String>
+    <sys:String x:Key="BuildProgressLabel">Build log mode</sys:String>
+    <sys:String x:Key="BuildProgressAuto">Automatic (auto)</sys:String>
+    <sys:String x:Key="BuildProgressPlain">Step log (plain)</sys:String>
+    <sys:String x:Key="BuildProgressQuiet">Quiet (quiet)</sys:String>
+    <sys:String x:Key="BuildSecretsHint">Use secret source references only; never put secret values in build variables. Environment sources must exist when ExWSLC starts. Do not print secrets in the Dockerfile.</sys:String>
+    <sys:String x:Key="BuildSecretFilesLabel">Secret files (id=path, one per line)</sys:String>
+    <sys:String x:Key="BuildSecretEnvironmentLabel">Secret environment sources (id=variable name)</sys:String>
+    <sys:String x:Key="BuildCapabilitiesHint">Unavailable CLI options are disabled. If detection is inconclusive, the build reports the actual result; recheck in Settings. WSLC 2.9.10 rejects directory exporters; use tar.</sys:String>
+    <sys:String x:Key="BuildContextRequired">Choose a build context.</sys:String>
+    <sys:String x:Key="BuildTagRequired">A tag is required for local image output.</sys:String>
+    <sys:String x:Key="BuildOutputPathRequired">Enter a tar file path, excluding commas, quotes and stdout (-).</sys:String>
+    <sys:String x:Key="BuildArgumentsInvalid">Enter one KEY=VALUE build variable per line.</sys:String>
+    <sys:String x:Key="BuildSecretsInvalid">Use unique secret IDs and id=source per line. File paths cannot contain commas or quotes.</sys:String>
+    <sys:String x:Key="BuildInvalidOptions">Invalid build output or progress mode.</sys:String>
+    <sys:String x:Key="BuildFeatureUnavailable">A selected option is unsupported by this CLI. Review advanced options or recheck in Settings.</sys:String>
+    <sys:String x:Key="BuildSecretSourceFailed">Cannot read a build secret source. Check the file or environment variable.</sys:String>
+    <sys:String x:Key="BuildSecretOperationFailed">Build failed. Check secret sources and build options.</sys:String>
+    <sys:String x:Key="BuildImageCompleted">Local image build completed.</sys:String>
+    <sys:String x:Key="BuildExportCompleted">Tar export completed; no local image was created.</sys:String>
+    <sys:String x:Key="BuildCancelled">Build cancelled. An export may be incomplete.</sys:String>
+    <sys:String x:Key="BuildLogLabel">Build log (includes cached steps)</sys:String>
 </ResourceDictionary>

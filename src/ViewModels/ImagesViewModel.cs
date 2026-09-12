@@ -30,6 +30,17 @@ public partial class ImagesViewModel : WorkspaceViewModel
     [ObservableProperty] public partial string ImportImageName { get; set; } = string.Empty;
     [ObservableProperty] public partial string ImageTag { get; set; } = string.Empty;
     [ObservableProperty] public partial string DockerfilePath { get; set; } = string.Empty;
+    [ObservableProperty] public partial string BuildArgumentsText { get; set; } = string.Empty;
+    [ObservableProperty] public partial string BuildTarget { get; set; } = string.Empty;
+    [ObservableProperty] public partial bool BuildNoCache { get; set; }
+    [ObservableProperty] public partial bool BuildPull { get; set; }
+    [ObservableProperty] public partial int BuildOutputMode { get; set; }
+    [ObservableProperty] public partial string BuildOutputPath { get; set; } = string.Empty;
+    [ObservableProperty] public partial int BuildProgressMode { get; set; } = 1;
+    [ObservableProperty] public partial string BuildSecretFiles { get; set; } = string.Empty;
+    [ObservableProperty] public partial string BuildSecretEnvironment { get; set; } = string.Empty;
+    [ObservableProperty] public partial string BuildLog { get; set; } = string.Empty;
+    [ObservableProperty] public partial string BuildMessage { get; set; } = string.Empty;
     [ObservableProperty] public partial string OperationOutput { get; set; } = string.Empty;
     [ObservableProperty] public partial string ImageInspectOutput { get; set; } = string.Empty;
 
@@ -49,14 +60,101 @@ public partial class ImagesViewModel : WorkspaceViewModel
         await Workspace.RefreshAllAsync();
     }
 
-    [RelayCommand]
+    public bool IsBuildExport => BuildOutputMode == (int)ImageBuildOutput.Tar;
+    public bool IsBuildLocalImage => !IsBuildExport;
+    public bool CanUseBuildSecrets => Allows(RuntimeFeature.BuildSecret);
+    public bool CanUseBuildOutput => Allows(RuntimeFeature.BuildOutput);
+    public bool CanUseBuildProgress => Allows(RuntimeFeature.BuildProgress);
+    public bool CanUseBuildPull => Allows(RuntimeFeature.BuildPull);
+    // Rechecking capabilities must still let users clear previously selected options.
+    public bool CanEditBuildSecrets => CanUseBuildSecrets || BuildSecretFiles.Length > 0 || BuildSecretEnvironment.Length > 0;
+    public bool CanToggleBuildPull => CanUseBuildPull || BuildPull;
+    private bool Allows(RuntimeFeature feature) => Workspace.Capabilities[feature].Support != CapabilitySupport.Unsupported;
+    private bool CanBuildImage() => !Workspace.IsBusy;
+
+    partial void OnBuildOutputModeChanged(int value)
+    {
+        OnPropertyChanged(nameof(IsBuildExport));
+        OnPropertyChanged(nameof(IsBuildLocalImage));
+    }
+
+    partial void OnBuildSecretFilesChanged(string value) => OnPropertyChanged(nameof(CanEditBuildSecrets));
+    partial void OnBuildSecretEnvironmentChanged(string value) => OnPropertyChanged(nameof(CanEditBuildSecrets));
+    partial void OnBuildPullChanged(bool value) => OnPropertyChanged(nameof(CanToggleBuildPull));
+
+    protected override void OnWorkspacePropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs eventArgs)
+    {
+        base.OnWorkspacePropertyChanged(sender, eventArgs);
+        if (eventArgs.PropertyName == nameof(RuntimeWorkspace.IsBusy)) BuildImageCommand.NotifyCanExecuteChanged();
+        if (eventArgs.PropertyName == nameof(RuntimeWorkspace.Capabilities))
+        {
+            OnPropertyChanged(nameof(CanUseBuildSecrets));
+            OnPropertyChanged(nameof(CanUseBuildOutput));
+            OnPropertyChanged(nameof(CanUseBuildProgress));
+            OnPropertyChanged(nameof(CanUseBuildPull));
+            OnPropertyChanged(nameof(CanEditBuildSecrets));
+            OnPropertyChanged(nameof(CanToggleBuildPull));
+        }
+    }
+
+    [RelayCommand(CanExecute = nameof(CanBuildImage))]
     private async Task BuildImageAsync()
     {
-        var folder = string.IsNullOrWhiteSpace(BuildContextPath) ? Workspace.Interaction.PickFolder("Choose build context") : BuildContextPath;
-        if (string.IsNullOrWhiteSpace(folder) || string.IsNullOrWhiteSpace(BuildImageTag)) return;
+        if (Workspace.IsBusy) return;
+        var folder = string.IsNullOrWhiteSpace(BuildContextPath)
+            ? Workspace.Interaction.PickFolder(LocalizationService.GetString("BuildContext", "Build context")) : BuildContextPath;
+        if (string.IsNullOrWhiteSpace(folder)) return;
         BuildContextPath = folder;
-        await ShowOperationResultAsync(await Workspace.RunTrackedAsync($"Build {BuildImageTag}", (progress, token) => Workspace.Runtime.BuildImageAsync(folder, BuildImageTag, DockerfilePath, progress, token)));
-        await Workspace.RefreshAllAsync();
+        var request = new ImageBuildRequest
+        {
+            ContextPath = folder, Tag = BuildImageTag, Dockerfile = DockerfilePath,
+            BuildArguments = ImageBuildOptions.Lines(BuildArgumentsText), Target = BuildTarget,
+            NoCache = BuildNoCache, Pull = BuildPull, Output = (ImageBuildOutput)BuildOutputMode,
+            OutputPath = BuildOutputPath,
+            Progress = CanUseBuildProgress ? (ImageBuildProgress)BuildProgressMode : null,
+            Secrets = ImageBuildOptions.ParseSecrets(BuildSecretFiles, BuildSecretEnvironment)
+        };
+        var error = ImageBuildOptions.Validate(request);
+        if (request.Pull && !CanUseBuildPull || request.Secrets.Count > 0 && !CanUseBuildSecrets ||
+            request.Output != ImageBuildOutput.LocalImage && !CanUseBuildOutput) error = "BuildFeatureUnavailable";
+        BuildMessage = error is null ? string.Empty : LocalizationService.GetString(error, error);
+        if (error is not null) return;
+        BuildLog = string.Empty;
+        var uiContext = SynchronizationContext.Current is System.Windows.Threading.DispatcherSynchronizationContext
+            ? SynchronizationContext.Current : null;
+        try
+        {
+            var result = await Workspace.RunTrackedAsync(LocalizationService.GetString("Build", "Build"), (progress, token) =>
+                Workspace.Runtime.BuildImageAsync(request, new BuildLogProgress(this, progress, uiContext), token));
+            BuildLog = result.CombinedOutput;
+            await ShowOperationResultAsync(result);
+            if (result.Success)
+            {
+                BuildMessage = request.Output == ImageBuildOutput.LocalImage
+                    ? LocalizationService.GetString("BuildImageCompleted", "Local image build completed.")
+                    : LocalizationService.GetString("BuildExportCompleted", "Tar export completed; no local image was created.");
+                await Workspace.RefreshAllAsync();
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            BuildMessage = LocalizationService.GetString("BuildCancelled", "Build cancelled. An export may be incomplete.");
+        }
+    }
+
+    private sealed class BuildLogProgress(ImagesViewModel owner, IProgress<string> tracked, SynchronizationContext? uiContext) : IProgress<string>
+    {
+        public void Report(string value)
+        {
+            tracked.Report(value);
+            void Append()
+            {
+                var log = owner.BuildLog + value + Environment.NewLine;
+                owner.BuildLog = log.Length > 100_000 ? log[^100_000..] : log;
+            }
+            if (uiContext is not null) uiContext.Send(_ => Append(), null);
+            else Append();
+        }
     }
 
     [RelayCommand]

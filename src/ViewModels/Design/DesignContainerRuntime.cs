@@ -23,7 +23,7 @@ internal sealed class DesignContainerRuntime : IContainerRuntime
     public Task<OperationResult> FollowLogsAsync(string id, IProgress<string>? progress = null, CancellationToken cancellationToken = default) => Task.FromResult(Success);
     public Task<OperationResult> ExecAsync(string id, string command, IProgress<string>? progress = null, CancellationToken cancellationToken = default) => Task.FromResult(Success);
     public Task<OperationResult> PullImageAsync(string image, IProgress<string>? progress = null, CancellationToken cancellationToken = default) => Task.FromResult(Success);
-    public Task<OperationResult> BuildImageAsync(string path, string tag, string dockerfile, IProgress<string>? progress = null, CancellationToken cancellationToken = default) => Task.FromResult(Success);
+    public Task<OperationResult> BuildImageAsync(ImageBuildRequest request, IProgress<string>? progress = null, CancellationToken cancellationToken = default) => Task.FromResult(Success);
     public Task<OperationResult> ImportImageAsync(string path, string name, IProgress<string>? progress = null, CancellationToken cancellationToken = default) => Task.FromResult(Success);
     public Task<OperationResult> LoadImageAsync(string path, IProgress<string>? progress = null, CancellationToken cancellationToken = default) => Task.FromResult(Success);
     public Task<OperationResult> SaveImageAsync(string image, string path, IProgress<string>? progress = null, CancellationToken cancellationToken = default) => Task.FromResult(Success);
