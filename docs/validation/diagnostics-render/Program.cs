@@ -7,6 +7,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using System.Xml.Linq;
+using System.Text.Json;
 using ExWSLC.Models;
 using ExWSLC.Services;
 using ExWSLC.ViewModels.Design;
@@ -39,6 +40,10 @@ internal static class Program
         var capabilities = Task.Run(() => new RuntimeCapabilityService(runner, new WslcSdkService()).DetectAsync()).GetAwaiter().GetResult();
         var snapshot = Task.Run(() => new WslcContainerRuntime(runner).GetSystemInfoAsync(capabilities)).GetAwaiter().GetResult();
         if (snapshot.StatusKey != "DiagnosticsCollected") throw new InvalidOperationException(snapshot.StatusKey);
+        // An optional task-09 result file is produced by the opt-in live test after
+        // a connection to its own loopback listener. Rendering never starts a probe.
+        var hostProbe = args.Length > 1 ? JsonSerializer.Deserialize<HostLoopbackProbeResult>(File.ReadAllText(args[1])) : null;
+        var hostConfiguration = hostProbe is null ? null : Task.Run(() => new WslcContainerRuntime(runner).GetHostLoopbackConfigurationAsync()).GetAwaiter().GetResult();
 
         foreach (var language in new[] { "en-US", "zh-CN" })
         foreach (var theme in new[] { "Light", "Dark", "System" })
@@ -57,6 +62,16 @@ internal static class Program
         {
             var viewModel = new DesignSettingsViewModel { Diagnostics = data };
             viewModel.Workspace.Capabilities = baseline;
+            if (hostProbe is not null)
+            {
+                var container = new ContainerSummary(hostProbe.Target.ContainerId, "exwslc-09-test-snapshot", "test snapshot", "running", "", "", "");
+                viewModel.Workspace.ActiveContainers.Clear();
+                viewModel.Workspace.ActiveContainers.Add(container);
+                viewModel.HostLoopbackConfiguration = hostConfiguration;
+                viewModel.HostProbeContainer = container;
+                viewModel.HostProbePort = hostProbe.Target.Port.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                viewModel.HostProbeResult = hostProbe;
+            }
             var page = new SettingsPage(viewModel)
             {
                 Background = (Brush)app.FindResource("ApplicationBackgroundBrush"), Width = width, Height = 700
@@ -66,7 +81,7 @@ internal static class Program
             page.UpdateLayout();
             app.Dispatcher.Invoke(() => { }, DispatcherPriority.ApplicationIdle);
             var scroll = (ScrollViewer)page.FindName("SettingsScrollViewer");
-            var card = (FrameworkElement)page.FindName("DiagnosticsCard");
+            var card = (FrameworkElement)page.FindName(hostProbe is null ? "DiagnosticsCard" : "HostLoopbackCard");
             var offset = card.TranslatePoint(new Point(), (UIElement)scroll.Content).Y;
             Save(offset, name);
             if (width < 850) Save(offset + 400, name + "-bottom");

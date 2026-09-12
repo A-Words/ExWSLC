@@ -162,6 +162,43 @@
                 </StackPanel>
             </ui:Card>
 
+            <ui:Card x:Name="HostLoopbackCard" Padding="16" Margin="0,0,0,18">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource HostLoopbackTitle}" Style="{StaticResource SectionTitleStyle}" TextWrapping="Wrap" />
+                    <TextBlock Text="{DynamicResource HostLoopbackExplanation}" TextWrapping="Wrap" Margin="0,0,0,10" />
+                    <TextBlock Text="{DynamicResource HostLoopbackSessionUnknown}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" Margin="0,0,0,12" />
+                    <WrapPanel Margin="0,0,0,8">
+                        <ui:Button Content="{DynamicResource HostConfigRead}" Command="{Binding ReadHostLoopbackCommand}" Margin="0,0,8,8" />
+                        <StackPanel Margin="0,0,0,8" MaxWidth="420">
+                            <TextBlock Text="{Binding HostLoopbackHost}" TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding HostLoopbackConfigStatus}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </WrapPanel>
+                    <WrapPanel>
+                        <StackPanel Style="{StaticResource SettingsFieldStyle}">
+                            <TextBlock x:Name="HostProbeContainerLabel" Text="{DynamicResource HostProbeContainer}" />
+                            <ComboBox ItemsSource="{Binding Workspace.ActiveContainers}" SelectedItem="{Binding HostProbeContainer}"
+                                      DisplayMemberPath="Name" Margin="0,6,0,0" AutomationProperties.LabeledBy="{Binding ElementName=HostProbeContainerLabel}" />
+                        </StackPanel>
+                        <StackPanel Style="{StaticResource SettingsFieldStyle}">
+                            <TextBlock x:Name="HostProbePortLabel" Text="{DynamicResource HostProbePort}" />
+                            <ui:TextBox Text="{Binding HostProbePort, UpdateSourceTrigger=PropertyChanged}" MaxLength="5" Margin="0,6,0,0"
+                                        AutomationProperties.LabeledBy="{Binding ElementName=HostProbePortLabel}" />
+                        </StackPanel>
+                    </WrapPanel>
+                    <TextBlock Text="{Binding HostProbeValidation}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" Margin="0,0,0,8" />
+                    <TextBlock Text="{DynamicResource HostProbeLimits}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" Margin="0,0,0,12" />
+                    <WrapPanel>
+                        <ui:Button Content="{DynamicResource HostProbeRun}" Command="{Binding ProbeHostLoopbackCommand}" Appearance="Primary" Margin="0,0,8,8" />
+                        <ui:Button Content="{DynamicResource Cancel}" Command="{Binding Workspace.CancelCurrentOperationCommand}"
+                                   IsEnabled="{Binding ProbeHostLoopbackCommand.IsRunning}" Margin="0,0,8,8" />
+                        <ui:Button Content="{DynamicResource HostProbeCopy}" Command="{Binding CopyHostProbeCommand}" Margin="0,0,8,8" />
+                    </WrapPanel>
+                    <TextBlock Text="{Binding HostProbeSummary}" TextWrapping="Wrap" Margin="0,8,0,0" AutomationProperties.LiveSetting="Polite" />
+                    <TextBlock Text="{Binding HostProbeCopyStatus}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" />
+                </StackPanel>
+            </ui:Card>
+
             <ui:CardAction Command="{Binding OpenNativeSettingsCommand}"
                            IsChevronVisible="True"
                            Margin="0,0,0,8"

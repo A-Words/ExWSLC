@@ -6,7 +6,7 @@ using ExWSLC.Models;
 
 namespace ExWSLC.Services;
 
-public sealed class WslcContainerRuntime(IProcessRunner processRunner) : IContainerRuntime
+public sealed partial class WslcContainerRuntime(IProcessRunner processRunner, IHostLoopbackSettingsReader? hostLoopbackSettings = null) : IContainerRuntime
 {
     private const string Executable = "wslc.exe";
 

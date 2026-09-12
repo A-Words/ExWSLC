@@ -22,3 +22,13 @@
 解析器只接收版本、设置路径及会话 Name／ID／CreatorPid，未知字段忽略。返回的类型化对象已脱敏：默认设置路径缩写为 `%LOCALAPPDATA%\wslc\settings.yaml`，其他路径遮蔽；默认会话名称保留 `wslc-cli-` 前缀并隐藏账户，GUID 会话名保留，自定义自由文本名遮蔽。版本只接受已知格式；不识别格式显示未知。界面、复制及导出使用相同字段白名单。原始 stdout、stderr 和异常消息不写入诊断任务详情，也不持久化快照。
 
 验收记录及已知边界见 [任务 08 验证](validation/wslc-08.md)。
+
+## 任务 09：宿主机回环诊断
+
+`RuntimeFeature.HostLoopback` 在能力快照中保持 `Unknown`，来源为 `session.hostLoopback`。版本或帮助不能证明已有会话、SDK 创建的会话启用了此能力；原有缓存／重检流程不增加连接探测。
+
+`IContainerRuntime.GetHostLoopbackConfigurationAsync` 只读取当前用户 `%LOCALAPPDATA%\wslc\settings.yaml`。缺失、null 或 `default` 得到默认候选域名 `host.wslc.internal`，`none` 明确禁用；合法自定义 DNS 名仅表示配置可识别，不代表既有会话支持。无法读取、歧义 YAML 或超出安全解析边界时返回未知，不调用可能创建文件的 `wslc settings`。页面进入时可读取配置，网络检查始终需要用户选择运行中容器、明确端口并手动执行。
+
+`IContainerRuntime.ProbeHostLoopbackAsync` 接收不可变目标及同一能力快照；执行前重新读取配置并定点 inspect 容器，配置变化则要求重新检查。通过 `ArgumentList` 传入固定脚本与独立目标参数，仅解析 IPv4 并尝试首个地址的一次 TCP 连接，不发送请求或读取响应。整体期限 15 秒、容器内期限 8 秒，沿用任务与取消机制；工具不存在时返回缺少工具，不安装依赖。
+
+结果分别保留 DNS 阶段与最终连接状态。成功只证明解析端点接受了连接，不证明会话配置、应用协议或认证有效。结果只存于内存，复制摘要隐藏容器名称、自定义域名和原始进程输出。实现与实测边界见 [任务 09 验证](validation/wslc-09.md)。

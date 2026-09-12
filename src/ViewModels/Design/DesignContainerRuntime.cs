@@ -5,6 +5,10 @@ namespace ExWSLC.ViewModels.Design;
 
 internal sealed class DesignContainerRuntime : IContainerRuntime
 {
+    public Task<HostLoopbackConfiguration> GetHostLoopbackConfigurationAsync(CancellationToken cancellationToken = default) =>
+        Task.FromResult(HostLoopbackConfiguration.Default);
+    public Task<HostLoopbackProbeResult> ProbeHostLoopbackAsync(HostLoopbackProbeRequest target, RuntimeCapabilities capabilities, CancellationToken cancellationToken = default) =>
+        Task.FromResult(new HostLoopbackProbeResult(target, DateTimeOffset.UtcNow, HostLoopbackOutcome.Connected, true, capabilities.CliVersion));
     public Task<RuntimeDiagnostics> GetSystemInfoAsync(RuntimeCapabilities capabilities, CancellationToken cancellationToken = default) =>
         Task.FromResult(new RuntimeDiagnostics
         {

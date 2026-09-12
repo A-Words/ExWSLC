@@ -6,5 +6,6 @@ public sealed class DesignSettingsViewModel : SettingsViewModel
     {
         RegistryUsername = "developer";
         Diagnostics = new DesignContainerRuntime().GetSystemInfoAsync(Workspace.Capabilities).GetAwaiter().GetResult();
+        HostLoopbackConfiguration = Models.HostLoopbackConfiguration.Default;
     }
 }
