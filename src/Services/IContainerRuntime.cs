@@ -11,6 +11,7 @@ public interface IContainerRuntime
     Task<IReadOnlyList<ContainerStats>> GetStatsAsync(CancellationToken cancellationToken = default);
     Task<OperationResult> StartContainerAsync(string id, CancellationToken cancellationToken = default);
     Task<OperationResult> StopContainerAsync(string id, CancellationToken cancellationToken = default);
+    Task<OperationResult> StopContainerAsync(string id, ContainerStopOptions options, CancellationToken cancellationToken = default);
     Task<OperationResult> KillContainerAsync(string id, CancellationToken cancellationToken = default);
     Task<OperationResult> RestartContainerAsync(string id, CancellationToken cancellationToken = default);
     Task<OperationResult> RemoveContainerAsync(string id, bool force, CancellationToken cancellationToken = default);

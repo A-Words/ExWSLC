@@ -33,7 +33,10 @@ public enum RuntimeFeature
     NetworkConnectDriverOptions,
     NetworkCreateSubnet,
     NetworkCreateGateway,
-    NetworkCreateIpRange
+    NetworkCreateIpRange,
+    CreateTmpfs,
+    StopTimeout,
+    StopSignal
 }
 
 public sealed record RuntimeFeatureCapability(CapabilitySupport Support, string ReasonKey, string Source)

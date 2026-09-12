@@ -14,6 +14,7 @@ internal sealed class DesignContainerRuntime : IContainerRuntime
     public Task<IReadOnlyList<ContainerStats>> GetStatsAsync(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyList<ContainerStats>>([]);
     public Task<OperationResult> StartContainerAsync(string id, CancellationToken cancellationToken = default) => Task.FromResult(Success);
     public Task<OperationResult> StopContainerAsync(string id, CancellationToken cancellationToken = default) => Task.FromResult(Success);
+    public Task<OperationResult> StopContainerAsync(string id, ContainerStopOptions options, CancellationToken cancellationToken = default) => Task.FromResult(Success);
     public Task<OperationResult> KillContainerAsync(string id, CancellationToken cancellationToken = default) => Task.FromResult(Success);
     public Task<OperationResult> RestartContainerAsync(string id, CancellationToken cancellationToken = default) => Task.FromResult(Success);
     public Task<OperationResult> RemoveContainerAsync(string id, bool force, CancellationToken cancellationToken = default) => Task.FromResult(Success);

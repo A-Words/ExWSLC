@@ -63,6 +63,15 @@ public class ContainerDetailXamlTests
                 var createNetwork = new ExWSLC.Views.Dialogs.NetworkCreateDialogContent();
                 createNetwork.Measure(new Size(540, 480));
                 createNetwork.Arrange(new Rect(0, 0, 540, 480));
+                var createContainer = new ContainerCreateView();
+                createContainer.Measure(new Size(870, 750));
+                createContainer.Arrange(new Rect(0, 0, 870, 750));
+                var stopContainer = new ExWSLC.Views.Dialogs.ContainerStopDialogContent();
+                stopContainer.Measure(new Size(500, 500));
+                stopContainer.Arrange(new Rect(0, 0, 500, 500));
+                var containerPage = new ContainersPage();
+                containerPage.Measure(new Size(870, 750));
+                containerPage.Arrange(new Rect(0, 0, 870, 750));
             }
             finally
             {

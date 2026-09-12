@@ -1,4 +1,4 @@
-﻿using ExWSLC.Models;
+using ExWSLC.Models;
 using ExWSLC.Services;
 
 namespace ExWSLC.ViewModels.Design;
@@ -18,7 +18,8 @@ internal sealed class DesignRuntimeCapabilityService : IRuntimeCapabilityService
         CliVersion = "2.9.10.0",
         ServiceVersion = "2.9.10",
         MessageKey = "RuntimeReady",
-        Features = new[] { RuntimeFeature.ContainerCopy, RuntimeFeature.NetworkConnect, RuntimeFeature.NetworkDisconnect, RuntimeFeature.NetworkConnectIp,
+        Features = new[] { RuntimeFeature.CreatePullPolicy, RuntimeFeature.CreateStopSignal, RuntimeFeature.CreateStopTimeout,
+            RuntimeFeature.CreateMount, RuntimeFeature.CreateTmpfs, RuntimeFeature.StopTimeout, RuntimeFeature.StopSignal, RuntimeFeature.ContainerCopy, RuntimeFeature.NetworkConnect, RuntimeFeature.NetworkDisconnect, RuntimeFeature.NetworkConnectIp,
             RuntimeFeature.NetworkConnectAlias, RuntimeFeature.NetworkConnectDriverOptions, RuntimeFeature.NetworkCreateSubnet,
             RuntimeFeature.NetworkCreateGateway, RuntimeFeature.NetworkCreateIpRange }
             .ToDictionary(feature => feature, _ => new RuntimeFeatureCapability(CapabilitySupport.Supported, "CapabilityAdvertised", "Design data"))

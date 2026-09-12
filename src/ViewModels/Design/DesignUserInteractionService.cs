@@ -1,9 +1,11 @@
-﻿using ExWSLC.Services;
+using ExWSLC.Models;
+using ExWSLC.Services;
 
 namespace ExWSLC.ViewModels.Design;
 
 internal sealed class DesignUserInteractionService : IUserInteractionService
 {
+    public Task<ContainerStopOptions?> PickContainerStopOptionsAsync(string containerName, RuntimeCapabilities capabilities) => Task.FromResult<ContainerStopOptions?>(new());
     public Task<bool> ConfirmAsync(string title, string message) => Task.FromResult(true);
     public Task ShowErrorAsync(string title, string message) => Task.CompletedTask;
     public string? PickOpenFile(string title, string filter) => null;

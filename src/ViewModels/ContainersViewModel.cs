@@ -44,6 +44,7 @@ public partial class ContainersViewModel : WorkspaceViewModel
     {
         base.OnWorkspacePropertyChanged(sender, eventArgs);
         if (eventArgs.PropertyName == nameof(RuntimeWorkspace.Capabilities)) OnPropertyChanged(nameof(CanConfigureHealth));
+        if (eventArgs.PropertyName == nameof(RuntimeWorkspace.Capabilities)) NotifyCreateOptions();
         if (eventArgs.PropertyName is nameof(RuntimeWorkspace.Capabilities) or nameof(RuntimeWorkspace.IsBusy)) NotifyNetworkCommands();
         if (eventArgs.PropertyName is nameof(RuntimeWorkspace.Capabilities) or nameof(RuntimeWorkspace.IsBusy)) NotifyCopyCommands();
     }
@@ -111,12 +112,12 @@ public partial class ContainersViewModel : WorkspaceViewModel
     public bool HasInspectDetailsError => !string.IsNullOrWhiteSpace(InspectDetailsError);
 
     [RelayCommand] private Task StartContainerAsync() => RunContainerActionAsync("Start container", id => Workspace.Runtime.StartContainerAsync(id, Workspace.Lifetime.Token));
-    [RelayCommand] private Task StopContainerAsync() => RunContainerActionAsync("Stop container", id => Workspace.Runtime.StopContainerAsync(id, Workspace.Lifetime.Token));
-    [RelayCommand] private Task RestartContainerAsync() => RunContainerActionAsync("Restart container", id => Workspace.Runtime.RestartContainerAsync(id, Workspace.Lifetime.Token));
+    [RelayCommand] private Task StopContainerAsync() => StopWithOptionsAsync(SelectedContainer);
+    [RelayCommand] private Task RestartContainerAsync() => RestartTrackedAsync(SelectedContainer);
 
     [RelayCommand] private Task StartContainerFromListAsync(ContainerSummary? container) => RunContainerActionAsync(container, id => Workspace.Runtime.StartContainerAsync(id, Workspace.Lifetime.Token));
-    [RelayCommand] private Task StopContainerFromListAsync(ContainerSummary? container) => RunContainerActionAsync(container, id => Workspace.Runtime.StopContainerAsync(id, Workspace.Lifetime.Token));
-    [RelayCommand] private Task RestartContainerFromListAsync(ContainerSummary? container) => RunContainerActionAsync(container, id => Workspace.Runtime.RestartContainerAsync(id, Workspace.Lifetime.Token));
+    [RelayCommand] private Task StopContainerFromListAsync(ContainerSummary? container) => StopWithOptionsAsync(container);
+    [RelayCommand] private Task RestartContainerFromListAsync(ContainerSummary? container) => RestartTrackedAsync(container);
 
     [RelayCommand]
     private void ShowContainerDetailsFromList(ContainerSummary? container)
@@ -165,6 +166,7 @@ public partial class ContainersViewModel : WorkspaceViewModel
     [RelayCommand]
     private async Task RunNewContainerAsync()
     {
+        if (Workspace.IsBusy) return;
         try
         {
             HealthValidationError = string.Empty;
@@ -357,30 +359,31 @@ public partial class ContainersViewModel : WorkspaceViewModel
     [RelayCommand]
     private async Task ExportContainerAsync()
     {
-        if (SelectedContainer is null) return;
-        var containerId = SelectedContainer.Id;
-        var path = Workspace.Interaction.PickSaveFile("Export container", "Tar archive (*.tar)|*.tar", $"{SelectedContainer.Name}.tar");
+        if (SelectedContainer is not { } container || Workspace.IsBusy) return;
+        var path = Workspace.Interaction.PickSaveFile("Export container", "Tar archive (*.tar)|*.tar", $"{container.Name}.tar");
         if (path is null) return;
-        var restartAfterExport = SelectedContainer.IsRunning;
-        if (restartAfterExport)
+        if (container.IsRunning && !await Workspace.Interaction.ConfirmAsync(
+            LocalizationService.GetString("ExportContainer", "Export container"),
+            LocalizationService.GetString("ExportOptionsConfirm", "Export requires a temporary stop, using the container's stop configuration. Recovery will be attempted even if export fails or is cancelled. If automatic removal is enabled, stopping deletes the container and recovery is impossible. This runtime does not report that setting; continue only if automatic removal is disabled."))) return;
+        if (Workspace.IsBusy) return;
+        IsLifecycleOperationInProgress = true;
+        LifecycleStatus = LocalizationService.GetString("StopOptionsRunning", "Container operation in progress…");
+        try
         {
-            if (!await Workspace.Interaction.ConfirmAsync("Export container", "WSLC requires the container to be stopped for export. Stop it temporarily and restart it afterwards?")) return;
-            var stop = await Workspace.Runtime.StopContainerAsync(containerId, Workspace.Lifetime.Token);
-            if (!stop.Success)
-            {
-                Workspace.ShowResult(stop);
-                return;
-            }
+            var result = await Workspace.RunTrackedAsync("Export container", (progress, token) =>
+                ContainerExportOperation.RunAsync(Workspace.Runtime, container.Id, path, container.IsRunning, progress, token));
+            Workspace.ShowResult(result);
+            LifecycleStatus = result.Success ? LocalizationService.GetString("StopOptionsCompleted", "Container operation completed.") : result.CombinedOutput;
         }
-
-        var export = await Workspace.RunTrackedAsync("Export container", (progress, token) => Workspace.Runtime.ExportContainerAsync(containerId, path, progress, token));
-        Workspace.ShowResult(export);
-        if (restartAfterExport)
+        catch (OperationCanceledException)
         {
-            var start = await Workspace.Runtime.StartContainerAsync(containerId, Workspace.Lifetime.Token);
-            if (!start.Success) Workspace.ShowResult(start);
+            LifecycleStatus = LocalizationService.GetString("StopOptionsCancelled", "Cancelled waiting. A stop already sent to the runtime may still finish; check the container state.");
+        }
+        finally
+        {
+            IsLifecycleOperationInProgress = false;
             await Workspace.RefreshAllAsync();
-            InvalidateNetworkDetails(containerId);
+            InvalidateNetworkDetails(container.Id);
         }
     }
 
@@ -752,7 +755,7 @@ public partial class ContainersViewModel : WorkspaceViewModel
         if (result.Success) _networkDetailsCache.Remove(container.Id);
     }
 
-    private ContainerCreateSpec BuildCreateSpec()
+    internal ContainerCreateSpec BuildCreateSpec()
     {
         if (string.IsNullOrWhiteSpace(NewImage)) throw new ArgumentException("Image is required.");
         var spec = new ContainerCreateSpec
@@ -767,6 +770,9 @@ public partial class ContainersViewModel : WorkspaceViewModel
             WorkingDirectory = NewWorkingDirectory.Trim(),
             UseAllGpus = NewUseAllGpus,
             RemoveWhenStopped = NewRemoveWhenStopped,
+            PullPolicy = (ContainerPullPolicy)NewPullPolicyIndex,
+            StopSignal = OptionalHealthValue(NewStopSignal),
+            StopTimeoutSeconds = ContainerLaunchOptions.ParseTimeout(NewStopTimeout),
             HealthMode = (HealthCheckMode)NewHealthModeIndex,
             HealthCommand = IsCustomHealth ? OptionalHealthValue(NewHealthCommand) : null,
             HealthInterval = IsCustomHealth ? OptionalHealthValue(NewHealthInterval) : null,
@@ -784,7 +790,11 @@ public partial class ContainersViewModel : WorkspaceViewModel
         }
 
         spec.Ports.AddRange(StringSplitter.SplitValues(NewPorts));
-        spec.Volumes.AddRange(StringSplitter.SplitValues(NewVolumes));
+        // One entry per line: commas can belong to Windows paths and must survive unchanged.
+        spec.Volumes.AddRange(NewVolumes.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+        spec.Mounts.AddRange(NewMounts.Select(mount => mount.Build()));
+        ContainerLaunchOptions.AddCreateArguments(spec, []);
+        ContainerLaunchOptions.RequireSupport(Workspace.Capabilities, ContainerLaunchOptions.RequiredFeatures(spec));
         return spec;
     }
 

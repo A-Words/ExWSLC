@@ -8,6 +8,20 @@ namespace ExWSLC.Tests;
 
 public class RuntimeCapabilityServiceTests
 {
+    [Theory]
+    [InlineData("--time", RuntimeFeature.StopTimeout)]
+    [InlineData("--signal", RuntimeFeature.StopSignal)]
+    public async Task StopOptions_AreDetectedIndependentlyFromCreateOptions(string option, RuntimeFeature feature)
+    {
+        var fixture = new Fixture();
+        fixture.Responses["container stop --help"] = Success(Help("container stop", [option]));
+        var result = await fixture.Service.DetectAsync(TestContext.Current.CancellationToken);
+        Assert.Equal(CapabilitySupport.Supported, result[feature].Support);
+        Assert.Equal(CapabilitySupport.Unsupported, result[feature == RuntimeFeature.StopTimeout ? RuntimeFeature.StopSignal : RuntimeFeature.StopTimeout].Support);
+        Assert.Equal(CapabilitySupport.Supported, result[RuntimeFeature.CreateStopTimeout].Support);
+        Assert.Equal(CapabilitySupport.Supported, result[RuntimeFeature.CreateTmpfs].Support);
+    }
+
     [Fact]
     public async Task DetectAsync_SeparatesClientServiceAndBundledPackageVersions()
     {
@@ -545,7 +559,8 @@ public class RuntimeCapabilityServiceTests
             ["container --help"] = Success(Help("container", ["cp", "create", "start", "stop"])),
             ["container create --help"] = Success(Help("container create",
                 ["--health-cmd", "--health-interval", "--health-retries", "--health-start-period", "--health-timeout", "--no-healthcheck",
-                 "--mount", "--pull", "--stop-timeout", "--stop-signal", "--ip", "--network-alias"])),
+                 "--tmpfs", "--mount", "--pull", "--stop-timeout", "--stop-signal", "--ip", "--network-alias"])),
+            ["container stop --help"] = Success(Help("container stop", ["--time", "--signal"])),
             ["network --help"] = Success(Help("network", ["create", "connect", "disconnect"])),
             ["network connect --help"] = Success(Help("network connect", ["--ip", "--network-alias", "--driver-opt"])),
             ["network create --help"] = Success(Help("network create", ["--subnet", "--gateway", "--ip-range"])),

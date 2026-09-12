@@ -63,6 +63,7 @@
                         <StackPanel Grid.Column="2">
                             <TextBlock Text="{DynamicResource Volumes}" />
                             <ui:TextBox Text="{Binding NewVolumes}" AcceptsReturn="True" Height="76" PlaceholderText="source:/target" />
+                            <TextBlock Text="{DynamicResource MountEditorSimpleHint}" TextWrapping="Wrap" FontSize="12" Margin="0,5,0,0" />
                         </StackPanel>
                     </Grid>
                     <Grid Margin="0,14,0,0">
@@ -84,6 +85,71 @@
                             <CheckBox Content="{DynamicResource RemoveWhenStopped}" IsChecked="{Binding NewRemoveWhenStopped}" Margin="0,8,0,0" />
                         </StackPanel>
                     </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource CreateOptionsTitle}" Style="{StaticResource SectionTitleStyle}" />
+                    <TextBlock Text="{DynamicResource CreateOptionsHint}" TextWrapping="Wrap" Margin="0,4,0,12" />
+                    <UniformGrid Columns="3">
+                        <StackPanel Margin="0,0,12,0">
+                            <TextBlock Text="{DynamicResource CreateOptionsPull}" />
+                            <ComboBox SelectedIndex="{Binding NewPullPolicyIndex}" Margin="0,4,0,0" HorizontalAlignment="Stretch">
+                                <ComboBoxItem Content="{DynamicResource CreateOptionsDefault}" />
+                                <ComboBoxItem Content="always" IsEnabled="{Binding CanSetCreatePull}" />
+                                <ComboBoxItem Content="missing" IsEnabled="{Binding CanSetCreatePull}" />
+                                <ComboBoxItem Content="never" IsEnabled="{Binding CanSetCreatePull}" />
+                            </ComboBox>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,12,0">
+                            <TextBlock Text="{DynamicResource StopOptionsSignal}" />
+                            <ui:TextBox Text="{Binding NewStopSignal, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanSetCreateSignal}" PlaceholderText="SIGTERM" Margin="0,4,0,0" />
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource StopOptionsTimeout}" />
+                            <ui:TextBox Text="{Binding NewStopTimeout, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanSetCreateTimeout}" PlaceholderText="{DynamicResource CreateOptionsDefault}" Margin="0,4,0,0" />
+                        </StackPanel>
+                    </UniformGrid>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,12">
+                <StackPanel>
+                    <DockPanel>
+                        <ui:Button DockPanel.Dock="Right" Content="{DynamicResource MountEditorAdd}" Command="{Binding AddMountCommand}" IsEnabled="{Binding CanAddStructuredMount}" />
+                        <TextBlock Text="{DynamicResource MountEditorTitle}" Style="{StaticResource SectionTitleStyle}" VerticalAlignment="Center" />
+                    </DockPanel>
+                    <TextBlock Text="{DynamicResource MountEditorHint}" TextWrapping="Wrap" Margin="0,8,0,8" />
+                    <ItemsControl ItemsSource="{Binding NewMounts}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,6,0,0">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="145" /><ColumnDefinition /><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,10,0">
+                                            <TextBlock Text="{DynamicResource MountEditorType}" />
+                                            <ComboBox SelectedIndex="{Binding KindIndex}" HorizontalAlignment="Stretch" Margin="0,4,0,8">
+                                                <ComboBoxItem Content="bind" IsEnabled="{Binding DataContext.CanAddBindVolume, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                                <ComboBoxItem Content="{DynamicResource MountEditorVolume}" IsEnabled="{Binding DataContext.CanAddBindVolume, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                                <ComboBoxItem Content="tmpfs" IsEnabled="{Binding DataContext.CanAddTmpfs, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                            </ComboBox>
+                                            <CheckBox Content="{DynamicResource MountEditorReadOnly}" IsChecked="{Binding ReadOnly}" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Margin="0,0,10,0">
+                                            <TextBlock Text="{DynamicResource MountEditorSource}" />
+                                            <ui:TextBox Text="{Binding Source, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding HasSource}" PlaceholderText="C:\data / volume-name" Margin="0,4,0,0" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2" Margin="0,0,10,0">
+                                            <TextBlock Text="{DynamicResource MountEditorTarget}" />
+                                            <ui:TextBox Text="{Binding Target, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="/data" Margin="0,4,0,0" />
+                                        </StackPanel>
+                                        <ui:Button Grid.Column="3" Icon="{ui:SymbolIcon Symbol=Dismiss24}" ToolTip="{DynamicResource MountEditorRemove}" Command="{Binding DataContext.RemoveMountCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" VerticalAlignment="Top" Margin="0,22,0,0" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </StackPanel>
             </Border>
 

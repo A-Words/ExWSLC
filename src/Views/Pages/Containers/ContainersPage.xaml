@@ -26,7 +26,14 @@
     </Page.Resources>
 
     <Grid>
-        <ContentControl Content="{Binding SelectedContainer}">
+        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition /></Grid.RowDefinitions>
+        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,10" Visibility="{Binding HasLifecycleStatus, Converter={StaticResource BoolToVisibility}}">
+            <DockPanel>
+                <ui:Button DockPanel.Dock="Right" Content="{DynamicResource Cancel}" Command="{Binding Workspace.CancelCurrentOperationCommand}" Visibility="{Binding IsLifecycleOperationInProgress, Converter={StaticResource BoolToVisibility}}" Margin="12,0,0,0" />
+                <TextBlock Text="{Binding LifecycleStatus}" TextWrapping="Wrap" VerticalAlignment="Center" />
+            </DockPanel>
+        </Border>
+        <ContentControl Grid.Row="1" Content="{Binding SelectedContainer}">
             <ContentControl.Style>
                 <Style TargetType="ContentControl">
                     <Setter Property="ContentTemplate" Value="{StaticResource ContainerDetailTemplate}" />

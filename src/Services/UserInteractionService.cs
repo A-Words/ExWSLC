@@ -1,5 +1,8 @@
 using System.Windows;
 using Microsoft.Win32;
+using ExWSLC.Models;
+using ExWSLC.ViewModels;
+using ExWSLC.Views.Dialogs;
 using Wpf.Ui.Controls;
 using MessageBoxResult = Wpf.Ui.Controls.MessageBoxResult;
 
@@ -7,6 +10,27 @@ namespace ExWSLC.Services;
 
 public sealed class UserInteractionService : IUserInteractionService
 {
+    public async Task<ContainerStopOptions?> PickContainerStopOptionsAsync(string containerName, RuntimeCapabilities capabilities)
+    {
+        var host = ContentDialogHost.GetForWindow(Application.Current.MainWindow);
+        if (host is null) return null;
+        var viewModel = new ContainerStopOptionsViewModel(containerName, capabilities);
+        var dialog = new ContentDialog(host)
+        {
+            Title = LocalizationService.GetString("StopOptionsTitle", "Stop container"),
+            Content = new ContainerStopDialogContent { DataContext = viewModel },
+            PrimaryButtonText = LocalizationService.GetString("Stop", "Stop"),
+            CloseButtonText = LocalizationService.GetString("Cancel", "Cancel")
+        };
+        System.ComponentModel.PropertyChangedEventHandler update = (_, _) => dialog.IsPrimaryButtonEnabled = viewModel.IsValid;
+        viewModel.PropertyChanged += update;
+        try
+        {
+            return await dialog.ShowAsync(CancellationToken.None) == ContentDialogResult.Primary ? viewModel.Build() : null;
+        }
+        finally { viewModel.PropertyChanged -= update; }
+    }
+
     public async Task<bool> ConfirmAsync(string title, string message)
     {
         var messageBox = new Wpf.Ui.Controls.MessageBox

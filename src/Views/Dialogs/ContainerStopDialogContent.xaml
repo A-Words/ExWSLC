@@ -1,0 +1,15 @@
+<UserControl x:Class="ExWSLC.Views.Dialogs.ContainerStopDialogContent"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
+    <StackPanel Width="420" Margin="0,4,0,8">
+        <TextBlock Text="{Binding ContainerName}" FontWeight="SemiBold" TextWrapping="Wrap" />
+        <TextBlock Text="{DynamicResource StopOptionsHint}" TextWrapping="Wrap" Margin="0,10,0,16" />
+        <TextBlock Text="{DynamicResource StopOptionsTimeout}" />
+        <ui:TextBox Text="{Binding Timeout, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanSetTimeout}" PlaceholderText="{DynamicResource StopOptionsInherit}" Margin="0,4,0,12" />
+        <TextBlock Text="{DynamicResource StopOptionsSignal}" />
+        <ui:TextBox Text="{Binding Signal, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanSetSignal}" PlaceholderText="{DynamicResource StopOptionsInherit}" Margin="0,4,0,12" />
+        <TextBlock Text="{DynamicResource StopOptionsAutoRemoveHint}" TextWrapping="Wrap" />
+        <TextBlock Text="{Binding Error}" Foreground="{ui:ThemeResource SystemFillColorCriticalBrush}" TextWrapping="Wrap" Margin="0,10,0,0" />
+    </StackPanel>
+</UserControl>

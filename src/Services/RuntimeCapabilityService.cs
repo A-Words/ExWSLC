@@ -82,7 +82,7 @@ public sealed class RuntimeCapabilityService(
         }
 
         // These are independent, read-only requests. Never call a feature command to probe it.
-        var paths = new[] { "", "container", "container create", "network", "network connect", "network create", "image build", "system" };
+        var paths = new[] { "", "container", "container create", "container stop", "network", "network connect", "network create", "image build", "system" };
         var helpTasks = paths.Select(async path =>
         {
             var arguments = path.Split(' ', StringSplitOptions.RemoveEmptyEntries).Append("--help").ToArray();
@@ -121,6 +121,9 @@ public sealed class RuntimeCapabilityService(
             [RuntimeFeature.CreatePullPolicy] = help["container create"].Options("--pull"),
             [RuntimeFeature.CreateStopTimeout] = help["container create"].Options("--stop-timeout"),
             [RuntimeFeature.CreateStopSignal] = help["container create"].Options("--stop-signal"),
+            [RuntimeFeature.CreateTmpfs] = help["container create"].Options("--tmpfs"),
+            [RuntimeFeature.StopTimeout] = help["container stop"].Options("--time"),
+            [RuntimeFeature.StopSignal] = help["container stop"].Options("--signal"),
             [RuntimeFeature.CreateIp] = help["container create"].Options("--ip"),
             [RuntimeFeature.CreateNetworkAlias] = help["container create"].Options("--network-alias"),
             [RuntimeFeature.SystemInfo] = help["system"].Command("info"),

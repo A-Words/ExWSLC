@@ -64,7 +64,21 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner, IRuntimeC
         RunAsync(["container", "start", id], cancellationToken: cancellationToken);
 
     public Task<OperationResult> StopContainerAsync(string id, CancellationToken cancellationToken = default) =>
-        RunAsync(["container", "stop", "--time", "10", id], cancellationToken: cancellationToken);
+        StopContainerAsync(id, new ContainerStopOptions(), cancellationToken);
+
+    public async Task<OperationResult> StopContainerAsync(string id, ContainerStopOptions options, CancellationToken cancellationToken = default)
+    {
+        var arguments = ContainerLaunchOptions.BuildStopArguments(id, options);
+        var features = new List<RuntimeFeature>();
+        if (options.TimeoutSeconds is not null) features.Add(RuntimeFeature.StopTimeout);
+        if (options.Signal is not null) features.Add(RuntimeFeature.StopSignal);
+        if (features.Count > 0)
+            ContainerLaunchOptions.RequireSupport(capabilityService is null ? null : await capabilityService.DetectAsync(cancellationToken), features);
+        cancellationToken.ThrowIfCancellationRequested();
+        var result = await RunAsync(arguments, cancellationToken: cancellationToken);
+        if (result.ExitCode == -2) throw new OperationCanceledException(cancellationToken);
+        return result;
+    }
 
     public Task<OperationResult> KillContainerAsync(string id, CancellationToken cancellationToken = default) =>
         RunAsync(["container", "kill", id], cancellationToken: cancellationToken);
@@ -86,6 +100,9 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner, IRuntimeC
     public async Task<OperationResult> RunContainerAsync(ContainerCreateSpec spec, IProgress<string>? progress = null, CancellationToken cancellationToken = default)
     {
         var arguments = BuildRunArguments(spec);
+        var required = ContainerLaunchOptions.RequiredFeatures(spec).ToArray();
+        if (required.Length > 0)
+            ContainerLaunchOptions.RequireSupport(capabilityService is null ? null : await capabilityService.DetectAsync(cancellationToken), required);
         if (spec.HealthMode != HealthCheckMode.Inherit)
         {
             var capabilities = capabilityService is null ? null : await capabilityService.DetectAsync(cancellationToken);
@@ -242,6 +259,7 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner, IRuntimeC
     {
         if (string.IsNullOrWhiteSpace(spec.Image)) throw new ArgumentException("Image is required.", nameof(spec));
         var arguments = new List<string> { "run", "--detach" };
+        ContainerLaunchOptions.AddCreateArguments(spec, arguments);
         HealthCheckOptions.Validate(spec);
         if (spec.HealthMode == HealthCheckMode.Disabled) arguments.Add("--no-healthcheck");
         if (spec.HealthMode == HealthCheckMode.Custom)

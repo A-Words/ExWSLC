@@ -12,6 +12,10 @@ public sealed class ContainerCreateSpec
     public string WorkingDirectory { get; set; } = string.Empty;
     public bool UseAllGpus { get; set; }
     public bool RemoveWhenStopped { get; set; }
+    public ContainerPullPolicy PullPolicy { get; set; }
+    public string? StopSignal { get; set; }
+    public int? StopTimeoutSeconds { get; set; }
+    public List<ContainerMountSpec> Mounts { get; } = [];
     public HealthCheckMode HealthMode { get; set; }
     public string? HealthCommand { get; set; }
     public string? HealthInterval { get; set; }
@@ -22,3 +26,5 @@ public sealed class ContainerCreateSpec
     public List<string> Ports { get; } = [];
     public List<string> Volumes { get; } = [];
 }
+
+public enum ContainerPullPolicy { Inherit, Always, Missing, Never }
