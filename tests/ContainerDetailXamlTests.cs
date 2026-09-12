@@ -52,6 +52,13 @@ public class ContainerDetailXamlTests
                 healthContent.Measure(new Size(800, 600));
                 healthContent.Arrange(new Rect(0, 0, 800, 600));
                 healthContent.UpdateLayout();
+                var networkTemplate = Assert.IsType<DataTemplate>(view.Resources["NetworkDetailTemplate"]);
+                var networkContent = Assert.IsAssignableFrom<FrameworkElement>(networkTemplate.LoadContent());
+                networkContent.Measure(new Size(800, 600));
+                networkContent.Arrange(new Rect(0, 0, 800, 600));
+                var createNetwork = new ExWSLC.Views.Dialogs.NetworkCreateDialogContent();
+                createNetwork.Measure(new Size(540, 480));
+                createNetwork.Arrange(new Rect(0, 0, 540, 480));
             }
             finally
             {

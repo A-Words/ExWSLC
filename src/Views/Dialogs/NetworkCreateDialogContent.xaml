@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="480">
     <StackPanel Width="520" Margin="0,8,0,0">
         <TextBlock Text="{DynamicResource CreateNetworkHint}" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,18" />
         <Grid>
@@ -15,6 +16,15 @@
                 <TextBlock x:Name="NetworkDriverLabel" Text="{DynamicResource NetworkDriver}" />
                 <ui:TextBox Text="{Binding NetworkDriver}" PlaceholderText="bridge" AutomationProperties.LabeledBy="{Binding ElementName=NetworkDriverLabel}" Margin="0,5,0,0" />
             </StackPanel>
+        </Grid>
+        <TextBlock Text="{DynamicResource NetworkIpConfiguration}" FontWeight="SemiBold" Margin="0,16,0,6" />
+        <TextBlock Text="{DynamicResource NetworkIpConfigurationHint}" TextWrapping="Wrap" Style="{StaticResource MutedTextStyle}" Margin="0,0,0,8" />
+        <TextBlock x:Name="SubnetLabel" Text="{DynamicResource Subnet}" />
+        <ui:TextBox Text="{Binding NetworkSubnet, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanSetNetworkSubnet}" PlaceholderText="172.30.0.0/24" AutomationProperties.LabeledBy="{Binding ElementName=SubnetLabel}" Margin="0,4,0,8" />
+        <Grid>
+            <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="14" /><ColumnDefinition /></Grid.ColumnDefinitions>
+            <StackPanel><TextBlock x:Name="GatewayLabel" Text="{DynamicResource Gateway}" /><ui:TextBox Text="{Binding NetworkGateway, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanSetNetworkGateway}" PlaceholderText="172.30.0.1" AutomationProperties.LabeledBy="{Binding ElementName=GatewayLabel}" Margin="0,4,0,0" /></StackPanel>
+            <StackPanel Grid.Column="2"><TextBlock x:Name="IpRangeLabel" Text="{DynamicResource NetworkIpRange}" /><ui:TextBox Text="{Binding NetworkIpRange, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanSetNetworkIpRange}" PlaceholderText="172.30.0.128/25" AutomationProperties.LabeledBy="{Binding ElementName=IpRangeLabel}" Margin="0,4,0,0" /></StackPanel>
         </Grid>
         <Expander Header="{DynamicResource Advanced}" Margin="0,16,0,0">
             <Grid Margin="0,10,0,0">
@@ -32,4 +42,5 @@
             </Grid>
         </Expander>
     </StackPanel>
+    </ScrollViewer>
 </UserControl>

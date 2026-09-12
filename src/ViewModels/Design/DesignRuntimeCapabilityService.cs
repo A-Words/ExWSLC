@@ -17,7 +17,11 @@ internal sealed class DesignRuntimeCapabilityService : IRuntimeCapabilityService
         ServiceAvailability = CapabilitySupport.Supported,
         CliVersion = "2.9.10.0",
         ServiceVersion = "2.9.10",
-        MessageKey = "RuntimeReady"
+        MessageKey = "RuntimeReady",
+        Features = new[] { RuntimeFeature.NetworkConnect, RuntimeFeature.NetworkDisconnect, RuntimeFeature.NetworkConnectIp,
+            RuntimeFeature.NetworkConnectAlias, RuntimeFeature.NetworkConnectDriverOptions, RuntimeFeature.NetworkCreateSubnet,
+            RuntimeFeature.NetworkCreateGateway, RuntimeFeature.NetworkCreateIpRange }
+            .ToDictionary(feature => feature, _ => new RuntimeFeatureCapability(CapabilitySupport.Supported, "CapabilityAdvertised", "Design data"))
     };
 
     public Task InstallMissingComponentsAsync(IProgress<string>? progress = null, CancellationToken cancellationToken = default)

@@ -82,7 +82,7 @@ public sealed class RuntimeCapabilityService(
         }
 
         // These are independent, read-only requests. Never call a feature command to probe it.
-        var paths = new[] { "", "container", "container create", "network", "network connect", "image build", "system" };
+        var paths = new[] { "", "container", "container create", "network", "network connect", "network create", "image build", "system" };
         var helpTasks = paths.Select(async path =>
         {
             var arguments = path.Split(' ', StringSplitOptions.RemoveEmptyEntries).Append("--help").ToArray();
@@ -108,6 +108,10 @@ public sealed class RuntimeCapabilityService(
             [RuntimeFeature.NetworkDisconnect] = help["network"].Command("disconnect"),
             [RuntimeFeature.NetworkConnectIp] = WithParent(help["network"].Command("connect"), help["network connect"].Options("--ip")),
             [RuntimeFeature.NetworkConnectAlias] = WithParent(help["network"].Command("connect"), help["network connect"].Options("--network-alias")),
+            [RuntimeFeature.NetworkConnectDriverOptions] = WithParent(help["network"].Command("connect"), help["network connect"].Options("--driver-opt")),
+            [RuntimeFeature.NetworkCreateSubnet] = WithParent(help["network"].Command("create"), help["network create"].Options("--subnet")),
+            [RuntimeFeature.NetworkCreateGateway] = WithParent(help["network"].Command("create"), help["network create"].Options("--gateway")),
+            [RuntimeFeature.NetworkCreateIpRange] = WithParent(help["network"].Command("create"), help["network create"].Options("--ip-range")),
             [RuntimeFeature.ContainerCopy] = help["container"].Command("cp"),
             [RuntimeFeature.BuildSecret] = help["image build"].Options("--secret"),
             [RuntimeFeature.BuildOutput] = help["image build"].Options("--output"),

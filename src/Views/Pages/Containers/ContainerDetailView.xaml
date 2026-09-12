@@ -187,6 +187,36 @@
         <DataTemplate x:Key="NetworkDetailTemplate">
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                 <StackPanel Margin="0,14,16,0">
+                    <DockPanel Margin="0,0,0,12">
+                        <ui:Button DockPanel.Dock="Right" Content="{DynamicResource Refresh}" Command="{Binding RefreshNetworkDetailsCommand}" />
+                    </DockPanel>
+                    <TextBlock Text="{Binding NetworkOperationMessage}" TextWrapping="Wrap" Margin="0,0,0,12" />
+                    <TextBlock Text="{DynamicResource NetworkDetailsStale}" TextWrapping="Wrap" Margin="0,0,0,12" Visibility="{Binding IsNetworkDetailsStale, Converter={StaticResource BoolToVisibility}}" />
+                    <Border Style="{StaticResource WorkbenchPanelStyle}" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource NetworkConnect}" Style="{StaticResource SectionTitleStyle}" />
+                            <TextBlock Text="{DynamicResource NetworkConnectHint}" TextWrapping="Wrap" Style="{StaticResource MutedTextStyle}" Margin="0,6,0,10" />
+                            <StackPanel IsEnabled="{Binding CanEditNetworkConnection}">
+                                <ComboBox ItemsSource="{Binding AvailableConnectionNetworks}" DisplayMemberPath="Name" SelectedValuePath="Name" SelectedValue="{Binding ConnectionNetworkName}" IsEnabled="{Binding SupportsNetworkConnect}" AutomationProperties.Name="{DynamicResource Network}" HorizontalAlignment="Stretch" />
+                                <TextBlock Text="{DynamicResource NetworkNoAvailable}">
+                                    <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding HasAvailableConnectionNetworks}" Value="False"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                </TextBlock>
+                                <Expander Header="{DynamicResource Advanced}" Margin="0,10,0,10">
+                                    <StackPanel Margin="0,8,0,0">
+                                        <TextBlock x:Name="ConnectionIpv4Label" Text="{DynamicResource NetworkIpv4Optional}" />
+                                        <ui:TextBox Text="{Binding ConnectionIpv4, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanSetConnectionIpv4}" AutomationProperties.LabeledBy="{Binding ElementName=ConnectionIpv4Label}" PlaceholderText="172.30.0.10" Margin="0,4,0,10" />
+                                        <Grid>
+                                            <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="12" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                                            <StackPanel><TextBlock x:Name="ConnectionAliasesLabel" Text="{DynamicResource NetworkAliasesOptional}" TextWrapping="Wrap" /><ui:TextBox Text="{Binding ConnectionAliases, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanSetConnectionAliases}" AcceptsReturn="True" Height="70" VerticalScrollBarVisibility="Auto" AutomationProperties.LabeledBy="{Binding ElementName=ConnectionAliasesLabel}" /></StackPanel>
+                                            <StackPanel Grid.Column="2"><TextBlock x:Name="ConnectionOptionsLabel" Text="{DynamicResource NetworkEndpointOptions}" TextWrapping="Wrap" /><ui:TextBox Text="{Binding ConnectionDriverOptions, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanSetConnectionDriverOptions}" AcceptsReturn="True" Height="70" PlaceholderText="key=value" VerticalScrollBarVisibility="Auto" AutomationProperties.LabeledBy="{Binding ElementName=ConnectionOptionsLabel}" /></StackPanel>
+                                        </Grid>
+                                    </StackPanel>
+                                </Expander>
+                                <ui:Button Content="{DynamicResource NetworkConnect}" Command="{Binding ConnectNetworkCommand}" Appearance="Primary" HorizontalAlignment="Right" />
+                            </StackPanel>
+                            <ui:Button Content="{DynamicResource Cancel}" Command="{Binding Workspace.CancelCurrentOperationCommand}" Visibility="{Binding IsNetworkOperationInProgress, Converter={StaticResource BoolToVisibility}}" HorizontalAlignment="Right" Margin="0,8,0,0" />
+                        </StackPanel>
+                    </Border>
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Center"
                                 Margin="0,20,0,20"
@@ -195,14 +225,14 @@
                         <TextBlock Text="{DynamicResource LoadingNetworkDetails}" VerticalAlignment="Center" />
                     </StackPanel>
 
-                    <ui:InfoBar IsOpen="{Binding HasNetworkDetailsError}"
+                    <ui:InfoBar IsOpen="{Binding HasNetworkDetailsError, Mode=OneWay}"
                                 IsClosable="False"
                                 Severity="Error"
                                 Title="{DynamicResource NetworkDetailsUnavailable}"
                                 Message="{Binding NetworkDetailsError}"
                                 Margin="0,0,0,12" />
 
-                    <ui:InfoBar IsOpen="{Binding NetworkDetails.RuntimeAddressesUnavailable}"
+                    <ui:InfoBar IsOpen="{Binding NetworkDetails.RuntimeAddressesUnavailable, Mode=OneWay}"
                                 IsClosable="False"
                                 Severity="Informational"
                                 Message="{DynamicResource RuntimeAddressesUnavailable}"
@@ -245,6 +275,7 @@
                                                                    ToolTip="{DynamicResource Copy}"
                                                                    Style="{StaticResource NetworkIconButtonStyle}" />
                                                     </Grid>
+                                                    <ui:Button Content="{DynamicResource NetworkDisconnect}" Command="{Binding DataContext.DisconnectNetworkCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" HorizontalAlignment="Right" Margin="0,8,0,0" />
                                                     <Grid Margin="0,14,0,0">
                                                         <Grid.ColumnDefinitions><ColumnDefinition Width="150" /><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                                                         <Grid.RowDefinitions><RowDefinition /><RowDefinition /></Grid.RowDefinitions>

@@ -30,6 +30,8 @@ public interface IContainerRuntime
     Task<OperationResult> InspectImageAsync(string image, CancellationToken cancellationToken = default);
     Task<OperationResult> PruneAsync(string resource, CancellationToken cancellationToken = default);
     Task<OperationResult> CreateNetworkAsync(NetworkCreateSpec spec, CancellationToken cancellationToken = default);
+    Task<OperationResult> ConnectNetworkAsync(NetworkConnectionSpec spec, CancellationToken cancellationToken = default);
+    Task<OperationResult> DisconnectNetworkAsync(NetworkDisconnectionSpec spec, CancellationToken cancellationToken = default);
     Task<OperationResult> RemoveNetworkAsync(string name, CancellationToken cancellationToken = default);
     Task<OperationResult> CreateVolumeAsync(VolumeCreateSpec spec, CancellationToken cancellationToken = default);
     Task<OperationResult> RemoveVolumeAsync(string name, bool force, CancellationToken cancellationToken = default);

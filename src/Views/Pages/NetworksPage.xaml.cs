@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using ExWSLC.Services;
@@ -36,12 +35,9 @@ public partial class NetworksPage : Page
             IsPrimaryButtonEnabled = viewModel.CreateNetworkCommand.CanExecute(null)
         };
 
-        PropertyChangedEventHandler updateCanCreate = (_, args) =>
-        {
-            if (args.PropertyName == nameof(NetworksViewModel.NetworkName))
-                dialog.IsPrimaryButtonEnabled = viewModel.CreateNetworkCommand.CanExecute(null);
-        };
-        viewModel.PropertyChanged += updateCanCreate;
+        EventHandler updateCanCreate = (_, _) =>
+            dialog.IsPrimaryButtonEnabled = viewModel.CreateNetworkCommand.CanExecute(null);
+        viewModel.CreateNetworkCommand.CanExecuteChanged += updateCanCreate;
         try
         {
             if (await dialog.ShowAsync(CancellationToken.None) == ContentDialogResult.Primary)
@@ -49,7 +45,7 @@ public partial class NetworksPage : Page
         }
         finally
         {
-            viewModel.PropertyChanged -= updateCanCreate;
+            viewModel.CreateNetworkCommand.CanExecuteChanged -= updateCanCreate;
         }
     }
 

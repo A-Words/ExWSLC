@@ -29,7 +29,11 @@ public enum RuntimeFeature
     CreateNetworkAlias,
     SystemInfo,
     NativeRestart,
-    Events
+    Events,
+    NetworkConnectDriverOptions,
+    NetworkCreateSubnet,
+    NetworkCreateGateway,
+    NetworkCreateIpRange
 }
 
 public sealed record RuntimeFeatureCapability(CapabilitySupport Support, string ReasonKey, string Source)

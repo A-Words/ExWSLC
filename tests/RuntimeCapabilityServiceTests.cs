@@ -509,6 +509,22 @@ public class RuntimeCapabilityServiceTests
     }
 
     private static OperationResult Success(string output) => new(true, 0, output, "", "");
+
+    [Fact]
+    public async Task NetworkOptions_AreDetectedIndependentlyAndCached()
+    {
+        var fixture = new Fixture();
+        fixture.Responses["network create --help"] = Success(Help("network create", ["--subnet", "--gateway"]));
+        fixture.Responses["network connect --help"] = Success(Help("network connect", ["--ip", "--network-alias-extra"]));
+        var first = await fixture.Service.DetectAsync(TestContext.Current.CancellationToken);
+        Assert.Equal(CapabilitySupport.Supported, first[RuntimeFeature.NetworkCreateSubnet].Support);
+        Assert.Equal(CapabilitySupport.Supported, first[RuntimeFeature.NetworkCreateGateway].Support);
+        Assert.Equal(CapabilitySupport.Unsupported, first[RuntimeFeature.NetworkCreateIpRange].Support);
+        Assert.Equal(CapabilitySupport.Unsupported, first[RuntimeFeature.NetworkConnectAlias].Support);
+        Assert.Equal(CapabilitySupport.Unsupported, first[RuntimeFeature.NetworkConnectDriverOptions].Support);
+        Assert.Same(first, await fixture.Service.DetectAsync(TestContext.Current.CancellationToken));
+        Assert.Single(fixture.Commands, command => command == "network create --help");
+    }
     private static OperationResult Failure(int exitCode = 1) => new(false, exitCode, "", "probe failed", "");
 
     private static string Help(string path, string[] tokens) =>
@@ -531,7 +547,8 @@ public class RuntimeCapabilityServiceTests
                 ["--health-cmd", "--health-interval", "--health-retries", "--health-start-period", "--health-timeout", "--no-healthcheck",
                  "--mount", "--pull", "--stop-timeout", "--stop-signal", "--ip", "--network-alias"])),
             ["network --help"] = Success(Help("network", ["create", "connect", "disconnect"])),
-            ["network connect --help"] = Success(Help("network connect", ["--ip", "--network-alias"])),
+            ["network connect --help"] = Success(Help("network connect", ["--ip", "--network-alias", "--driver-opt"])),
+            ["network create --help"] = Success(Help("network create", ["--subnet", "--gateway", "--ip-range"])),
             ["image build --help"] = Success(Help("image build", ["--secret", "--output", "--progress", "--pull"])),
             ["system --help"] = Success(Help("system", ["info", "session"]))
         };

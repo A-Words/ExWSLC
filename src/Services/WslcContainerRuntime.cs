@@ -147,8 +147,54 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner, IRuntimeC
     public Task<OperationResult> PruneAsync(string resource, CancellationToken cancellationToken = default) =>
         RunAsync(BuildPruneArguments(resource), cancellationToken: cancellationToken);
 
-    public Task<OperationResult> CreateNetworkAsync(NetworkCreateSpec spec, CancellationToken cancellationToken = default) =>
-        RunAsync(BuildCreateNetworkArguments(spec), cancellationToken: cancellationToken);
+    public async Task<OperationResult> CreateNetworkAsync(NetworkCreateSpec spec, CancellationToken cancellationToken = default)
+    {
+        var arguments = BuildCreateNetworkArguments(spec);
+        var required = new List<RuntimeFeature>();
+        if (spec.Subnet is not null) required.Add(RuntimeFeature.NetworkCreateSubnet);
+        if (spec.Gateway is not null) required.Add(RuntimeFeature.NetworkCreateGateway);
+        if (spec.IpRange is not null) required.Add(RuntimeFeature.NetworkCreateIpRange);
+        if (required.Count > 0) await RequireNetworkSupportAsync(required, cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
+        return await RunAsync(arguments, cancellationToken: cancellationToken);
+    }
+
+    public async Task<OperationResult> ConnectNetworkAsync(NetworkConnectionSpec spec, CancellationToken cancellationToken = default)
+    {
+        var arguments = BuildConnectNetworkArguments(spec);
+        var required = new List<RuntimeFeature> { RuntimeFeature.NetworkConnect };
+        if (spec.Ipv4Address is not null) required.Add(RuntimeFeature.NetworkConnectIp);
+        if (spec.Aliases?.Count > 0) required.Add(RuntimeFeature.NetworkConnectAlias);
+        if (spec.DriverOptions?.Count > 0) required.Add(RuntimeFeature.NetworkConnectDriverOptions);
+        await RequireNetworkSupportAsync(required, cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
+        return await RunAsync(arguments, cancellationToken: cancellationToken);
+    }
+
+    public async Task<OperationResult> DisconnectNetworkAsync(NetworkDisconnectionSpec spec, CancellationToken cancellationToken = default)
+    {
+        NetworkOptions.ValidateTarget(spec.ContainerId, spec.NetworkName);
+        await RequireNetworkSupportAsync([RuntimeFeature.NetworkDisconnect], cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
+        return await RunAsync(["network", "disconnect", spec.NetworkName, spec.ContainerId], cancellationToken: cancellationToken);
+    }
+
+    private async Task RequireNetworkSupportAsync(IReadOnlyList<RuntimeFeature> features, CancellationToken token)
+    {
+        var capabilities = capabilityService is null ? null : await capabilityService.DetectAsync(token);
+        NetworkOptions.RequireSupport(capabilities, features.ToArray());
+    }
+
+    internal static IReadOnlyList<string> BuildConnectNetworkArguments(NetworkConnectionSpec spec)
+    {
+        NetworkOptions.Validate(spec);
+        var arguments = new List<string> { "network", "connect" };
+        AddOption(arguments, "--ip", spec.Ipv4Address ?? string.Empty);
+        foreach (var alias in spec.Aliases ?? []) arguments.AddRange(["--network-alias", alias]);
+        foreach (var option in spec.DriverOptions ?? []) arguments.AddRange(["--driver-opt", option]);
+        arguments.AddRange([spec.NetworkName, spec.ContainerId]);
+        return arguments;
+    }
 
     public Task<OperationResult> RemoveNetworkAsync(string name, CancellationToken cancellationToken = default) =>
         RunAsync(["network", "remove", name], cancellationToken: cancellationToken);
@@ -213,10 +259,13 @@ public sealed class WslcContainerRuntime(IProcessRunner processRunner, IRuntimeC
 
     internal static IReadOnlyList<string> BuildCreateNetworkArguments(NetworkCreateSpec spec)
     {
-        if (string.IsNullOrWhiteSpace(spec.Name)) throw new ArgumentException("Network name is required.", nameof(spec));
+        NetworkOptions.Validate(spec);
 
         var arguments = new List<string> { "network", "create" };
         AddOption(arguments, "--driver", spec.Driver);
+        AddOption(arguments, "--subnet", spec.Subnet ?? string.Empty);
+        AddOption(arguments, "--gateway", spec.Gateway ?? string.Empty);
+        AddOption(arguments, "--ip-range", spec.IpRange ?? string.Empty);
         foreach (var option in spec.DriverOptions.Where(value => !string.IsNullOrWhiteSpace(value)))
         {
             arguments.AddRange(["--opt", option.Trim()]);

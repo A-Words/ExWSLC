@@ -263,4 +263,35 @@
     <sys:String x:Key="HealthCheckEnd">结束时间</sys:String>
     <sys:String x:Key="HealthExitCode">退出码</sys:String>
     <sys:String x:Key="HealthOutput">检查输出</sys:String>
+    <sys:String x:Key="NetworkOptionUnsupported">运行时尚未确认支持此网络操作或选项。请清空可选字段，或在设置中重新检测。</sys:String>
+    <sys:String x:Key="NetworkInvalidTarget">请选择有效容器和网络名称，名称不能以选项前缀 - 开头。</sys:String>
+    <sys:String x:Key="NetworkInvalidIpv4">请输入完整 IPv4 地址，如 172.30.0.10，不要附加 CIDR 前缀。</sys:String>
+    <sys:String x:Key="NetworkInvalidAlias">每行填写一个非空网络别名。</sys:String>
+    <sys:String x:Key="NetworkInvalidDriverOptions">端点选项每行使用 key=value，键不可重复。</sys:String>
+    <sys:String x:Key="NetworkSubnetRequired">指定网关或 IP 范围前，请先填写子网。</sys:String>
+    <sys:String x:Key="NetworkInvalidSubnet">请输入不含主机位的网络 CIDR，如 172.30.0.0/24。</sys:String>
+    <sys:String x:Key="NetworkInvalidGateway">网关必须属于子网，且使用相同的地址类型。</sys:String>
+    <sys:String x:Key="NetworkInvalidRange">IP 范围必须是包含在子网内的网络 CIDR。</sys:String>
+    <sys:String x:Key="NetworkRefreshFirst">请先刷新网络详情，再修改连接。</sys:String>
+    <sys:String x:Key="NetworkAttachmentChanged">该网络已连接或已断开。请刷新后重新选择。</sys:String>
+    <sys:String x:Key="NetworkModeUnsupported">此容器使用 host、none 或共享网络模式，无法在此修改连接。</sys:String>
+    <sys:String x:Key="NetworkChooseAvailable">请从列表选择可用网络，或刷新网络清单。</sys:String>
+    <sys:String x:Key="NetworkDisconnect">断开网络</sys:String>
+    <sys:String x:Key="NetworkConnect">连接网络</sys:String>
+    <sys:String x:Key="NetworkDisconnectConfirmation">将容器 {0} 从网络 {1} 断开？现有连接可能中断。</sys:String>
+    <sys:String x:Key="NetworkWorkspaceBusy">另一个操作正在执行，请稍后重试。</sys:String>
+    <sys:String x:Key="NetworkOperationFailedHint">操作失败。请检查地址冲突、驱动选项和网络模式；保留原有详情。</sys:String>
+    <sys:String x:Key="NetworkOperationSucceeded">操作已成功。</sys:String>
+    <sys:String x:Key="NetworkRefreshIncomplete">刷新未完成，请重试后再进行其他修改。</sys:String>
+    <sys:String x:Key="NetworkRefreshCompleted">清单已刷新；请查看目标容器的网络详情确认结果。</sys:String>
+    <sys:String x:Key="NetworkOperationCancelled">已请求取消。运行时可能已应用修改，请刷新目标容器确认。</sys:String>
+    <sys:String x:Key="NetworkDetailsStale">当前显示的是先前快照。请刷新以确认最新连接状态。</sys:String>
+    <sys:String x:Key="NetworkConnectHint">选择尚未连接的网络。仅启用已确认支持的可选字段，可在设置中重新检测。地址冲突和驱动限制由运行时报告。</sys:String>
+    <sys:String x:Key="NetworkNoAvailable">没有可连接的网络。请先创建网络或刷新清单。</sys:String>
+    <sys:String x:Key="NetworkIpv4Optional">IPv4 地址（可选）</sys:String>
+    <sys:String x:Key="NetworkAliasesOptional">网络别名（每行一个）</sys:String>
+    <sys:String x:Key="NetworkEndpointOptions">端点驱动选项（每行 key=value）</sys:String>
+    <sys:String x:Key="NetworkIpConfiguration">IP 配置（可选）</sys:String>
+    <sys:String x:Key="NetworkIpConfigurationHint">留空使用运行时默认值。网关和范围必须属于子网。不支持的字段不可编辑，可在设置中重新检测。</sys:String>
+    <sys:String x:Key="NetworkIpRange">IP 分配范围（CIDR）</sys:String>
 </ResourceDictionary>

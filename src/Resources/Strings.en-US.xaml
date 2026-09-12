@@ -164,4 +164,35 @@
     <sys:String x:Key="HealthCheckEnd">Finished</sys:String>
     <sys:String x:Key="HealthExitCode">Exit code</sys:String>
     <sys:String x:Key="HealthOutput">Check output</sys:String>
+    <sys:String x:Key="NetworkOptionUnsupported">This network operation or option is unavailable. Clear optional fields or re-detect the runtime in Settings.</sys:String>
+    <sys:String x:Key="NetworkInvalidTarget">Choose a valid container and network name (not an option beginning with '-').</sys:String>
+    <sys:String x:Key="NetworkInvalidIpv4">Enter an IPv4 address such as 172.30.0.10, without a CIDR suffix.</sys:String>
+    <sys:String x:Key="NetworkInvalidAlias">Enter one nonempty network alias per line.</sys:String>
+    <sys:String x:Key="NetworkInvalidDriverOptions">Use one key=value endpoint option per line, with no repeated keys.</sys:String>
+    <sys:String x:Key="NetworkSubnetRequired">Enter a subnet before specifying a gateway or IP range.</sys:String>
+    <sys:String x:Key="NetworkInvalidSubnet">Enter a network CIDR with no host bits, such as 172.30.0.0/24.</sys:String>
+    <sys:String x:Key="NetworkInvalidGateway">The gateway must be an IP address inside the subnet, using the same address family.</sys:String>
+    <sys:String x:Key="NetworkInvalidRange">The IP range must be a network CIDR contained within the subnet.</sys:String>
+    <sys:String x:Key="NetworkRefreshFirst">Refresh network details before changing connections.</sys:String>
+    <sys:String x:Key="NetworkAttachmentChanged">This network is already connected or no longer attached. Refresh and choose again.</sys:String>
+    <sys:String x:Key="NetworkModeUnsupported">This container's host, none, or shared network mode cannot be changed here.</sys:String>
+    <sys:String x:Key="NetworkChooseAvailable">Choose an available network from the list, or refresh the inventory.</sys:String>
+    <sys:String x:Key="NetworkDisconnect">Disconnect</sys:String>
+    <sys:String x:Key="NetworkConnect">Connect network</sys:String>
+    <sys:String x:Key="NetworkDisconnectConfirmation">Disconnect {0} from {1}? Existing connections may be interrupted.</sys:String>
+    <sys:String x:Key="NetworkWorkspaceBusy">Another operation is running. Wait and try again.</sys:String>
+    <sys:String x:Key="NetworkOperationFailedHint">Operation failed. Check address conflicts, driver options and network mode; details are unchanged.</sys:String>
+    <sys:String x:Key="NetworkOperationSucceeded">Operation succeeded.</sys:String>
+    <sys:String x:Key="NetworkRefreshIncomplete">Refresh is incomplete. Retry before making another change.</sys:String>
+    <sys:String x:Key="NetworkRefreshCompleted">Inventory refreshed; reopen or refresh the target's network details to verify.</sys:String>
+    <sys:String x:Key="NetworkOperationCancelled">Cancellation requested. The runtime may have applied the change; refresh the target to verify.</sys:String>
+    <sys:String x:Key="NetworkDetailsStale">The displayed details are the previous snapshot. Refresh to verify the current attachment state.</sys:String>
+    <sys:String x:Key="NetworkConnectHint">Choose an unconnected network. Optional fields are enabled only when supported; use Settings to re-detect. Address conflicts and driver restrictions are reported by the runtime.</sys:String>
+    <sys:String x:Key="NetworkNoAvailable">No unconnected networks available. Create a network or refresh the inventory.</sys:String>
+    <sys:String x:Key="NetworkIpv4Optional">IPv4 address (optional)</sys:String>
+    <sys:String x:Key="NetworkAliasesOptional">Aliases (one per line)</sys:String>
+    <sys:String x:Key="NetworkEndpointOptions">Endpoint driver options (key=value per line)</sys:String>
+    <sys:String x:Key="NetworkIpConfiguration">IP configuration (optional)</sys:String>
+    <sys:String x:Key="NetworkIpConfigurationHint">Leave empty for runtime defaults. Gateway and range must belong to the subnet. Unsupported fields are disabled; re-detect in Settings.</sys:String>
+    <sys:String x:Key="NetworkIpRange">IP allocation range (CIDR)</sys:String>
 </ResourceDictionary>

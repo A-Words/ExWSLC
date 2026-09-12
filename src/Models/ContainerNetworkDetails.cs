@@ -13,6 +13,7 @@ public sealed record ContainerNetworkDetails(
     IReadOnlyList<ContainerNetworkAttachment> Networks,
     IReadOnlyList<ContainerPortBinding> PortBindings)
 {
+    public string ContainerId { get; init; } = string.Empty;
     public bool HasNetworks => Networks.Count > 0;
     public bool HasPortBindings => PortBindings.Count > 0;
     public string DisplayNetworkMode => string.IsNullOrWhiteSpace(NetworkMode) ? "-" : NetworkMode;

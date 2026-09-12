@@ -29,7 +29,7 @@ internal static class ContainerNetworkDetailsParser
                 config.ReadString("Hostname", "HostName"),
                 ReadNullableBoolean(state, "Running"),
                 ReadNetworkAttachments(root),
-                ReadPortBindings(root));
+                ReadPortBindings(root)) { ContainerId = root.ReadString("Id", "ID") };
             return true;
         }
         catch (JsonException)

@@ -33,6 +33,8 @@ internal sealed class DesignContainerRuntime : IContainerRuntime
     public Task<OperationResult> InspectImageAsync(string image, CancellationToken cancellationToken = default) => Task.FromResult(Success);
     public Task<OperationResult> PruneAsync(string resource, CancellationToken cancellationToken = default) => Task.FromResult(Success);
     public Task<OperationResult> CreateNetworkAsync(NetworkCreateSpec spec, CancellationToken cancellationToken = default) => Task.FromResult(Success);
+    public Task<OperationResult> ConnectNetworkAsync(NetworkConnectionSpec spec, CancellationToken cancellationToken = default) => Task.FromResult(Success);
+    public Task<OperationResult> DisconnectNetworkAsync(NetworkDisconnectionSpec spec, CancellationToken cancellationToken = default) => Task.FromResult(Success);
     public Task<OperationResult> RemoveNetworkAsync(string name, CancellationToken cancellationToken = default) => Task.FromResult(Success);
     public Task<OperationResult> CreateVolumeAsync(VolumeCreateSpec spec, CancellationToken cancellationToken = default) => Task.FromResult(Success);
     public Task<OperationResult> RemoveVolumeAsync(string name, bool force, CancellationToken cancellationToken = default) => Task.FromResult(Success);

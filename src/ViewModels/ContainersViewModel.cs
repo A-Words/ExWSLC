@@ -44,6 +44,7 @@ public partial class ContainersViewModel : WorkspaceViewModel
     {
         base.OnWorkspacePropertyChanged(sender, eventArgs);
         if (eventArgs.PropertyName == nameof(RuntimeWorkspace.Capabilities)) OnPropertyChanged(nameof(CanConfigureHealth));
+        if (eventArgs.PropertyName is nameof(RuntimeWorkspace.Capabilities) or nameof(RuntimeWorkspace.IsBusy)) NotifyNetworkCommands();
     }
 
     /// <summary>Log lines for the selected container's Logs tab, one row per line.</summary>
@@ -453,9 +454,16 @@ public partial class ContainersViewModel : WorkspaceViewModel
         }
         EvaluateFollow();
         OnPropertyChanged(nameof(SelectedContainerStats));
+        IsNetworkDetailsStale = value is not null && _staleNetworkContainers.Contains(value.Id);
+        if (!isSameContainer) NetworkOperationMessage = string.Empty;
+        UpdateConnectionNetworks();
     }
 
-    partial void OnNetworkDetailsChanged(ContainerNetworkDetails? value) => OnPropertyChanged(nameof(HasNetworkDetails));
+    partial void OnNetworkDetailsChanged(ContainerNetworkDetails? value)
+    {
+        OnPropertyChanged(nameof(HasNetworkDetails));
+        UpdateConnectionNetworks();
+    }
 
     partial void OnNetworkDetailsErrorChanged(string value) => OnPropertyChanged(nameof(HasNetworkDetailsError));
 
@@ -583,7 +591,7 @@ public partial class ContainersViewModel : WorkspaceViewModel
         try
         {
             var result = await Workspace.Runtime.InspectContainerAsync(container.Id, load.Token);
-            if (load.IsCancellationRequested || !IsCurrentNetworkContainer(container.Id)) return;
+            if (load.IsCancellationRequested || !ReferenceEquals(_networkDetailsLoad, load) || !IsCurrentNetworkContainer(container.Id)) return;
 
             if (!result.Success)
             {
@@ -599,7 +607,15 @@ public partial class ContainersViewModel : WorkspaceViewModel
                 return;
             }
 
+            if (!string.IsNullOrEmpty(details.ContainerId) && !details.ContainerId.Equals(container.Id, StringComparison.OrdinalIgnoreCase))
+            {
+                NetworkDetailsError = LocalizationService.GetString("HealthInspectMismatch", "Inspection returned a different container. Refresh and try again.");
+                return;
+            }
+
             _networkDetailsCache[container.Id] = details;
+            _staleNetworkContainers.Remove(container.Id);
+            IsNetworkDetailsStale = false;
             NetworkDetails = details;
             NetworkDetailsUpdatedAt = DateTimeOffset.Now;
         }
@@ -792,6 +808,7 @@ public partial class ContainersViewModel : WorkspaceViewModel
             _mountDetailsCache.Remove(containerId);
         }
         OnPropertyChanged(nameof(SelectedContainerStats));
+        UpdateConnectionNetworks();
         if (SelectedDetailTabIndex is ConfigurationTabIndex or InspectTabIndex or HealthTabIndex)
             _ = LoadInspectDetailsAsync(force: true);
     }
