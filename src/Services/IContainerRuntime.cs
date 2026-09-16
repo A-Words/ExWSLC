@@ -4,6 +4,8 @@ namespace ExWSLC.Services;
 
 public interface IContainerRuntime
 {
+    Task<NativeSettingsDocument> ReadNativeSettingsAsync(CancellationToken cancellationToken = default);
+    Task<string> SaveNativeSettingsAsync(NativeSettingsDocument original, string text, CancellationToken cancellationToken = default);
     Task<RuntimeDiagnostics> GetSystemInfoAsync(RuntimeCapabilities capabilities, CancellationToken cancellationToken = default);
     Task<HostLoopbackConfiguration> GetHostLoopbackConfigurationAsync(CancellationToken cancellationToken = default);
     Task<HostLoopbackProbeResult> ProbeHostLoopbackAsync(HostLoopbackProbeRequest target, RuntimeCapabilities capabilities, CancellationToken cancellationToken = default);

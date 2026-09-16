@@ -5,6 +5,10 @@ namespace ExWSLC.ViewModels.Design;
 
 internal sealed class DesignContainerRuntime : IContainerRuntime
 {
+    public Task<NativeSettingsDocument> ReadNativeSettingsAsync(CancellationToken cancellationToken = default) =>
+        Task.FromResult(new NativeSettingsDocument(NativeSettingsStore.Template, false));
+    public Task<string> SaveNativeSettingsAsync(NativeSettingsDocument original, string text, CancellationToken cancellationToken = default) =>
+        Task.FromResult("NativeConfigSaved");
     public Task<HostLoopbackConfiguration> GetHostLoopbackConfigurationAsync(CancellationToken cancellationToken = default) =>
         Task.FromResult(HostLoopbackConfiguration.Default);
     public Task<HostLoopbackProbeResult> ProbeHostLoopbackAsync(HostLoopbackProbeRequest target, RuntimeCapabilities capabilities, CancellationToken cancellationToken = default) =>

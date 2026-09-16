@@ -50,6 +50,8 @@ public partial class SettingsViewModel : ObservableObject
 
     private void RaiseLanguageChanged()
     {
+        foreach (var field in NativeSettingsFields) field.Refresh();
+        RaiseNativeSettingsChanged();
         OnPropertyChanged(nameof(AutoRefreshStatus));
         RaiseDiagnosticsChanged();
         RaiseHostLoopbackChanged();
@@ -89,13 +91,27 @@ public partial class SettingsViewModel : ObservableObject
 
     partial void OnRegistryPasswordChanged(string value) => LoginRegistryCommand.NotifyCanExecuteChanged();
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanLoadNativeSettings))]
     private async Task ResetNativeSettingsAsync()
     {
-        if (!await Workspace.Interaction.ConfirmAsync(
-                LocalizationService.GetString("ResetNativeSettings", "Reset WSLC settings"),
-                LocalizationService.GetString("ResetNativeSettingsConfirmation", "Reset the native WSLC YAML settings to built-in defaults?"))) return;
-        Workspace.ShowResult(await Workspace.Runtime.ResetNativeSettingsAsync(Workspace.Lifetime.Token));
+        IsNativeSettingsBusy = true;
+        try
+        {
+            if (!await Workspace.Interaction.ConfirmAsync(
+                    LocalizationService.GetString("ResetNativeSettings", "Reset WSLC settings"),
+                    LocalizationService.GetString("ResetNativeSettingsConfirmation", "Reset the native WSLC YAML settings to built-in defaults?"))) return;
+            var result = await Workspace.Runtime.ResetNativeSettingsAsync(Workspace.Lifetime.Token);
+            Workspace.ShowResult(result);
+            if (result.Success)
+            {
+                _nativeSettingsOriginal = null;
+                NativeSettingsFields.Clear();
+                _nativeConfigStatusKey = "NativeConfigNotLoaded";
+                HostLoopbackConfiguration = null;
+                HostProbeResult = null;
+            }
+        }
+        finally { IsNativeSettingsBusy = false; }
     }
 
     [RelayCommand(CanExecute = nameof(CanInstallComponents))]
@@ -161,6 +177,7 @@ public partial class SettingsViewModel : ObservableObject
         }
         if (eventArgs.PropertyName is nameof(RuntimeWorkspace.Capabilities) or nameof(RuntimeWorkspace.IsBusy))
         {
+            RaiseNativeSettingsChanged();
             RaiseHostLoopbackChanged();
             OnPropertyChanged(nameof(CanRefreshDiagnostics));
             RefreshDiagnosticsCommand.NotifyCanExecuteChanged();

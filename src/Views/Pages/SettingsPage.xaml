@@ -11,6 +11,22 @@
       d:DataContext="{d:DesignInstance Type=designViewModels:DesignSettingsViewModel, IsDesignTimeCreatable=True}"
       Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}">
     <Page.Resources>
+        <DataTemplate x:Key="NativeNumberEditor">
+            <ui:NumberBox Value="{Binding NumericValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="1" Maximum="4294967295"
+                          AutomationProperties.Name="{Binding Label}" />
+        </DataTemplate>
+        <DataTemplate x:Key="NativeTextEditor">
+            <ui:TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" MaxLength="4096"
+                        AutomationProperties.Name="{Binding Label}" />
+        </DataTemplate>
+        <DataTemplate x:Key="NativeChoiceEditor">
+            <ComboBox ItemsSource="{Binding Definition.Choices}" SelectedItem="{Binding SelectedChoice}"
+                      AutomationProperties.Name="{Binding Label}" />
+        </DataTemplate>
+        <DataTemplate x:Key="NativeToggleEditor">
+            <ui:ToggleSwitch IsChecked="{Binding ToggleValue, Mode=TwoWay}" Content="{DynamicResource NativeEnabled}"
+                             AutomationProperties.Name="{Binding Label}" />
+        </DataTemplate>
         <Style x:Key="CapabilityIconStyle"
                TargetType="ui:SymbolIcon">
             <Setter Property="Symbol" Value="QuestionCircle24" />
@@ -196,6 +212,45 @@
                     </WrapPanel>
                     <TextBlock Text="{Binding HostProbeSummary}" TextWrapping="Wrap" Margin="0,8,0,0" AutomationProperties.LiveSetting="Polite" />
                     <TextBlock Text="{Binding HostProbeCopyStatus}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" />
+                </StackPanel>
+            </ui:Card>
+
+            <ui:Card x:Name="NativeConfigurationCard" Padding="16" Margin="0,0,0,18">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource NativeConfigTitle}" Style="{StaticResource SectionTitleStyle}" />
+                    <TextBlock Text="{DynamicResource NativeConfigHint}" TextWrapping="Wrap" Margin="0,0,0,8" />
+                    <ItemsControl ItemsSource="{Binding NativeSettingsFields}" IsEnabled="{Binding CanEditNativeSettings}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="0,12" BorderThickness="0,0,0,1" BorderBrush="{ui:ThemeResource ControlStrokeColorDefaultBrush}">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Label}" FontSize="16" />
+                                        <TextBlock Text="{Binding Hint}" TextWrapping="Wrap" Style="{StaticResource MutedTextStyle}" Margin="0,4,0,8" />
+                                        <CheckBox Content="{DynamicResource NativeUseDefault}" IsChecked="{Binding UseDefault}" Margin="0,0,0,8" />
+                                        <ContentControl Content="{Binding}" IsEnabled="{Binding IsCustom}" MaxWidth="420" HorizontalAlignment="Left" MinWidth="240">
+                                            <ContentControl.Style>
+                                                <Style TargetType="ContentControl">
+                                                    <Setter Property="ContentTemplate" Value="{StaticResource NativeTextEditor}" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsNumber}" Value="True"><Setter Property="ContentTemplate" Value="{StaticResource NativeNumberEditor}" /></DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsChoice}" Value="True"><Setter Property="ContentTemplate" Value="{StaticResource NativeChoiceEditor}" /></DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsToggle}" Value="True"><Setter Property="ContentTemplate" Value="{StaticResource NativeToggleEditor}" /></DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </ContentControl.Style>
+                                        </ContentControl>
+                                        <TextBlock Text="{Binding Validation}" TextWrapping="Wrap" Margin="0,4,0,0" AutomationProperties.LiveSetting="Polite" />
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Text="{DynamicResource NativeConfigApplyHint}" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" Margin="0,8,0,12" />
+                    <WrapPanel>
+                        <ui:Button Content="{DynamicResource NativeConfigReload}" Command="{Binding LoadNativeSettingsCommand}" Margin="0,0,8,8" />
+                        <ui:Button Content="{DynamicResource NativeConfigSave}" Command="{Binding SaveNativeSettingsCommand}" Appearance="Primary" Margin="0,0,8,8" />
+                    </WrapPanel>
+                    <TextBlock Text="{Binding NativeConfigStatus}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite" />
                 </StackPanel>
             </ui:Card>
 
