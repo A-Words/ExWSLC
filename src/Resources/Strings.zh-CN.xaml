@@ -173,6 +173,17 @@
     <sys:String x:Key="State">状态</sys:String>
     <sys:String x:Key="Status">运行时间</sys:String>
     <sys:String x:Key="Ports">端口</sys:String>
+    <sys:String x:Key="ContainerListShowPorts">查看全部端口映射</sys:String>
+    <sys:String x:Key="ContainerListStateCreated">已创建</sys:String>
+    <sys:String x:Key="ContainerListStateExited">已退出</sys:String>
+    <sys:String x:Key="ContainerListStateDeleted">已删除</sys:String>
+    <sys:String x:Key="ContainerListStateInvalid">无效状态</sys:String>
+    <sys:String x:Key="ContainerListRunningWithoutHealth">运行中 · 未配置健康检查</sys:String>
+    <sys:String x:Key="ContainerListRunningHealthy">运行中 · 健康检查正常</sys:String>
+    <sys:String x:Key="ContainerListRunningUnhealthy">运行中 · 健康检查失败</sys:String>
+    <sys:String x:Key="ContainerListRunningChecking">运行中 · 健康检查启动中</sys:String>
+    <sys:String x:Key="ContainerListRunningHealthUnknown">运行中 · 健康状态未知</sys:String>
+    <sys:String x:Key="ContainerListHorizontalScroll">水平滚动容器列表</sys:String>
     <sys:String x:Key="Actions">操作</sys:String>
     <sys:String x:Key="Configuration">配置</sys:String>
     <sys:String x:Key="LoadingConfiguration">正在读取容器配置…</sys:String>

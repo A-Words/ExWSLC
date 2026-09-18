@@ -74,6 +74,17 @@
     <sys:String x:Key="State">State</sys:String>
     <sys:String x:Key="Status">Uptime</sys:String>
     <sys:String x:Key="Ports">Ports</sys:String>
+    <sys:String x:Key="ContainerListShowPorts">Show all port mappings</sys:String>
+    <sys:String x:Key="ContainerListStateCreated">Created</sys:String>
+    <sys:String x:Key="ContainerListStateExited">Exited</sys:String>
+    <sys:String x:Key="ContainerListStateDeleted">Deleted</sys:String>
+    <sys:String x:Key="ContainerListStateInvalid">Invalid state</sys:String>
+    <sys:String x:Key="ContainerListRunningWithoutHealth">Running · Health check not configured</sys:String>
+    <sys:String x:Key="ContainerListRunningHealthy">Running · Healthy</sys:String>
+    <sys:String x:Key="ContainerListRunningUnhealthy">Running · Health check failed</sys:String>
+    <sys:String x:Key="ContainerListRunningChecking">Running · Health checks starting</sys:String>
+    <sys:String x:Key="ContainerListRunningHealthUnknown">Running · Health status unknown</sys:String>
+    <sys:String x:Key="ContainerListHorizontalScroll">Scroll container columns horizontally</sys:String>
     <sys:String x:Key="Actions">Actions</sys:String>
     <sys:String x:Key="Configuration">Configuration</sys:String>
     <sys:String x:Key="LoadingConfiguration">Loading container configuration…</sys:String>

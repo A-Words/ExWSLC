@@ -13,6 +13,7 @@
         <SolidColorBrush x:Key="ContainerDangerIconBrush" Color="#C42B1C" />
         <SolidColorBrush x:Key="ContainerDangerHoverBrush" Color="#18C42B1C" />
         <SolidColorBrush x:Key="ContainerDangerPressedBrush" Color="#28C42B1C" />
+        <SolidColorBrush x:Key="ContainerCheckingIndicatorBrush" Color="#0078D4" />
 
         <Style x:Key="ContainerRowActionStyle" TargetType="ui:Button" BasedOn="{StaticResource ResourceIconButtonStyle}">
             <Setter Property="Margin" Value="6,0,0,0" />
@@ -22,6 +23,79 @@
             <Setter Property="MouseOverBorderBrush" Value="{StaticResource ContainerDangerHoverBrush}" />
             <Setter Property="PressedBackground" Value="{StaticResource ContainerDangerPressedBrush}" />
             <Setter Property="PressedBorderBrush" Value="{StaticResource ContainerDangerPressedBrush}" />
+        </Style>
+
+        <Style x:Key="ContainerSecondaryTextStyle" TargetType="TextBlock" BasedOn="{StaticResource MutedTextStyle}">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Margin" Value="0,3,0,0" />
+            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+            <Style.Triggers>
+                <Trigger Property="Text" Value=""><Setter Property="Visibility" Value="Collapsed" /></Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="ContainerColumnHeaderStyle" TargetType="TextBlock">
+            <Setter Property="Margin" Value="12,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style x:Key="ContainerMetricTextStyle" TargetType="TextBlock">
+            <Setter Property="Margin" Value="12,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="TextAlignment" Value="Left" />
+        </Style>
+
+        <Style x:Key="ContainerStatusIndicatorStyle" TargetType="Border">
+            <Setter Property="Width" Value="10" />
+            <Setter Property="Height" Value="10" />
+            <Setter Property="CornerRadius" Value="5" />
+            <Setter Property="Margin" Value="0,0,10,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Background" Value="{ui:ThemeResource TextFillColorTertiaryBrush}" />
+            <Setter Property="ToolTip" Value="{Binding Container.State}" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding StatusKind}" Value="Created">
+                    <Setter Property="ToolTip" Value="{DynamicResource ContainerListStateCreated}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding StatusKind}" Value="Exited">
+                    <Setter Property="ToolTip" Value="{DynamicResource ContainerListStateExited}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding StatusKind}" Value="Deleted">
+                    <Setter Property="ToolTip" Value="{DynamicResource ContainerListStateDeleted}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding StatusKind}" Value="Invalid">
+                    <Setter Property="ToolTip" Value="{DynamicResource ContainerListStateInvalid}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding StatusKind}" Value="Stopped">
+                    <Setter Property="ToolTip" Value="{DynamicResource Stopped}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding StatusKind}" Value="RunningWithoutHealthCheck">
+                    <Setter Property="ToolTip" Value="{DynamicResource ContainerListRunningWithoutHealth}" />
+                    <Setter Property="Background" Value="{ui:ThemeResource SystemFillColorSuccessBrush}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding StatusKind}" Value="Healthy">
+                    <Setter Property="ToolTip" Value="{DynamicResource ContainerListRunningHealthy}" />
+                    <Setter Property="Background" Value="{ui:ThemeResource SystemFillColorSuccessBrush}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding StatusKind}" Value="Unhealthy">
+                    <Setter Property="ToolTip" Value="{DynamicResource ContainerListRunningUnhealthy}" />
+                    <Setter Property="Background" Value="{ui:ThemeResource SystemFillColorCautionBrush}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding StatusKind}" Value="Checking">
+                    <Setter Property="ToolTip" Value="{DynamicResource ContainerListRunningChecking}" />
+                    <Setter Property="Background" Value="{StaticResource ContainerCheckingIndicatorBrush}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding StatusKind}" Value="HealthUnknown">
+                    <Setter Property="ToolTip" Value="{DynamicResource ContainerListRunningHealthUnknown}" />
+                    <Setter Property="Background" Value="{StaticResource ContainerCheckingIndicatorBrush}" />
+                </DataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding StatusKind}" Value="Other" />
+                        <Condition Binding="{Binding Container.State}" Value="" />
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="ToolTip" Value="{DynamicResource Unknown}" />
+                </MultiDataTrigger>
+            </Style.Triggers>
         </Style>
 
         <DataTemplate x:Key="ContainerListItemTemplate">
@@ -36,45 +110,72 @@
                                   Command="{Binding DataContext.ShowContainerDetailsFromListCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                   CommandParameter="{Binding Container}" />
                 </Border.InputBindings>
-                <Grid>
+                <Grid x:Name="ContainerRowLayout" Width="{Binding ListLayout.RowWidth, RelativeSource={RelativeSource AncestorType=UserControl}}" HorizontalAlignment="Left">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*" />
-                        <ColumnDefinition Width="1.5*" />
-                        <ColumnDefinition Width="140" />
-                        <ColumnDefinition Width="1.2*" />
-                        <ColumnDefinition Width="90" />
-                        <ColumnDefinition Width="100" />
-                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="{Binding ListLayout.Actions, RelativeSource={RelativeSource AncestorType=UserControl}}" />
                     </Grid.ColumnDefinitions>
+                    <Border ClipToBounds="True">
+                        <!-- Measure the full row before clipping so scrolling can reveal every column. -->
+                        <Canvas>
+                            <Grid x:Name="ContainerRowGrid" Width="{Binding ListLayout.DataWidth, RelativeSource={RelativeSource AncestorType=UserControl}}" HorizontalAlignment="Left"
+                                  Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Canvas}}"
+                                  RequestBringIntoView="ScrollableColumns_RequestBringIntoView">
+                                <Grid.RenderTransform>
+                                    <TranslateTransform X="{Binding HorizontalTranslation, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                </Grid.RenderTransform>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="{Binding ListLayout.Name, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                    <ColumnDefinition Width="{Binding ListLayout.Image, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                    <ColumnDefinition Width="{Binding ListLayout.Ports, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                    <ColumnDefinition Width="{Binding ListLayout.Cpu, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                    <ColumnDefinition Width="{Binding ListLayout.Memory, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                </Grid.ColumnDefinitions>
 
-                    <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                        <TextBlock Text="{Binding Container.ShortId}" Style="{StaticResource MutedTextStyle}" FontFamily="Consolas" Margin="0,3,0,0" />
-                    </StackPanel>
-                    <TextBlock Grid.Column="1" Text="{Binding Image}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="12,0" ToolTip="{Binding Image}" />
-                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0">
-                        <Border Width="8" Height="8" CornerRadius="4" Margin="0,0,7,0">
-                            <Border.Style>
-                                <Style TargetType="Border">
-                                    <Setter Property="Background" Value="{ui:ThemeResource TextFillColorTertiaryBrush}" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsRunning}" Value="True">
-                                            <Setter Property="Background" Value="{ui:ThemeResource SystemFillColorSuccessBrush}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Border.Style>
-                        </Border>
-                        <StackPanel>
-                            <TextBlock Text="{Binding Container.State}" />
-                            <TextBlock DataContext="{Binding Container.HealthStatus}" Style="{StaticResource HealthStatusTextStyle}" FontSize="11" Margin="0,3,0,0" />
-                        </StackPanel>
-                    </StackPanel>
-                    <TextBlock Grid.Column="3" Text="{Binding Ports}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="12,0" ToolTip="{Binding Ports}" />
-                    <TextBlock Grid.Column="4" Text="{Binding Cpu}" VerticalAlignment="Center" Margin="12,0" />
-                    <TextBlock Grid.Column="5" Text="{Binding Memory}" VerticalAlignment="Center" Margin="12,0" />
+                                <Grid VerticalAlignment="Center" Margin="0,0,12,0">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                                    <Border x:Name="ContainerStatusIndicator" Style="{StaticResource ContainerStatusIndicatorStyle}" />
+                                    <TextBlock x:Name="ContainerNameText" Grid.Column="1" Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip="{Binding Name}"
+                                               AutomationProperties.HelpText="{Binding ToolTip, ElementName=ContainerStatusIndicator}" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Container.ShortId}" Style="{StaticResource ContainerSecondaryTextStyle}" FontFamily="Consolas" ToolTip="{Binding Container.Id}" />
+                                </Grid>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,0" ToolTip="{Binding Image}">
+                                    <TextBlock Text="{Binding ImageName}" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding ImageSource}" Style="{StaticResource ContainerSecondaryTextStyle}" />
+                                </StackPanel>
+                                <Grid Grid.Column="2" VerticalAlignment="Center" Margin="12,0">
+                                    <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                    <StackPanel ToolTip="{Binding ListPorts.FullText}">
+                                        <TextBlock Text="{Binding ListPorts.Summary}" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="{Binding ListPorts.BindingAddress}" Style="{StaticResource ContainerSecondaryTextStyle}" />
+                                    </StackPanel>
+                                    <ui:Button x:Name="PortMappingsButton" Grid.Column="1"
+                                               Appearance="Transparent" Padding="4,2" Margin="4,0,0,0" MinWidth="26" VerticalAlignment="Center"
+                                               Visibility="{Binding ListPorts.HasAdditionalMappings, Converter={StaticResource BoolToVisibility}}"
+                                               ToolTip="{DynamicResource ContainerListShowPorts}" AutomationProperties.Name="{DynamicResource ContainerListShowPorts}"
+                                               Tag="{Binding ElementName=PortMappingsPopup}" Click="PortMappingsButton_Click">
+                                        <TextBlock Text="{Binding ListPorts.AdditionalCount, StringFormat=+{0}}" />
+                                    </ui:Button>
+                                    <Popup x:Name="PortMappingsPopup" PlacementTarget="{Binding ElementName=PortMappingsButton}" Placement="Bottom" StaysOpen="False" AllowsTransparency="True">
+                                        <Border Style="{StaticResource ResourceSurfaceStyle}" Padding="14,10" MaxWidth="480">
+                                            <ScrollViewer MaxHeight="280" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                                                <ItemsControl ItemsSource="{Binding ListPorts.Mappings}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate><TextBlock Text="{Binding FullText}" Margin="0,4" /></DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </ScrollViewer>
+                                        </Border>
+                                    </Popup>
+                                </Grid>
+                                <TextBlock Grid.Column="3" Text="{Binding Cpu}" Style="{StaticResource ContainerMetricTextStyle}" ToolTip="{Binding Cpu}" />
+                                <TextBlock Grid.Column="4" Text="{Binding Memory}" Style="{StaticResource ContainerMetricTextStyle}" ToolTip="{Binding Memory}" />
+                            </Grid>
+                        </Canvas>
+                    </Border>
 
-                    <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
+                    <StackPanel x:Name="ContainerRowActions" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
                         <ui:Button Icon="{ui:SymbolIcon Symbol=Play24}"
                                    Command="{Binding DataContext.StartContainerFromListCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                    CommandParameter="{Binding Container}"
@@ -181,26 +282,48 @@
 
         <Border Grid.Row="2" Style="{StaticResource ResourceSurfaceStyle}">
             <Grid>
-                <Grid.RowDefinitions><RowDefinition Height="40" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                <Grid.RowDefinitions><RowDefinition Height="40" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                 <Border Background="{ui:ThemeResource ControlFillColorSecondaryBrush}" CornerRadius="8,8,0,0">
-                    <Grid>
+                    <Grid Margin="14,0" Width="{Binding ListLayout.RowWidth, RelativeSource={RelativeSource AncestorType=UserControl}}" HorizontalAlignment="Left">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*" /><ColumnDefinition Width="1.5*" />
-                            <ColumnDefinition Width="140" /><ColumnDefinition Width="1.2*" />
-                            <ColumnDefinition Width="90" /><ColumnDefinition Width="100" /><ColumnDefinition Width="112" />
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="{Binding ListLayout.Actions, RelativeSource={RelativeSource AncestorType=UserControl}}" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="{DynamicResource Name}" Margin="14,0" VerticalAlignment="Center" FontWeight="SemiBold" />
-                        <TextBlock Grid.Column="1" Text="{DynamicResource Image}" Margin="12,0" VerticalAlignment="Center" FontWeight="SemiBold" />
-                        <TextBlock Grid.Column="2" Text="{DynamicResource State}" Margin="12,0" VerticalAlignment="Center" FontWeight="SemiBold" />
-                        <TextBlock Grid.Column="3" Text="{DynamicResource Ports}" Margin="12,0" VerticalAlignment="Center" FontWeight="SemiBold" />
-                        <TextBlock Grid.Column="4" Text="{DynamicResource Cpu}" Margin="12,0" VerticalAlignment="Center" FontWeight="SemiBold" />
-                        <TextBlock Grid.Column="5" Text="{DynamicResource Memory}" Margin="12,0" VerticalAlignment="Center" FontWeight="SemiBold" />
-                        <TextBlock Grid.Column="6" Text="{DynamicResource Actions}" Margin="12,0" VerticalAlignment="Center" FontWeight="SemiBold" />
+                        <Border ClipToBounds="True">
+                            <Canvas>
+                                <Grid x:Name="ContainerHeaderGrid" Width="{Binding ListLayout.DataWidth, RelativeSource={RelativeSource AncestorType=UserControl}}" HorizontalAlignment="Left"
+                                      Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Canvas}}">
+                                    <Grid.RenderTransform>
+                                        <TranslateTransform X="{Binding HorizontalTranslation, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                    </Grid.RenderTransform>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="{Binding ListLayout.Name, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                        <ColumnDefinition Width="{Binding ListLayout.Image, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                        <ColumnDefinition Width="{Binding ListLayout.Ports, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                        <ColumnDefinition Width="{Binding ListLayout.Cpu, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                        <ColumnDefinition Width="{Binding ListLayout.Memory, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{DynamicResource Name}" Style="{StaticResource ContainerColumnHeaderStyle}" Margin="20,0,12,0" />
+                                    <TextBlock Grid.Column="1" Text="{DynamicResource Image}" Style="{StaticResource ContainerColumnHeaderStyle}" />
+                                    <TextBlock Grid.Column="2" Text="{DynamicResource Ports}" Style="{StaticResource ContainerColumnHeaderStyle}" />
+                                    <TextBlock Grid.Column="3" Text="{DynamicResource Cpu}" Style="{StaticResource ContainerColumnHeaderStyle}" />
+                                    <TextBlock Grid.Column="4" Text="{DynamicResource Memory}" Style="{StaticResource ContainerColumnHeaderStyle}" />
+                                </Grid>
+                            </Canvas>
+                        </Border>
+                        <TextBlock x:Name="ContainerActionsHeader" Grid.Column="1" Text="{DynamicResource Actions}" Style="{StaticResource ContainerColumnHeaderStyle}" TextAlignment="Right" Margin="0" />
                     </Grid>
                 </Border>
-                <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                <ScrollViewer x:Name="ContainerScrollViewer" Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" ScrollChanged="ContainerScrollViewer_ScrollChanged">
                     <ItemsControl ItemsSource="{Binding VisibleContainerItems}" ItemTemplate="{StaticResource ContainerListItemTemplate}" />
                 </ScrollViewer>
+                <ScrollBar x:Name="ContainerHorizontalScrollBar" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left" Margin="14,0,0,2"
+                           Width="{Binding ListLayout.RowWidth, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                           ViewportSize="{Binding ListLayout.DataViewport, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                           Maximum="{Binding ListLayout.HorizontalScrollRange, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                           Visibility="{Binding ListLayout.HasHorizontalOverflow, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibility}}"
+                           SmallChange="32" LargeChange="128" Focusable="True" ValueChanged="ContainerHorizontalScrollBar_ValueChanged"
+                           AutomationProperties.Name="{DynamicResource ContainerListHorizontalScroll}" />
                 <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="360">
                     <StackPanel.Style>
                         <Style TargetType="StackPanel"><Setter Property="Visibility" Value="Collapsed" />
