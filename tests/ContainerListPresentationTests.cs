@@ -164,6 +164,46 @@ public class ContainerListPresentationTests
         Assert.Equal(ContainerListStatus.Unhealthy, item.StatusKind);
     }
 
+    [Theory]
+    [InlineData("created")]
+    [InlineData(ContainerState.CodeCreated)]
+    [InlineData("stopped")]
+    [InlineData("Exited")]
+    [InlineData(ContainerState.CodeExited)]
+    [InlineData("deleted")]
+    [InlineData(ContainerState.CodeDeleted)]
+    [InlineData("invalid")]
+    [InlineData(ContainerState.CodeInvalid)]
+    public void InactiveMetrics_ShowDashForMissingZeroOrStaleStats(string state)
+    {
+        ContainerStats?[] samples = [null,
+            new("id", "web", "0.00%", "0B", "", "", ""),
+            new("id", "web", "4.2%", "96 MiB / 8 GiB", "", "", "")];
+        foreach (var stats in samples)
+        {
+            var item = new ContainerListItem { Container = new("id", "web", "nginx", state, "", "-", "now"), Stats = stats };
+            Assert.Equal("-", item.Cpu);
+            Assert.Equal("-", item.Memory);
+        }
+    }
+
+    [Theory]
+    [InlineData("running", "")]
+    [InlineData("Running", "")]
+    [InlineData(ContainerState.CodeRunning, "")]
+    [InlineData("", "Up 2 minutes")]
+    public void RunningMetrics_PreserveUsageAndMissingSamplePlaceholder(string state, string status)
+    {
+        var container = new ContainerSummary("id", "web", "nginx", state, status, "-", "now");
+        var item = new ContainerListItem { Container = container, Stats = new("id", "web", "4.2%", "96 MiB / 8 GiB", "", "", "") };
+        Assert.Equal("4.2%", item.Cpu);
+        Assert.Equal("96 MiB", item.Memory);
+
+        var missing = new ContainerListItem { Container = container };
+        Assert.Equal("--", missing.Cpu);
+        Assert.Equal("--", missing.Memory);
+    }
+
     private static ContainerListItem CreateItem(string image = "nginx", string ports = "-") => new()
     {
         Container = new ContainerSummary("abc", "web", image, "running", "Up", ports, "now")

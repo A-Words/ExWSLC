@@ -51,8 +51,8 @@ public sealed class ContainerListItem
             "stopped" => ContainerListStatus.Stopped,
             _ => ContainerListStatus.Other
         };
-    public string Cpu => string.IsNullOrWhiteSpace(Stats?.Cpu) ? "--" : Stats.Cpu;
-    public string Memory => FormatUsedMemory(Stats?.Memory);
+    public string Cpu => !IsRunning ? "-" : string.IsNullOrWhiteSpace(Stats?.Cpu) ? "--" : Stats.Cpu;
+    public string Memory => IsRunning ? FormatUsedMemory(Stats?.Memory) : "-";
 
     private static string FormatUsedMemory(string? memory)
     {
