@@ -99,18 +99,15 @@
         </Style>
 
         <DataTemplate x:Key="ContainerListItemTemplate">
-            <Border MinHeight="62"
-                    Padding="14,8"
-                    BorderBrush="{ui:ThemeResource DividerStrokeColorDefaultBrush}"
-                    BorderThickness="0,0,0,1"
-                    Background="Transparent"
-                    Cursor="Hand">
-                <Border.InputBindings>
+            <Grid x:Name="ContainerRow" MinHeight="62" Background="Transparent" Cursor="Hand">
+                <Grid.InputBindings>
                     <MouseBinding MouseAction="LeftClick"
                                   Command="{Binding DataContext.ShowContainerDetailsFromListCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                   CommandParameter="{Binding Container}" />
-                </Border.InputBindings>
-                <Grid x:Name="ContainerRowLayout" Width="{Binding ListLayout.RowWidth, RelativeSource={RelativeSource AncestorType=UserControl}}" HorizontalAlignment="Left">
+                </Grid.InputBindings>
+                <Border x:Name="ContainerRowBackground" Background="Transparent" CornerRadius="{DynamicResource ControlCornerRadius}"
+                        Margin="0,0,0,1" IsHitTestVisible="False" />
+                <Grid x:Name="ContainerRowLayout" Width="{Binding ListLayout.RowWidth, RelativeSource={RelativeSource AncestorType=UserControl}}" HorizontalAlignment="Left" Margin="14,8,14,9">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
                         <ColumnDefinition Width="{Binding ListLayout.Actions, RelativeSource={RelativeSource AncestorType=UserControl}}" />
@@ -229,7 +226,17 @@
                         </ui:Button>
                     </StackPanel>
                 </Grid>
-            </Border>
+                <Border Height="1" VerticalAlignment="Bottom" Background="{ui:ThemeResource DividerStrokeColorDefaultBrush}" IsHitTestVisible="False" />
+            </Grid>
+            <DataTemplate.Triggers>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition SourceName="ContainerRow" Property="IsEnabled" Value="True" />
+                        <Condition SourceName="ContainerRow" Property="IsMouseOver" Value="True" />
+                    </MultiTrigger.Conditions>
+                    <Setter TargetName="ContainerRowBackground" Property="Background" Value="{DynamicResource ListViewItemBackgroundPointerOver}" />
+                </MultiTrigger>
+            </DataTemplate.Triggers>
         </DataTemplate>
     </UserControl.Resources>
 
