@@ -38,6 +38,27 @@ public class MainViewModelTests
     }
 
     [Theory]
+    [InlineData("missing", 0)]
+    [InlineData("", 1)]
+    [InlineData("missing", 2)]
+    [InlineData("web", 1)]
+    public void ClearContainerFiltersCommand_RestoresAllContainers(string search, int filterIndex)
+    {
+        using var viewModel = CreateViewModel();
+        viewModel.Workspace.Containers.Add(new ContainerSummary("abc", "web", "nginx", "stopped", "Exited", "", "now"));
+        viewModel.Workspace.Containers.Add(new ContainerSummary("def", "worker", "alpine", "stopped", "Exited", "", "now"));
+        viewModel.Containers.SearchText = search;
+        viewModel.Containers.ContainerFilterIndex = filterIndex;
+        Assert.Empty(viewModel.Containers.VisibleContainerItems);
+
+        viewModel.Containers.ClearContainerFiltersCommand.Execute(null);
+
+        Assert.Equal(string.Empty, viewModel.Containers.SearchText);
+        Assert.Equal(0, viewModel.Containers.ContainerFilterIndex);
+        Assert.Equal(new[] { "web", "worker" }, viewModel.Containers.VisibleContainerItems.Select(item => item.Name));
+    }
+
+    [Theory]
     [InlineData("")]
     [InlineData("[]")]
     [InlineData("{}")]

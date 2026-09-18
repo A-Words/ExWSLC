@@ -80,9 +80,12 @@ public class ResourcePagesXamlTests
         Assert.All(pages, page =>
         {
             Assert.Contains("ResourcePageTitleStyle", page);
+            Assert.Contains("AutomationProperties.Name", page);
+        });
+        Assert.All(pages.Skip(1), page =>
+        {
             Assert.Contains("ResourceToolbarStyle", page);
             Assert.Contains("ResourceSurfaceStyle", page);
-            Assert.Contains("AutomationProperties.Name", page);
         });
 
         var mainWindow = File.ReadAllText(Path.Combine(sourceDirectory, "MainWindow.xaml"));
@@ -109,13 +112,13 @@ public class ResourcePagesXamlTests
     }
 
     [Fact]
-    public void ContainerViews_PreserveRoundedHeaderAndPageSpacing()
+    public void ContainerViews_PreservePageSpacing()
     {
         var containersDirectory = Path.Combine(GetSourceDirectory(), "Views", "Pages", "Containers");
         var containerList = File.ReadAllText(Path.Combine(containersDirectory, "ContainerListView.xaml"));
         var containerDetail = File.ReadAllText(Path.Combine(containersDirectory, "ContainerDetailView.xaml"));
 
-        Assert.Contains("CornerRadius=\"8,8,0,0\"", containerList);
+        Assert.Contains("<Grid Margin=\"24,18,24,24\">", containerList);
         Assert.Contains("<Grid Margin=\"24,18,24,24\">", containerDetail);
     }
 

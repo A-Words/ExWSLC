@@ -120,6 +120,13 @@ public partial class ContainersViewModel : WorkspaceViewModel
     [RelayCommand] private Task RestartContainerFromListAsync(ContainerSummary? container) => RestartTrackedAsync(container);
 
     [RelayCommand]
+    private void ClearContainerFilters()
+    {
+        SearchText = string.Empty;
+        ContainerFilterIndex = 0;
+    }
+
+    [RelayCommand]
     private void ShowContainerDetailsFromList(ContainerSummary? container)
     {
         if (container is null) return;

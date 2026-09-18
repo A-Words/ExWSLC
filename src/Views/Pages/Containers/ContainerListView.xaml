@@ -321,16 +321,38 @@
                        Visibility="{Binding ListLayout.HasHorizontalOverflow, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibility}}"
                        SmallChange="32" LargeChange="128" Focusable="True" ValueChanged="ContainerHorizontalScrollBar_ValueChanged"
                        AutomationProperties.Name="{DynamicResource ContainerListHorizontalScroll}" />
-            <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="360">
+            <StackPanel x:Name="ContainerEmptyState" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="360">
                 <StackPanel.Style>
                     <Style TargetType="StackPanel"><Setter Property="Visibility" Value="Collapsed" />
                         <Style.Triggers><DataTrigger Binding="{Binding VisibleContainerItems.Count}" Value="0"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers>
                     </Style>
                 </StackPanel.Style>
                 <ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xF5ED;" FontSize="30" Opacity=".55" HorizontalAlignment="Center" />
-                <TextBlock Text="{DynamicResource NoContainersTitle}" Style="{StaticResource ResourceEmptyTitleStyle}" />
-                <TextBlock Text="{DynamicResource NoContainersHint}" TextWrapping="Wrap" TextAlignment="Center" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
-                <ui:Button Content="{DynamicResource CreateContainer}" Icon="{ui:SymbolIcon Symbol=Add24}" Style="{StaticResource ResourcePrimaryButtonStyle}" Command="{Binding ShowCreateContainerCommand}" HorizontalAlignment="Center" Margin="0,16,0,0" />
+                <StackPanel x:Name="NoContainersState">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Workspace.Containers.Count}" Value="0"><Setter Property="Visibility" Value="Visible" /></DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+                    <TextBlock Text="{DynamicResource NoContainersTitle}" Style="{StaticResource ResourceEmptyTitleStyle}" />
+                    <TextBlock Text="{DynamicResource NoContainersHint}" TextWrapping="Wrap" TextAlignment="Center" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                    <ui:Button Content="{DynamicResource CreateContainer}" Icon="{ui:SymbolIcon Symbol=Add24}" Style="{StaticResource ResourcePrimaryButtonStyle}" Command="{Binding ShowCreateContainerCommand}" HorizontalAlignment="Center" Margin="0,16,0,0" />
+                </StackPanel>
+                <StackPanel x:Name="NoContainerResultsState">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Workspace.Containers.Count}" Value="0"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+                    <TextBlock Text="{DynamicResource NoContainerResultsTitle}" Style="{StaticResource ResourceEmptyTitleStyle}" />
+                    <TextBlock Text="{DynamicResource NoContainerResultsHint}" TextWrapping="Wrap" TextAlignment="Center" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                    <ui:Button Content="{DynamicResource ClearContainerFilters}" Command="{Binding ClearContainerFiltersCommand}" HorizontalAlignment="Center" Padding="14,8" Margin="0,16,0,0" />
+                </StackPanel>
             </StackPanel>
         </Grid>
     </Grid>

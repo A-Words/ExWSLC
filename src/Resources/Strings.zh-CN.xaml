@@ -74,7 +74,8 @@
     <sys:String x:Key="NoContainersTitle">暂无容器</sys:String>
     <sys:String x:Key="NoContainersHint">创建一个容器后，它的状态、镜像、端口和资源占用会显示在这里。</sys:String>
     <sys:String x:Key="NoContainerResultsTitle">没有匹配的容器</sys:String>
-    <sys:String x:Key="NoContainerResultsHint">换一个名称、镜像或 ID 重新搜索。</sys:String>
+    <sys:String x:Key="NoContainerResultsHint">尝试其他搜索词，或调整状态筛选。</sys:String>
+    <sys:String x:Key="ClearContainerFilters">清除搜索和筛选</sys:String>
     <sys:String x:Key="ContainerLifecycle">生命周期</sys:String>
     <sys:String x:Key="ContainerLifecycleHint">停止、重启、强制终止或永久删除容器</sys:String>
     <sys:String x:Key="LiveStatsHint">查看 CPU、内存与网络 I/O 快照</sys:String>

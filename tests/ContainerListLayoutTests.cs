@@ -107,6 +107,7 @@ public class ContainerListLayoutTests
                         Assert.Equal(LocalizationService.GetString("Memory", "Memory"), texts.Single(text => Grid.GetColumn(text) == 4).Text);
                         Assert.DoesNotContain(texts, text => text.Text == LocalizationService.GetString("State", "State"));
                     }
+                    AssertEmptyStates(output!, language, theme);
                 }
 
                 var viewportWithScrollbar = viewer.ViewportWidth;
@@ -158,6 +159,70 @@ public class ContainerListLayoutTests
         thread.Start();
         Assert.True(thread.Join(TimeSpan.FromSeconds(60)), "WPF layout verification timed out.");
         if (failure is not null) ExceptionDispatchInfo.Capture(failure).Throw();
+    }
+
+    private static void AssertEmptyStates(string output, string language, string theme)
+    {
+        var model = new DesignContainersViewModel { SelectedContainer = null };
+        using var workspace = model.Workspace;
+        workspace.Containers.Clear();
+        var container = new ContainerSummary("abc", "web", "nginx", "running", "Up", "80", "now");
+        workspace.Containers.Add(container);
+        model.SearchText = string.Empty;
+        var view = new ContainerListView { DataContext = model };
+        Arrange(view, 870);
+        var emptyState = (StackPanel)view.FindName("ContainerEmptyState");
+        var noContainers = (StackPanel)view.FindName("NoContainersState");
+        var noResults = (StackPanel)view.FindName("NoContainerResultsState");
+        var createButton = noContainers.Children.OfType<Wpf.Ui.Controls.Button>().Single();
+        var clearButton = noResults.Children.OfType<Wpf.Ui.Controls.Button>().Single();
+        Assert.Same(model.ShowCreateContainerCommand, createButton.Command);
+        Assert.Same(model.ClearContainerFiltersCommand, clearButton.Command);
+
+        foreach (var (search, filter) in new[] { ("missing", 0), ("", 2), ("web", 2) })
+        {
+            model.SearchText = search;
+            model.ContainerFilterIndex = filter;
+            Arrange(view, 870);
+            Assert.Empty(model.VisibleContainerItems);
+            Assert.Equal(Visibility.Visible, emptyState.Visibility);
+            Assert.Equal(Visibility.Collapsed, noContainers.Visibility);
+            Assert.Equal(Visibility.Visible, noResults.Visibility);
+            Assert.Equal(LocalizationService.GetString("NoContainerResultsTitle", ""),
+                noResults.Children.OfType<TextBlock>().First().Text);
+            Assert.Equal(LocalizationService.GetString("ClearContainerFilters", ""), clearButton.Content);
+            if (filter == 0) Render(view, Path.Combine(output, $"{language}-{theme}-no-results.png"));
+
+            clearButton.Command.Execute(clearButton.CommandParameter);
+            Arrange(view, 870);
+            Assert.Single(model.VisibleContainerItems);
+            Assert.Equal(Visibility.Collapsed, emptyState.Visibility);
+            Assert.Equal(string.Empty, model.SearchText);
+            Assert.Equal(0, model.ContainerFilterIndex);
+        }
+
+        // Inventory changes must switch the empty state even when the filtered count stays zero.
+        model.SearchText = "missing";
+        model.ContainerFilterIndex = 2;
+        workspace.Containers.Clear();
+        Arrange(view, 870);
+        Assert.Equal(Visibility.Visible, emptyState.Visibility);
+        Assert.Equal(Visibility.Visible, noContainers.Visibility);
+        Assert.Equal(Visibility.Collapsed, noResults.Visibility);
+        Assert.Equal(LocalizationService.GetString("NoContainersTitle", ""),
+            noContainers.Children.OfType<TextBlock>().First().Text);
+        Render(view, Path.Combine(output, $"{language}-{theme}-no-containers.png"));
+
+        model.ClearContainerFiltersCommand.Execute(null);
+        Arrange(view, 870);
+        Assert.Equal(Visibility.Visible, noContainers.Visibility);
+        Assert.Equal(Visibility.Collapsed, noResults.Visibility);
+
+        model.ContainerFilterIndex = 2;
+        workspace.Containers.Add(container);
+        Arrange(view, 870);
+        Assert.Equal(Visibility.Collapsed, noContainers.Visibility);
+        Assert.Equal(Visibility.Visible, noResults.Visibility);
     }
 
     private static void Arrange(FrameworkElement view, double width)
