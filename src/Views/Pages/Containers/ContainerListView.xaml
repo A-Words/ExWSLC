@@ -254,88 +254,84 @@
                        VerticalAlignment="Top" />
         </Grid>
 
-        <Border Grid.Row="1" Style="{StaticResource ResourceToolbarStyle}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition MinWidth="220" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <ui:TextBox PlaceholderText="{DynamicResource Search}"
-                            ClearButtonEnabled="True"
-                            Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                            MinHeight="34"
-                            AutomationProperties.Name="{DynamicResource Search}" />
-                <controls:SelectorBar Grid.Column="1" SelectedIndex="{Binding ContainerFilterIndex, Mode=TwoWay}" Margin="14,0,8,0">
-                    <controls:SelectorBarItem Text="{DynamicResource AllResources}" />
-                    <controls:SelectorBarItem Text="{DynamicResource Running}" />
-                    <controls:SelectorBarItem Text="{DynamicResource Stopped}" />
-                </controls:SelectorBar>
-                <ui:Button Grid.Column="2"
-                           Icon="{ui:SymbolIcon Symbol=ArrowSync24}"
-                           Style="{StaticResource ResourceIconButtonStyle}"
-                           Command="{Binding RefreshAllCommand}"
-                           ToolTip="{DynamicResource Refresh}"
-                           AutomationProperties.Name="{DynamicResource Refresh}" />
-            </Grid>
-        </Border>
+        <Grid Grid.Row="1" Margin="0,20,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition MinWidth="220" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <ui:TextBox PlaceholderText="{DynamicResource Search}"
+                        ClearButtonEnabled="True"
+                        Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                        MinHeight="34"
+                        AutomationProperties.Name="{DynamicResource Search}" />
+            <controls:SelectorBar Grid.Column="1" SelectedIndex="{Binding ContainerFilterIndex, Mode=TwoWay}" Margin="14,0,8,0">
+                <controls:SelectorBarItem Text="{DynamicResource AllResources}" />
+                <controls:SelectorBarItem Text="{DynamicResource Running}" />
+                <controls:SelectorBarItem Text="{DynamicResource Stopped}" />
+            </controls:SelectorBar>
+            <ui:Button Grid.Column="2"
+                       Icon="{ui:SymbolIcon Symbol=ArrowSync24}"
+                       Style="{StaticResource ResourceIconButtonStyle}"
+                       Command="{Binding RefreshAllCommand}"
+                       ToolTip="{DynamicResource Refresh}"
+                       AutomationProperties.Name="{DynamicResource Refresh}" />
+        </Grid>
 
-        <Border Grid.Row="2" Style="{StaticResource ResourceSurfaceStyle}">
-            <Grid>
-                <Grid.RowDefinitions><RowDefinition Height="40" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-                <Border Background="{ui:ThemeResource ControlFillColorSecondaryBrush}" CornerRadius="8,8,0,0">
-                    <Grid Margin="14,0" Width="{Binding ListLayout.RowWidth, RelativeSource={RelativeSource AncestorType=UserControl}}" HorizontalAlignment="Left">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
-                            <ColumnDefinition Width="{Binding ListLayout.Actions, RelativeSource={RelativeSource AncestorType=UserControl}}" />
-                        </Grid.ColumnDefinitions>
-                        <Border ClipToBounds="True">
-                            <Canvas>
-                                <Grid x:Name="ContainerHeaderGrid" Width="{Binding ListLayout.DataWidth, RelativeSource={RelativeSource AncestorType=UserControl}}" HorizontalAlignment="Left"
-                                      Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Canvas}}">
-                                    <Grid.RenderTransform>
-                                        <TranslateTransform X="{Binding HorizontalTranslation, RelativeSource={RelativeSource AncestorType=UserControl}}" />
-                                    </Grid.RenderTransform>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="{Binding ListLayout.Name, RelativeSource={RelativeSource AncestorType=UserControl}}" />
-                                        <ColumnDefinition Width="{Binding ListLayout.Image, RelativeSource={RelativeSource AncestorType=UserControl}}" />
-                                        <ColumnDefinition Width="{Binding ListLayout.Ports, RelativeSource={RelativeSource AncestorType=UserControl}}" />
-                                        <ColumnDefinition Width="{Binding ListLayout.Cpu, RelativeSource={RelativeSource AncestorType=UserControl}}" />
-                                        <ColumnDefinition Width="{Binding ListLayout.Memory, RelativeSource={RelativeSource AncestorType=UserControl}}" />
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="{DynamicResource Name}" Style="{StaticResource ContainerColumnHeaderStyle}" Margin="20,0,12,0" />
-                                    <TextBlock Grid.Column="1" Text="{DynamicResource Image}" Style="{StaticResource ContainerColumnHeaderStyle}" />
-                                    <TextBlock Grid.Column="2" Text="{DynamicResource Ports}" Style="{StaticResource ContainerColumnHeaderStyle}" />
-                                    <TextBlock Grid.Column="3" Text="{DynamicResource Cpu}" Style="{StaticResource ContainerColumnHeaderStyle}" />
-                                    <TextBlock Grid.Column="4" Text="{DynamicResource Memory}" Style="{StaticResource ContainerColumnHeaderStyle}" />
-                                </Grid>
-                            </Canvas>
-                        </Border>
-                        <TextBlock x:Name="ContainerActionsHeader" Grid.Column="1" Text="{DynamicResource Actions}" Style="{StaticResource ContainerColumnHeaderStyle}" TextAlignment="Right" Margin="0" />
-                    </Grid>
-                </Border>
-                <ScrollViewer x:Name="ContainerScrollViewer" Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" ScrollChanged="ContainerScrollViewer_ScrollChanged">
-                    <ItemsControl ItemsSource="{Binding VisibleContainerItems}" ItemTemplate="{StaticResource ContainerListItemTemplate}" />
-                </ScrollViewer>
-                <ScrollBar x:Name="ContainerHorizontalScrollBar" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left" Margin="14,0,0,2"
-                           Width="{Binding ListLayout.RowWidth, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                           ViewportSize="{Binding ListLayout.DataViewport, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                           Maximum="{Binding ListLayout.HorizontalScrollRange, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                           Visibility="{Binding ListLayout.HasHorizontalOverflow, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibility}}"
-                           SmallChange="32" LargeChange="128" Focusable="True" ValueChanged="ContainerHorizontalScrollBar_ValueChanged"
-                           AutomationProperties.Name="{DynamicResource ContainerListHorizontalScroll}" />
-                <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="360">
-                    <StackPanel.Style>
-                        <Style TargetType="StackPanel"><Setter Property="Visibility" Value="Collapsed" />
-                            <Style.Triggers><DataTrigger Binding="{Binding VisibleContainerItems.Count}" Value="0"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers>
-                        </Style>
-                    </StackPanel.Style>
-                    <ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xF5ED;" FontSize="30" Opacity=".55" HorizontalAlignment="Center" />
-                    <TextBlock Text="{DynamicResource NoContainersTitle}" Style="{StaticResource ResourceEmptyTitleStyle}" />
-                    <TextBlock Text="{DynamicResource NoContainersHint}" TextWrapping="Wrap" TextAlignment="Center" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
-                    <ui:Button Content="{DynamicResource CreateContainer}" Icon="{ui:SymbolIcon Symbol=Add24}" Style="{StaticResource ResourcePrimaryButtonStyle}" Command="{Binding ShowCreateContainerCommand}" HorizontalAlignment="Center" Margin="0,16,0,0" />
-                </StackPanel>
-            </Grid>
-        </Border>
+        <Grid Grid.Row="2" ClipToBounds="True">
+            <Grid.RowDefinitions><RowDefinition Height="40" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+            <Border BorderBrush="{ui:ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
+                <Grid Margin="14,0" Width="{Binding ListLayout.RowWidth, RelativeSource={RelativeSource AncestorType=UserControl}}" HorizontalAlignment="Left">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="{Binding ListLayout.Actions, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                    </Grid.ColumnDefinitions>
+                    <Border ClipToBounds="True">
+                        <Canvas>
+                            <Grid x:Name="ContainerHeaderGrid" Width="{Binding ListLayout.DataWidth, RelativeSource={RelativeSource AncestorType=UserControl}}" HorizontalAlignment="Left"
+                                  Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Canvas}}">
+                                <Grid.RenderTransform>
+                                    <TranslateTransform X="{Binding HorizontalTranslation, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                </Grid.RenderTransform>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="{Binding ListLayout.Name, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                    <ColumnDefinition Width="{Binding ListLayout.Image, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                    <ColumnDefinition Width="{Binding ListLayout.Ports, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                    <ColumnDefinition Width="{Binding ListLayout.Cpu, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                    <ColumnDefinition Width="{Binding ListLayout.Memory, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{DynamicResource Name}" Style="{StaticResource ContainerColumnHeaderStyle}" Margin="20,0,12,0" />
+                                <TextBlock Grid.Column="1" Text="{DynamicResource Image}" Style="{StaticResource ContainerColumnHeaderStyle}" />
+                                <TextBlock Grid.Column="2" Text="{DynamicResource Ports}" Style="{StaticResource ContainerColumnHeaderStyle}" />
+                                <TextBlock Grid.Column="3" Text="{DynamicResource Cpu}" Style="{StaticResource ContainerColumnHeaderStyle}" />
+                                <TextBlock Grid.Column="4" Text="{DynamicResource Memory}" Style="{StaticResource ContainerColumnHeaderStyle}" />
+                            </Grid>
+                        </Canvas>
+                    </Border>
+                    <TextBlock x:Name="ContainerActionsHeader" Grid.Column="1" Text="{DynamicResource Actions}" Style="{StaticResource ContainerColumnHeaderStyle}" TextAlignment="Right" Margin="0" />
+                </Grid>
+            </Border>
+            <ScrollViewer x:Name="ContainerScrollViewer" Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" ScrollChanged="ContainerScrollViewer_ScrollChanged">
+                <ItemsControl ItemsSource="{Binding VisibleContainerItems}" ItemTemplate="{StaticResource ContainerListItemTemplate}" />
+            </ScrollViewer>
+            <ScrollBar x:Name="ContainerHorizontalScrollBar" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left" Margin="14,0,0,2"
+                       Width="{Binding ListLayout.RowWidth, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                       ViewportSize="{Binding ListLayout.DataViewport, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                       Maximum="{Binding ListLayout.HorizontalScrollRange, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                       Visibility="{Binding ListLayout.HasHorizontalOverflow, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibility}}"
+                       SmallChange="32" LargeChange="128" Focusable="True" ValueChanged="ContainerHorizontalScrollBar_ValueChanged"
+                       AutomationProperties.Name="{DynamicResource ContainerListHorizontalScroll}" />
+            <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="360">
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel"><Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers><DataTrigger Binding="{Binding VisibleContainerItems.Count}" Value="0"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+                <ui:FontIcon FontFamily="{DynamicResource SegoeFluentIcons}" Glyph="&#xF5ED;" FontSize="30" Opacity=".55" HorizontalAlignment="Center" />
+                <TextBlock Text="{DynamicResource NoContainersTitle}" Style="{StaticResource ResourceEmptyTitleStyle}" />
+                <TextBlock Text="{DynamicResource NoContainersHint}" TextWrapping="Wrap" TextAlignment="Center" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" />
+                <ui:Button Content="{DynamicResource CreateContainer}" Icon="{ui:SymbolIcon Symbol=Add24}" Style="{StaticResource ResourcePrimaryButtonStyle}" Command="{Binding ShowCreateContainerCommand}" HorizontalAlignment="Center" Margin="0,16,0,0" />
+            </StackPanel>
+        </Grid>
     </Grid>
 </UserControl>
